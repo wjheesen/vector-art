@@ -11,7 +11,7 @@ import { Renderer } from './renderer'
 let canvas =  document.getElementById("canvas") as HTMLCanvasElement;
 let gl = canvas.getContext('webgl')
 
-let camera = new Camera(Rect.Obj.create$(-1,1,1,-1), 0.5, 10)
+let camera = new Camera(Rect.create$(-1,1,1,-1), 0.5, 10)
 let renderer = new Renderer(gl, camera)
 let surface = new Surface(canvas, renderer)
 

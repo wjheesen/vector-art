@@ -1,12 +1,12 @@
-import { Mat2d } from 'gl2d/struct/mat2d';
+import { ScaleToFit } from 'gl2d/struct/mat2d';
 import { ShapeProgram } from 'gl2d/program/shape';
 import { Mesh } from 'gl2d/graphics/mesh';
 import { EllipseProgram } from 'gl2d/program/ellipse';
 import { LineProgram } from 'gl2d/program/line';
-import { ColorF } from 'gl2d/struct/colorf';
+import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Shape } from 'gl2d/graphics/shape';
-import { Rect } from 'gl2d/struct/rect';
-import { Line } from 'gl2d/struct/line';
+import { RectStruct } from 'gl2d/struct/rect';
+import { LineStruct } from 'gl2d/struct/line';
 import { Renderer as Base } from 'gl2d/rendering/renderer'
 
 export class Renderer extends Base {
@@ -15,11 +15,11 @@ export class Renderer extends Base {
     ellipseProgram: EllipseProgram;
     lineProgram: LineProgram;
 
-    color = ColorF.Struct.create$(1,0.5, 0.5, 1);
+    color = ColorFStruct.create$(1,0.5, 0.5, 1);
     meshes =  [Mesh.diamond(), Mesh.star5()];
     shape = new Shape(this.meshes[0]);
-    ellipse = Rect.Struct.create$(-1, 1,1, -1);
-    line = Line.Struct.create$(-1, 1, 1, -1);
+    ellipse = RectStruct.create$(-1, 1,1, -1);
+    line = LineStruct.create$(-1, 1, 1, -1);
     lineThickness = 0.3;
 
     onSurfaceCreated(): void {
@@ -28,7 +28,7 @@ export class Renderer extends Base {
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        this.shape.fitInRect(this.ellipse, Mat2d.ScaleToFit.Fill);
+        this.shape.fitInRect(this.ellipse, ScaleToFit.Fill);
         this.shapeProgram = ShapeProgram.create(gl, [Mesh.diamond(), Mesh.star5()]);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.lineProgram = LineProgram.create(gl);
