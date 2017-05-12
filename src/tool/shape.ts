@@ -1,3 +1,4 @@
+import { ColorFStruct } from 'gl2d/struct/colorf';
 import { ScaleToFit } from 'gl2d/struct/mat2d';
 import { Rect } from 'gl2d/struct/rect';
 import { Surface } from '../surface';
@@ -5,14 +6,14 @@ import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
 import { IPoint } from "gl2d/struct/point";
 import { Status } from "gl2d/action/status";
+import { Shape } from "../graphic/shape";
 
 type Action = MouseOrTouchAction<Surface>;
 
 export class ShapeTool extends MouseOrTouchTool<Surface> {
 
     private start: IPoint;
-
-    constructor(public maintainAspect: boolean) {super()}
+    private shape: Shape;
 
     onAction(action: Action): void {
         switch(action.status){
@@ -33,18 +34,23 @@ export class ShapeTool extends MouseOrTouchTool<Surface> {
         if (!this.start) { return; }
         let surface = action.target;
         let renderer = surface.renderer;
-        let shape = renderer.shape;
+        if (!this.shape) {
+            let color = ColorFStruct.create(renderer.color);
+            this.shape = new Shape(color, renderer.mesh);
+            renderer.graphics.push(this.shape);
+        }
         let start = this.start;
         let end = this.getPrimaryPointer(action);
-        if (this.maintainAspect) {
-            shape.stretchAcrossLine(start, end);
+        if (renderer.maintainAspect) {
+            this.shape.stretchAcrossLine(start, end);
         } else {
-            shape.fitInRect(Rect.unionOfPoints([start, end]), ScaleToFit.Fill);
+            this.shape.fitInRect(Rect.unionOfPoints([start, end]), ScaleToFit.Fill);
         }
         surface.requestRender();
     }
 
     onEnd(action: Action) {
         this.start = null;
+        this.shape = null;
     }
 }

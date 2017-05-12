@@ -19,9 +19,9 @@ $title = "$package->displayName $major.$minor";
 <body>
     <div id="toolbar">
         <?php 
-            $buttons = ["shape", "line", "ellipse", "pan"];
+            $buttons = ["shape", "line", "ellipse", "pan", "aspect"];
             foreach ($buttons as $key => $value) {
-                echo "<button id='$value-button' class='button'>$value</button>";
+                echo "<button id='$value-button' class='btn btn-sm btn-primary' type='button'>$value</button>\n";
             }
         ?>
     </div>

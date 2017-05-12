@@ -20,14 +20,14 @@ let canvas =  document.getElementById("canvas") as HTMLCanvasElement;
 
 let gl = canvas.getContext('webgl')
 
-let camera = new Camera(Rect.create$(-1,1,1,-1), 0.5, 10)
+let camera = new Camera(Rect.create$(-1,1,1,-1), 1, 1000);
 let renderer = new Renderer(gl, camera)
 let surface = new Surface(canvas, renderer)
 let currentTool: _MouseOrTouchTool;
 
-let shapeTool = new ShapeTool(true);
+let shapeTool = new ShapeTool();
 let lineTool = new LineTool();
-let ellipseTool = new EllipseTool(true);
+let ellipseTool = new EllipseTool();
 let scrollZoomTool = new ScrollZoomTool(1.5);
 let pinchZoomTool = new PinchZoomTool();
 let panTool = new PanTool();
@@ -50,6 +50,10 @@ $("#pan-button").click(function(){
     currentTool = panTool;
 })
 
+$("#aspect-button").click(function(){
+    surface.renderer.maintainAspect = !surface.renderer.maintainAspect;
+})
+
 surface.onScrollAction(action => {
     scrollZoomTool.onAction(action);
 })
@@ -57,6 +61,7 @@ surface.onScrollAction(action => {
 surface.onMouseAction(action =>{
     switch(action.src.button){
         case 0: /*Left*/
+            surface.renderer.color.setRandom();
             return currentTool.onAction(action);
         case 1: /*Wheel*/
             return panTool.onAction(action);
