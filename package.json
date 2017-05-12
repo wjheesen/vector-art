@@ -1,5 +1,6 @@
 {
   "name": "vector-art",
+  "displayName": "Vector Art",
   "version": "0.0.0",
   "description": "2D vector art app",
   "main": "main.js",
@@ -18,7 +19,7 @@
     "TypeScript"
   ],
   "dependencies": {
-    "gl2d": "^0.1.2"
+    "gl2d": "^0.1.3"
   },
   "devDependencies": {
     "@types/browserify": "^12.0.30",
