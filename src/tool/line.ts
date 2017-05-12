@@ -1,5 +1,3 @@
-import { ScaleToFit } from 'gl2d/struct/mat2d';
-import { Rect } from 'gl2d/struct/rect';
 import { Surface } from '../surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
@@ -8,11 +6,9 @@ import { Status } from "gl2d/action/status";
 
 type Action = MouseOrTouchAction<Surface>;
 
-export class ShapeTool extends MouseOrTouchTool<Surface> {
+export class LineTool extends MouseOrTouchTool<Surface> {
 
     private start: IPoint;
-
-    constructor(public maintainAspect: boolean) {super()}
 
     onAction(action: Action): void {
         switch(action.status){
@@ -33,14 +29,10 @@ export class ShapeTool extends MouseOrTouchTool<Surface> {
         if (!this.start) { return; }
         let surface = action.target;
         let renderer = surface.renderer;
-        let shape = renderer.shape;
+        let line = renderer.line;
         let start = this.start;
         let end = this.getPrimaryPointer(action);
-        if (this.maintainAspect) {
-            shape.stretchAcrossLine(start, end);
-        } else {
-            shape.fitInRect(Rect.unionOfPoints([start, end]), ScaleToFit.Fill);
-        }
+        line.setThrough(start, end);
         surface.requestRender();
     }
 

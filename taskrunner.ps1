@@ -11,7 +11,7 @@ $build = "$PSScriptRoot\build"
         
 $src = "$PSScriptRoot\src"
     $php = "$src\index.php"
-    $less = "$src\style.less"
+    $scss = "$src\style.scss"
     $ts = "$src\bundle.ts"
 
 $gulpfile = "$PSScriptRoot\gulpfile.js"
@@ -33,7 +33,7 @@ function Update-Bundle(){
 }
 
 function Update-Css(){
-    lessc.cmd $less | Out-Utf8 $css
+    node-sass.cmd $scss | Out-Utf8 $css
 } 
 
 function Update-Html(){

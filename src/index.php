@@ -1,5 +1,9 @@
 <?php 
 $package = json_decode(file_get_contents(realpath(__DIR__ . '/../package.json'))); 
+$version = explode(".", $package->version);
+$major = $version[0];
+$minor = $version[1];
+$title = "$package->displayName $major.$minor";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,11 +13,18 @@ $package = json_decode(file_get_contents(realpath(__DIR__ . '/../package.json'))
     <meta name="msapplication-tap-highlight" content="no" />
 	<meta name="description" content="<?= $package->description ?>" />
 	<meta name="author" content="<?= $package->author ?>" />
-	<title><?= "$package->displayName $package->version"?></title>
+	<title><?= $title ?></title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-    <div id="toolbar"></div>
+    <div id="toolbar">
+        <?php 
+            $buttons = ["shape", "line", "ellipse", "pan"];
+            foreach ($buttons as $key => $value) {
+                echo "<button id='$value-button' class='button'>$value</button>";
+            }
+        ?>
+    </div>
     <canvas id="canvas" width="0" height="0"></canvas>
     <script src="bundle.js"></script>
 </body>
