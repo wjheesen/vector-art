@@ -14,6 +14,11 @@ export class Shape extends Base implements Graphic {
         this.color = color;
     }
 
+    getBounds(){
+        return super.measureBoundaries();
+    }
+    
+
     draw(renderer: Renderer){
         let gl = renderer.gl;
         let program = renderer.shapeProgram;

@@ -3,6 +3,7 @@ import { Graphic } from './graphic';
 import { Renderer } from '../renderer';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { IPoint } from "gl2d/struct/point";
+import { Rect } from "gl2d/struct/rect";
 
 export class Line extends LineStruct implements Graphic {
 
@@ -13,6 +14,10 @@ export class Line extends LineStruct implements Graphic {
         super();
         this.color = color;
         this.thickness = thickness;
+    }
+
+    getBounds(){
+        return Rect.unionOfPoints$(this.data);
     }
 
     contains(point: IPoint){

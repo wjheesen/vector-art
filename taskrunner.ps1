@@ -28,6 +28,10 @@ function Update-Gulpfile(){
     tsc.cmd --project $tsconfig
 }
 
+function Update-Shaders(){
+    gulp.cmd update:shaders
+}
+
 function Update-Bundle(){
     gulp.cmd update:bundle --gulpfile $gulpfile
 }
@@ -62,6 +66,7 @@ function Update-Build(){
 
 function Update-All(){
     Update-Gulpfile
+    Update-Shaders
     Update-Build
 }
 

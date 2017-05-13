@@ -21,6 +21,10 @@ export class Ellipse extends EllipseStruct implements Graphic {
         }
     }
 
+    getBounds(){
+        return this.bounds;
+    }
+
     setFromPointToPoint(p1: IPoint, p2: IPoint, maintainAspect: boolean){
         this.bounds.setUnionOfPoints([p1,p2]);
         if(maintainAspect){

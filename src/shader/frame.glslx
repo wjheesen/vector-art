@@ -1,0 +1,38 @@
+precision mediump float;
+
+uniform mat4 projection;     // Projection matrix
+uniform vec4 color;          // Color of the frame
+uniform vec4 innerRect;      // Coordinates of the enclosed rectangle
+uniform float thickness;     // Thickness of the frame surrounding the inner rect
+attribute vec2 basisCoord;   // Current vertex (0,1),(0,0),(1,0),(1,1)
+varying vec2 ratio;          // Ratio of the frame's thickness to its width and height
+varying vec2 normalizedCoord;
+
+export void vertex(){
+      // Compute the coordinates of the outer rect
+      // TODO: move outside shader?
+      float left =   innerRect[0] - thickness;
+      float top =    innerRect[1] + thickness;
+      float right =  innerRect[2] + thickness;
+      float bottom = innerRect[3] - thickness;
+      float width =  right - left;
+      float height = top - bottom;
+      // Compute ratios for fragment shader
+      ratio = vec2(thickness/width, thickness/height); 
+      normalizedCoord = basisCoord;
+      // Transform basis vertex to outer rect vertex
+      float posX = width * basisCoord.x + left;     
+      float posY = height * basisCoord.y + bottom; 
+      // Pass position to fragment shader
+      gl_Position = projection * vec4(posX, posY, 1.0, 1.0);
+}
+
+export void fragment(){
+      // Keep pixel if not in inner rect
+      float x = normalizedCoord.x;
+      float y = normalizedCoord.y;
+      float left = ratio.x;      // The left of the inner rect (right = 1-left)
+      float bottom = ratio.y;    // The bottom of the inner rect (top = 1-bottom)
+      gl_FragColor = color * float(x < left || y < bottom || x > (1.0 - left) || y > (1.0 - bottom));
+}
+

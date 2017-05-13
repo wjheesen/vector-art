@@ -1,3 +1,4 @@
+import { SelectTool } from './tool/select';
 import { EllipseTool } from './tool/ellipse';
 import { LineTool } from './tool/line';
 import { ShapeTool } from './tool/shape';
@@ -31,6 +32,7 @@ let ellipseTool = new EllipseTool();
 let scrollZoomTool = new ScrollZoomTool(1.5);
 let pinchZoomTool = new PinchZoomTool();
 let panTool = new PanTool();
+let selectTool = new SelectTool();
 
 currentTool = shapeTool;
 
@@ -54,6 +56,10 @@ $("#aspect-button").click(function(){
     surface.renderer.maintainAspect = !surface.renderer.maintainAspect;
 })
 
+$("#select-button").click(function(){
+    currentTool = selectTool;
+})
+
 surface.onScrollAction(action => {
     scrollZoomTool.onAction(action);
 })
@@ -72,14 +78,15 @@ surface.onMouseAction(action =>{
 
 surface.onTouchAction(action => {
     if(action.pointers.length < 2){
-        panTool.onAction(action);
+        surface.renderer.color.setRandom();
+        currentTool.onAction(action);
     } else {
         pinchZoomTool.onAction(action);
     }
 })
 
 /**
-* Checks each frame if the canvas needs to be re-rendered.
+* Checks each frame if any canvas needs to be re-rendered.
 */
 function checkRender() {
     // Resize surface if necessary
