@@ -35,6 +35,8 @@ export class Renderer extends Base {
     }
 
     onDrawFrame(): void {
+        let gl = this.gl;
+        gl.clear(gl.COLOR_BUFFER_BIT);
         for(let graphic of this.drawables){
             graphic.draw(this);
         }

@@ -20,7 +20,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     selection?: Drawable;
     previousPoint?: IPoint;
     pivot? : IPoint;
-    moved = false;
+    moveCount = 0;
     reclicked = false;
     transform: Transformation;
 
@@ -28,9 +28,11 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let pointer = this.getPrimaryPointer(action);
         switch(action.status){
             case Status.Start:
+                this.moveCount = 0;
                 this.onStart(action, pointer);
                 break;
             case Status.Move:
+                this.moveCount++;
                 this.onMove(action, pointer);
                 break;
             case Status.End:
@@ -47,7 +49,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let frame = renderer.frame;
 
         if(this.selection){
-            this.reclicked = true;
+                this.reclicked = true;
                 if(frame.innerRect.containsPoint(pointer)){
                 this.transform = Transformation.Translate;
             } else if(frame.measureBoundaries().containsPoint(pointer)){
@@ -60,6 +62,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
             let drawable = renderer.getDrawableContaining(pointer);
             if(drawable){
                 let bounds = drawable.measureBoundaries();
+                console.log("drawable bounds", bounds.toString());
                 frame.innerRect.set(bounds);
                 frame.color.a = 0.9;
                 this.selection = drawable;
@@ -72,7 +75,6 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let surface = action.target;
         let renderer = surface.renderer;
         let frame = renderer.frame;
-        this.moved = true;
 
         if(this.selection && this.previousPoint){
             switch(this.transform){
@@ -96,10 +98,9 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     }
 
     onEnd(action: Action, pointer: IPoint) {
-        if(this.moved){
-            this.moved = false;
-        } else if(this.reclicked){
-            let renderer = action.target.renderer;
+        if(this.moveCount < 3 && this.reclicked){
+            let surface = action.target;
+            let renderer = surface.renderer;
             let frame = renderer.frame;
             let drawable = renderer.getDrawableContaining(pointer);
             if(drawable && drawable !== this.selection){
@@ -108,10 +109,16 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
                 frame.innerRect.set(bounds);
                 frame.color.a = 0.9;
             } else {
-                this.reclicked = false;
-                this.selection = null;
-                frame.innerRect.setScalar(0);
+                this.onDetach(surface);
             }
         }
+    }
+
+    onDetach(surface: Surface){
+        this.reclicked = false;
+        this.selection = null;
+        this.previousPoint = null;
+        surface.renderer.frame.innerRect.setScalar(0);
+        surface.requestRender();
     }
 }

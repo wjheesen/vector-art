@@ -34,30 +34,55 @@ let pinchZoomTool = new PinchZoomTool();
 let panTool = new PanTool();
 let selectTool = new SelectTool();
 
-currentTool = shapeTool;
+setTool(shapeTool);
+
+function setTool(tool: _MouseOrTouchTool){
+    if(currentTool !== tool){
+        if(currentTool === selectTool ){
+            selectTool.onDetach(surface);
+        }
+        currentTool = tool;
+    }
+}
 
 $("#shape-button").click(function(){
-    currentTool = shapeTool;
+    setTool(shapeTool);
 })
 
 $("#line-button").click(function(){
-    currentTool = lineTool;
+    setTool(lineTool);
 })
 
 $("#ellipse-button").click(function(){
-    currentTool = ellipseTool;
+    setTool(ellipseTool);
 })
 
 $("#pan-button").click(function(){
-    currentTool = panTool;
+    setTool(panTool);
+})
+
+$("#select-button").click(function(){
+    setTool(selectTool);
 })
 
 $("#aspect-button").click(function(){
     surface.renderer.maintainAspect = !surface.renderer.maintainAspect;
 })
 
-$("#select-button").click(function(){
-    currentTool = selectTool;
+$("#delete-button").click(function(){
+    let renderer = surface.renderer;
+    let drawables = renderer.drawables;
+    if(drawables.length > 0){
+        if(currentTool === selectTool && selectTool.selection){
+            renderer.drawables = drawables.filter(drawable =>{
+                return drawable !== selectTool.selection;
+            })
+            selectTool.onDetach(surface);
+        } else {
+            drawables.pop();
+            surface.requestRender();
+        }
+    }
 })
 
 surface.onScrollAction(action => {

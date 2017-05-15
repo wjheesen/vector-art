@@ -3,7 +3,7 @@ $package = json_decode(file_get_contents(realpath(__DIR__ . '/../package.json'))
 $version = explode(".", $package->version);
 $major = $version[0];
 $minor = $version[1];
-$title = "$package->displayName $major.$minor";
+$title = "$package->displayName v$major.$minor";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,7 +19,7 @@ $title = "$package->displayName $major.$minor";
 <body>
     <div id="toolbar">
         <?php 
-            $buttons = ["shape", "line", "ellipse", "pan", "aspect", "select"];
+            $buttons = ["shape", "line", "ellipse", "pan", "aspect", "select", "delete"];
             foreach ($buttons as $key => $value) {
                 echo "<button id='$value-button' class='btn btn-sm btn-primary' type='button'>$value</button>\n";
             }
