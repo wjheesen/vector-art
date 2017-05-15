@@ -1,10 +1,12 @@
+import { ScaleToFit } from 'gl2d/struct/mat2d';
 import { Surface } from '../surface';
-import { Ellipse } from "../graphic/ellipse";
+import { Ellipse } from "../drawable/ellipse";
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
 import { IPoint } from "gl2d/struct/point";
 import { Status } from "gl2d/action/status";
 import { ColorFStruct } from "gl2d/struct/colorf";
+import { Rect } from 'gl2d/struct/rect';
 
 type Action = MouseOrTouchAction<Surface>;
 
@@ -28,18 +30,22 @@ export class EllipseTool extends MouseOrTouchTool<Surface> {
         this.start = this.getPrimaryPointer(action);
     }
 
-    onMove(action: MouseOrTouchAction<Surface>) {
+    onMove(action: Action) {
         if (!this.start) { return; }
         let surface = action.target;
         let renderer = surface.renderer;
         if(!this.ellipse){ 
             let color = ColorFStruct.create(renderer.color);
-            this.ellipse = new Ellipse(color);
-            renderer.graphics.push(this.ellipse);
+            this.ellipse = new Ellipse(renderer.ellipseProgram.mesh, color);
+            renderer.drawables.push(this.ellipse);
         }
         let start = this.start;
         let end = this.getPrimaryPointer(action);
-        this.ellipse.setFromPointToPoint(start, end, renderer.maintainAspect);
+        if(renderer.maintainAspect){
+            this.ellipse.stretchAcrossLine(start, end);
+        } else {
+            this.ellipse.mapToRect(Rect.unionOfPoints([start, end]), ScaleToFit.Fill);
+        }
         surface.requestRender();
     }
 

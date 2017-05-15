@@ -1,35 +1,117 @@
-import { Frame } from '../graphic/frame';
-import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Surface } from '../surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
 import { Status } from "gl2d/action/status";
+import { Drawable } from "src/drawable/drawable";
+import { IPoint } from "gl2d/struct/point";
+import { Vec2 } from "gl2d/struct/vec2";
+import { Mat2d } from "gl2d/struct/mat2d";
 
 type Action = MouseOrTouchAction<Surface>;
 
+const enum Transformation{
+    Translate,
+    Rotate,
+    Scale
+}
+
 export class SelectTool extends MouseOrTouchTool<Surface> {
 
+    selection?: Drawable;
+    previousPoint?: IPoint;
+    pivot? : IPoint;
+    moved = false;
+    reclicked = false;
+    transform: Transformation;
+
     onAction(action: Action): void {
-        let surface = action.target;
-        let renderer = surface.renderer;
         let pointer = this.getPrimaryPointer(action);
-        let graphic = renderer.getGraphicContainingPoint(pointer);
-        if(!graphic){ return; } // TODO: check frame not set
-        if(!renderer.frame){
-            let color = ColorFStruct.create$(0, 0.2, 0.9, 0.9);
-            renderer.frame = new Frame(color, 0.1);
-        }
-        renderer.frame.innerRect.set(graphic.getBounds());
-        console.log(renderer.frame.innerRect.toString());
         switch(action.status){
             case Status.Start:
+                this.onStart(action, pointer);
+                break;
             case Status.Move:
-                renderer.frame.color.a = 0.3;
+                this.onMove(action, pointer);
                 break;
             case Status.End:
-                renderer.frame.color.a = 0.9;
+                this.onEnd(action, pointer);
                 break;
         }
-        surface.requestRender();
+        action.target.requestRender();
+        this.previousPoint = pointer;
+    }
+
+   onStart(action: Action, pointer: IPoint) {
+        let surface = action.target;
+        let renderer = surface.renderer;
+        let frame = renderer.frame;
+
+        if(this.selection){
+            this.reclicked = true;
+                if(frame.innerRect.containsPoint(pointer)){
+                this.transform = Transformation.Translate;
+            } else if(frame.measureBoundaries().containsPoint(pointer)){
+                this.transform = Transformation.Scale;
+                this.pivot = frame.getVertexOpposite(pointer);
+            } else {
+                this.transform = Transformation.Rotate;
+            }
+        } else {
+            let drawable = renderer.getDrawableContaining(pointer);
+            if(drawable){
+                let bounds = drawable.measureBoundaries();
+                frame.innerRect.set(bounds);
+                frame.color.a = 0.9;
+                this.selection = drawable;
+                this.transform = Transformation.Translate;
+            }
+        }
+    }
+
+    onMove(action: Action, pointer: IPoint) {
+        let surface = action.target;
+        let renderer = surface.renderer;
+        let frame = renderer.frame;
+        this.moved = true;
+
+        if(this.selection && this.previousPoint){
+            switch(this.transform){
+                case Transformation.Translate:
+                    let vector = Vec2.fromPointToPoint(this.previousPoint, pointer);
+                    this.selection.offset(vector);
+                    frame.innerRect.offset(vector);
+                    break;
+                case Transformation.Scale:
+                    let scale = Mat2d.scaleToPoint(this.previousPoint, pointer, this.pivot);
+                    this.selection.transform(scale);
+                    scale.mapRect(frame.innerRect, frame.innerRect);
+                    break;
+                case Transformation.Rotate:
+                    let rotation = Mat2d.rotateToPoint(this.previousPoint, pointer, frame.innerRect.center());
+                    this.selection.transform(rotation);
+                    frame.innerRect.set(this.selection.measureBoundaries());
+                    break;
+            }
+        }
+    }
+
+    onEnd(action: Action, pointer: IPoint) {
+        if(this.moved){
+            this.moved = false;
+        } else if(this.reclicked){
+            let renderer = action.target.renderer;
+            let frame = renderer.frame;
+            let drawable = renderer.getDrawableContaining(pointer);
+            if(drawable && drawable !== this.selection){
+                this.selection = drawable;
+                let bounds = drawable.measureBoundaries();
+                frame.innerRect.set(bounds);
+                frame.color.a = 0.9;
+            } else {
+                this.reclicked = false;
+                this.selection = null;
+                frame.innerRect.setScalar(0);
+            }
+        }
     }
 }

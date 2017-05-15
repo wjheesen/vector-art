@@ -6,7 +6,7 @@ import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
 import { IPoint } from "gl2d/struct/point";
 import { Status } from "gl2d/action/status";
-import { Shape } from "../graphic/shape";
+import { Shape } from "../drawable/shape";
 
 type Action = MouseOrTouchAction<Surface>;
 
@@ -36,15 +36,15 @@ export class ShapeTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         if (!this.shape) {
             let color = ColorFStruct.create(renderer.color);
-            this.shape = new Shape(color, renderer.mesh);
-            renderer.graphics.push(this.shape);
+            this.shape = new Shape(renderer.mesh, color);
+            renderer.drawables.push(this.shape);
         }
         let start = this.start;
         let end = this.getPrimaryPointer(action);
         if (renderer.maintainAspect) {
             this.shape.stretchAcrossLine(start, end);
         } else {
-            this.shape.fitInRect(Rect.unionOfPoints([start, end]), ScaleToFit.Fill);
+            this.shape.mapToRect(Rect.unionOfPoints([start, end]), ScaleToFit.Fill);
         }
         surface.requestRender();
     }

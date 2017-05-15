@@ -32,6 +32,7 @@ export class FrameProgram extends Program<Shader.Uniforms, Shader.Attributes> {
         // Bind position buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
         gl.enableVertexAttribArray(this.attribs.basisCoord);
+        gl.vertexAttribPointer(this.attribs.basisCoord, 2, gl.FLOAT, false, 0, 0);
     }
 
     /**
