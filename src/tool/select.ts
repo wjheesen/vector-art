@@ -62,7 +62,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
             let drawable = renderer.getDrawableContaining(pointer);
             if(drawable){
                 let bounds = drawable.measureBoundaries();
-                console.log("drawable bounds", bounds.toString());
+                // console.log("drawable bounds", bounds.toString());
                 frame.innerRect.set(bounds);
                 frame.color.a = 0.9;
                 this.selection = drawable;
