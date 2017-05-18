@@ -1,3 +1,4 @@
+import { VertexBuffer } from 'gl2d/struct/vertex';
 import {Program} from 'gl2d/rendering/program';
 import {ColorFStruct} from 'gl2d/struct/colorf';
 import {Mat4Struct} from 'gl2d/struct/mat4';
@@ -5,23 +6,20 @@ import { Mat2dStruct } from "gl2d/struct/mat2d";
 import * as Util from 'gl2d/rendering/util';
 import * as Shader from '../shader/ellipse';
 import { Mesh } from "gl2d/graphics/mesh";
-import { Rect } from "gl2d/struct/rect";
-
 /**
  * Program for rendering ellipses.
  */
 export class EllipseProgram extends Program<Shader.Uniforms, Shader.Attributes> {
 
     positionBuffer: WebGLBuffer;
-    mesh = Mesh.rectangle(Rect.lrbt(-1, 1, -1, 1));
-
+    mesh = new Mesh(new VertexBuffer(/*new Float32Array([-1,1, -1,-1, 1,-1, 1,1])*/new Float32Array([0,1, -1,0, 0,-1, 1,0])));
 
     static create(gl: WebGLRenderingContext) {
         let program = new EllipseProgram();
         program.location = Util.createProgramFromSources(gl, Shader.vertex, Shader.fragment);
         program.uniforms = Util.getUniformLocations(gl, program.location, Shader.UniformRenaming) as Shader.Uniforms;
         program.attribs = Util.getAttributeLocations(gl, program.location, Shader.AttributeRenaming) as Shader.Attributes;
-        program.positionBuffer = Util.createArrayBuffer(gl, program.mesh.vertices.data);
+        program.positionBuffer = Util.createArrayBuffer(gl, /*program.mesh.vertices.data*/ new Float32Array([-1,1, -1,-1, 1,-1, 1,1]));
         return program;
     }
 

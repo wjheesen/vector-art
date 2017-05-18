@@ -1,9 +1,10 @@
+import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Surface } from '../surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
 import { Status } from "gl2d/action/status";
 import { Drawable } from "src/drawable/drawable";
-import { IPoint } from "gl2d/struct/point";
+import { IPoint, Point } from "gl2d/struct/point";
 import { Vec2 } from "gl2d/struct/vec2";
 import { Mat2d } from "gl2d/struct/mat2d";
 
@@ -49,12 +50,14 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let frame = renderer.frame;
 
         if(this.selection){
-                this.reclicked = true;
-                if(frame.innerRect.containsPoint(pointer)){
-                this.transform = Transformation.Translate;
+            this.reclicked = true;
+            if(frame.innerRect.containsPoint(pointer)){
+            this.transform = Transformation.Translate;
             } else if(frame.measureBoundaries().containsPoint(pointer)){
                 this.transform = Transformation.Scale;
                 this.pivot = frame.getVertexOpposite(pointer);
+                renderer.points.length = 0;
+                renderer.plotPoint(this.pivot);
             } else {
                 this.transform = Transformation.Rotate;
             }
@@ -62,7 +65,6 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
             let drawable = renderer.getDrawableContaining(pointer);
             if(drawable){
                 let bounds = drawable.measureBoundaries();
-                // console.log("drawable bounds", bounds.toString());
                 frame.innerRect.set(bounds);
                 frame.color.a = 0.9;
                 this.selection = drawable;
@@ -82,16 +84,31 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
                     let vector = Vec2.fromPointToPoint(this.previousPoint, pointer);
                     this.selection.offset(vector);
                     frame.innerRect.offset(vector);
+                    renderer.points.length = 0;
+                    for(let i = 0; i<4; i++){
+                        renderer.plotPoint(this.selection.convertVertexToWorldSpace(i));
+                    }
                     break;
                 case Transformation.Scale:
                     let scale = Mat2d.scaleToPoint(this.previousPoint, pointer, this.pivot);
                     this.selection.transform(scale);
                     scale.mapRect(frame.innerRect, frame.innerRect);
+                    renderer.points.length = 0;
+                    for(let i = 0; i<4; i++){
+                        renderer.plotPoint(this.selection.convertVertexToWorldSpace(i));
+                    }
                     break;
                 case Transformation.Rotate:
                     let rotation = Mat2d.rotateToPoint(this.previousPoint, pointer, frame.innerRect.center());
                     this.selection.transform(rotation);
                     frame.innerRect.set(this.selection.measureBoundaries());
+                    renderer.points.length = 0;
+                    renderer.plotPoint(this.selection.convertVertexToWorldSpace(0), undefined, ColorFStruct.create$(1,0,0,1));
+                    renderer.plotPoint(this.selection.convertVertexToWorldSpace(1), undefined, ColorFStruct.create$(0,1,0,1));
+                    renderer.plotPoint(this.selection.convertVertexToWorldSpace(2), undefined, ColorFStruct.create$(0,0,1,1));
+                    renderer.plotPoint(this.selection.convertVertexToWorldSpace(3), undefined, ColorFStruct.create$(1,1,0,1));
+                    let {c3r1, c3r2} = this.selection.matrix;
+                    renderer.plotPoint(Point.create$(c3r1, c3r2), undefined, ColorFStruct.create$(1,1,1,1));
                     break;
             }
         }

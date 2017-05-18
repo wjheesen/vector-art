@@ -6,7 +6,8 @@ import { ShapeProgram } from 'gl2d/program/shape';
 import { EllipseProgram } from './program/ellipse';
 import { Renderer as Base } from 'gl2d/rendering/renderer'
 import { Mesh } from "gl2d/graphics/mesh";
-import { IPoint } from "gl2d/struct/point";
+import { IPoint, Point } from "gl2d/struct/point";
+import { Ellipse } from "./drawable/ellipse";
 
 export class Renderer extends Base {
 
@@ -15,6 +16,7 @@ export class Renderer extends Base {
     frameProgram: FrameProgram;
     drawables: Drawable[] = [];
     frame = new Frame(ColorFStruct.create$(0, 0.2, 0.9, 0.9), 0.1);
+    points: Drawable[] = [];
     
     meshes = [Mesh.square(), Mesh.star5(), Mesh.diamond(), ];
     lineMesh = this.meshes[0];
@@ -43,6 +45,9 @@ export class Renderer extends Base {
         if(!this.frame.innerRect.isEmpty()){
             this.frame.draw(this);
         }
+        for(let point of this.points){
+            point.draw(this);
+        }
     }
 
     getDrawableContaining(point: IPoint){
@@ -54,6 +59,14 @@ export class Renderer extends Base {
             }
         }
         return null;
+    }
+
+    plotPoint(p: IPoint, thickness = 0.03, color = ColorFStruct.create$(1,0,0,1)){
+        let left = Point.create$(p.x - thickness, p.y);
+        let right = Point.create$(p.x + thickness, p.y);
+        let drawable = new Ellipse(this.ellipseProgram.mesh, color);
+        drawable.stretchAcrossLine(left, right);
+        this.points.push(drawable);
     }
 
 }
