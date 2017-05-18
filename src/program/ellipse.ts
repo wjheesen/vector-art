@@ -12,14 +12,14 @@ import { Mesh } from "gl2d/graphics/mesh";
 export class EllipseProgram extends Program<Shader.Uniforms, Shader.Attributes> {
 
     positionBuffer: WebGLBuffer;
-    mesh = new Mesh(new VertexBuffer(/*new Float32Array([-1,1, -1,-1, 1,-1, 1,1])*/new Float32Array([0,1, -1,0, 0,-1, 1,0])));
+    mesh = new Mesh(new VertexBuffer(new Float32Array([-1,1, -1,-1, 1,-1, 1,1])));
 
     static create(gl: WebGLRenderingContext) {
         let program = new EllipseProgram();
         program.location = Util.createProgramFromSources(gl, Shader.vertex, Shader.fragment);
         program.uniforms = Util.getUniformLocations(gl, program.location, Shader.UniformRenaming) as Shader.Uniforms;
         program.attribs = Util.getAttributeLocations(gl, program.location, Shader.AttributeRenaming) as Shader.Attributes;
-        program.positionBuffer = Util.createArrayBuffer(gl, /*program.mesh.vertices.data*/ new Float32Array([-1,1, -1,-1, 1,-1, 1,1]));
+        program.positionBuffer = Util.createArrayBuffer(gl, program.mesh.vertices.data);
         return program;
     }
 

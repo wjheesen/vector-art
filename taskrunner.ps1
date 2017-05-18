@@ -1,3 +1,6 @@
+$website = "$PSScriptRoot\..\wjheesen.github.io"
+$app = "$website\vector-art"
+
 $build = "$PSScriptRoot\build"
     $debug = "$build\debug"
         $html = "$debug\index.html"
@@ -68,6 +71,14 @@ function Update-All(){
     Update-Gulpfile
     Update-Shaders
     Update-Build
+}
+
+function Publish-App([string] $msg){
+    Copy-Item "$release/*" $app -Force
+    Set-Location $website
+    git commit --all --message $msg
+    git push
+    Set-Location $PSScriptRoot
 }
 
 # Utilities
