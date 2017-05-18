@@ -20,20 +20,23 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     selection?: Drawable;
     previousPoint?: IPoint;
     pivot? : IPoint;
-    moveCount = 0;
+    dragCount = 0;
     reclicked = false;
     transform: Transformation;
 
     onAction(action: Action): void {
         let pointer = this.getPrimaryPointer(action);
         switch(action.status){
+            case Status.Move:
+                this.onMove(action, pointer);
+                return;
             case Status.Start:
-                this.moveCount = 0;
+                this.dragCount = 0;
                 this.onStart(action, pointer);
                 break;
-            case Status.Move:
-                this.moveCount++;
-                this.onMove(action, pointer);
+            case Status.Drag:
+                this.dragCount++;
+                this.onDrag(action, pointer);
                 break;
             case Status.End:
                 this.onEnd(action, pointer);
@@ -43,7 +46,27 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         this.previousPoint = pointer;
     }
 
-   onStart(action: Action, pointer: IPoint) {
+    onMove(action: Action, pointer: IPoint){
+        let surface = action.target;
+        let renderer = surface.renderer;
+        let frame = renderer.frame;
+         if(!this.selection){
+             // Search for drawable under cursor
+            let drawable = renderer.getDrawableContaining(pointer);
+            if(drawable){
+                // Indicate that drawable is under the cursor, but do not select it
+                let bounds = drawable.measureBoundaries();
+                frame.innerRect.set(bounds);
+                frame.color.a = 0.3;
+                surface.requestRender();
+            } else if(!frame.innerRect.isEmpty()) {
+                // Indicate that drawable is no longer under the cursor
+                this.onDetach(surface);
+            }
+         }
+    }
+
+    onStart(action: Action, pointer: IPoint) {
         let surface = action.target;
         let renderer = surface.renderer;
         let frame = renderer.frame;
@@ -70,7 +93,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-    onMove(action: Action, pointer: IPoint) {
+    onDrag(action: Action, pointer: IPoint) {
         let surface = action.target;
         let renderer = surface.renderer;
         let frame = renderer.frame;
@@ -97,7 +120,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     }
 
     onEnd(action: Action, pointer: IPoint) {
-        if(this.moveCount < 3 && this.reclicked){
+        if(this.dragCount <3 && this.reclicked){
             let surface = action.target;
             let renderer = surface.renderer;
             let frame = renderer.frame;

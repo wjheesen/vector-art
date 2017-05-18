@@ -17,8 +17,8 @@ export class LineTool extends MouseOrTouchTool<Surface> {
         switch(action.status){
             case Status.Start:
                 return this.onStart(action);
-            case Status.Move:
-                return this.onMove(action);
+            case Status.Drag:
+                return this.onDrag(action);
             case Status.End:
                 return this.onEnd(action);
         }
@@ -28,7 +28,7 @@ export class LineTool extends MouseOrTouchTool<Surface> {
         this.start = this.getPrimaryPointer(action);
     }
 
-    onMove(action: MouseOrTouchAction<Surface>) {
+    onDrag(action: MouseOrTouchAction<Surface>) {
         if (!this.start) { return; }
         let surface = action.target;
         let renderer = surface.renderer;
