@@ -55,8 +55,6 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
             } else if(frame.measureBoundaries().containsPoint(pointer)){
                 this.transform = Transformation.Scale;
                 this.pivot = frame.getVertexOpposite(pointer);
-                renderer.points.length = 0;
-                renderer.plotPoint(this.pivot);
             } else {
                 this.transform = Transformation.Rotate;
             }
