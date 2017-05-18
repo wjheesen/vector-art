@@ -23,7 +23,7 @@
     "@types/jquery": "^2.0.43",
     "@types/tether": "^1.4.1",
     "bootstrap": "^4.0.0-alpha.6",
-    "gl2d": "^0.2.5"
+    "gl2d": "^0.2.6"
   },
   "devDependencies": {
     "@types/browserify": "^12.0.30",
