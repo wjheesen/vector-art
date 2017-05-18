@@ -1,10 +1,10 @@
-import { Shape } from './shape';
-import { Renderer } from '../renderer';
+import { Drawable } from './drawable';
+import { Renderer } from '../rendering/renderer';
 import { IPoint,} from "gl2d/struct/point";
 import { IMat2d } from 'gl2d/struct/mat2d';
 import { Rect } from "gl2d/struct/rect";
 
-export class Ellipse extends Shape {
+export class Ellipse extends Drawable {
 
     draw(renderer: Renderer){
         let gl = renderer.gl;
@@ -17,12 +17,12 @@ export class Ellipse extends Shape {
     }
 
     measureBoundaries(){
-        // Perform singular value decomposition of the model matrix to extract
+        // Performs singular value decomposition of the model matrix to extract
         // (1) The length of the semi-x axis (sx), which is equal to the first singular value in the Sigma matrix
         // (2) The length of the semi-y axis (sy), which is equal to the second singular value in the Sigma matrix
         // (3) The rotation angle (theta), from -PI/2 to PI/2, which is equal to the angle used to form the U matrix
         // Note: there is no need to compute the matrix V*
-        // Boundaries can then be computed with the formula:
+        // Boundaries are then computed with the formula:
         // x = (sx)^2 * (cos(theta)^2) + (sy)^2*(sin(theta)^2)
         // y = (sx)^2 * (sin(theta)^2) + (sy)^2*(cos(theta)^2)
         // left = tx - x, right = tx + x, bottom = ty - y, top = ty + y

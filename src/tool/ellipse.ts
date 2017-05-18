@@ -1,5 +1,5 @@
 import { ScaleToFit } from 'gl2d/struct/mat2d';
-import { Surface } from '../surface';
+import { Surface } from '../rendering/surface';
 import { Ellipse } from "../drawable/ellipse";
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";

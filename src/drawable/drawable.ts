@@ -1,9 +1,6 @@
-import { Renderer } from '../renderer';
-import { Shape } from "gl2d/graphics/shape";
+import { Drawable as Base } from 'gl2d/drawable/drawable'
+import { Renderer } from '../rendering/renderer'
 
-export interface Drawable extends Shape {
-    /**
-     * Draws this shape using the specified renderer.
-     */
-    draw: (renderer: Renderer) => void;
+export abstract class Drawable extends Base<Renderer>{
+
 }

@@ -5,7 +5,7 @@ import {Mat4Struct} from 'gl2d/struct/mat4';
 import { Mat2dStruct } from "gl2d/struct/mat2d";
 import * as Util from 'gl2d/rendering/util';
 import * as Shader from '../shader/ellipse';
-import { Mesh } from "gl2d/graphics/mesh";
+import { Mesh } from "gl2d/drawable/mesh";
 /**
  * Program for rendering ellipses.
  */

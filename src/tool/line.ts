@@ -1,5 +1,5 @@
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { Surface } from '../surface';
+import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
 import { IPoint } from "gl2d/struct/point";

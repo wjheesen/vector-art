@@ -1,8 +1,7 @@
 import { Drawable } from './drawable';
-import { Renderer } from '../renderer';
-import { Shape as Base } from 'gl2d/graphics/shape';
+import { Renderer } from '../rendering/renderer';
 
-export class Shape extends Base implements Drawable {
+export class Shape extends Drawable {
 
      /**
      * The inverse of this shape's model matrix. Cached for performance of contains method.

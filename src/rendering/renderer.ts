@@ -1,13 +1,13 @@
-import { Frame } from './drawable/frame';
-import { FrameProgram } from './program/frame';
+import { Frame } from '../drawable/frame';
+import { FrameProgram } from '../program/frame';
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { Drawable } from './drawable/drawable';
+import { Drawable } from '../drawable/drawable';
 import { ShapeProgram } from 'gl2d/program/shape';
-import { EllipseProgram } from './program/ellipse';
+import { EllipseProgram } from '../program/ellipse';
 import { Renderer as Base } from 'gl2d/rendering/renderer'
-import { Mesh } from "gl2d/graphics/mesh";
+import { Mesh } from "gl2d/drawable/mesh";
 import { IPoint, Point } from "gl2d/struct/point";
-import { Ellipse } from "./drawable/ellipse";
+import { Ellipse } from "../drawable/ellipse";
 
 export class Renderer extends Base {
 
@@ -51,11 +51,11 @@ export class Renderer extends Base {
     }
 
     getDrawableContaining(point: IPoint){
-        let graphics = this.drawables;
-        for(let i = graphics.length - 1; i>=0; i--){
-            let graphic = graphics[i];
-            if(graphic.contains(point)){
-                return graphic;
+        let drawables = this.drawables;
+        for(let i = drawables.length - 1; i>=0; i--){
+            let drawable = drawables[i];
+            if(drawable.contains(point)){
+                return drawable;
             }
         }
         return null;

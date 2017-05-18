@@ -1,4 +1,4 @@
-import { Renderer } from '../renderer';
+import { Renderer } from '../rendering/renderer';
 import { RectStruct, Rect } from 'gl2d/struct/rect';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { IPoint, Point } from "gl2d/struct/point";

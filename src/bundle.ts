@@ -7,8 +7,8 @@ import { Rect } from 'gl2d/struct/rect';
 import { ScrollZoomTool } from 'gl2d/tool/scrollZoom';
 import { PinchZoomTool } from 'gl2d/tool/pinchZoom';
 import { PanTool } from 'gl2d/tool/pan';
-import { Surface } from './surface'
-import { Renderer } from './renderer'
+import { Surface } from './rendering/surface'
+import { Renderer } from './rendering/renderer'
 import { _MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import * as $ from 'jquery';
 (<any> window).jQuery = $;
