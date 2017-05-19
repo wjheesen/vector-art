@@ -1,4 +1,4 @@
-2017-05-19 (C) Add redo button +redo @feature
+﻿2017-05-19 (C) Add redo button +redo @feature
 2017-05-19 (C) Add deleted drawables to a redo stack +redo @feature
 2017-05-19 (C) Pop redo stack and to drawable stack whenever on redo button click +redo @feature
 2017-05-19 (A) Add canvas to toolbar +shape-picker @component
