@@ -2,30 +2,17 @@ import { SelectTool } from './tool/select';
 import { EllipseTool } from './tool/ellipse';
 import { LineTool } from './tool/line';
 import { ShapeTool } from './tool/shape';
-import { Camera } from 'gl2d/rendering/camera';
-import { Rect } from 'gl2d/struct/rect';
 import { ScrollZoomTool } from 'gl2d/tool/scrollZoom';
 import { PinchZoomTool } from 'gl2d/tool/pinchZoom';
 import { PanTool } from 'gl2d/tool/pan';
 import { Surface } from './rendering/surface'
-import { Renderer } from './rendering/renderer'
 import { _MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
+import { ColorPicker } from "./component/colorPicker";
 import * as $ from 'jquery';
-(<any> window).jQuery = $;
-import * as tether from 'tether';
-(<any> window).Tether = tether;
-import 'bootstrap';
 
+let surface = Surface.create("canvas");
 
-let canvas =  document.getElementById("canvas") as HTMLCanvasElement;
-
-let gl = canvas.getContext('webgl')
-
-let camera = new Camera(Rect.create$(-1,1,1,-1), 1, 1000);
-let renderer = new Renderer(gl, camera)
-let surface = new Surface(canvas, renderer)
 let currentTool: _MouseOrTouchTool;
-
 let shapeTool = new ShapeTool();
 let lineTool = new LineTool();
 let ellipseTool = new EllipseTool();
@@ -44,6 +31,19 @@ function setTool(tool: _MouseOrTouchTool){
         currentTool = tool;
     }
 }
+
+ColorPicker.create("#color-picker", color => {
+    // Update draw color
+    let drawColor = surface.renderer.color;
+    drawColor.setFromColor(color);
+    // Update color of selection (if any)
+    let selection = selectTool.selection
+    if(selection){
+        selection.color.set(drawColor);
+        surface.requestRender();
+    }
+});
+
 
 $("#shape-button").click(function(){
     setTool(shapeTool);
@@ -92,7 +92,6 @@ surface.onScrollAction(action => {
 surface.onMouseAction(action =>{
     switch(action.src.button){
         case 0: /*Left*/
-            surface.renderer.color.setRandom();
             return currentTool.onAction(action);
         case 1: /*Wheel*/
             return panTool.onAction(action);
@@ -103,7 +102,6 @@ surface.onMouseAction(action =>{
 
 surface.onTouchAction(action => {
     if(action.pointers.length < 2){
-        surface.renderer.color.setRandom();
         currentTool.onAction(action);
     } else {
         pinchZoomTool.onAction(action);

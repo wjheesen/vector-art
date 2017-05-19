@@ -23,13 +23,15 @@
     "@types/jquery": "^2.0.43",
     "@types/tether": "^1.4.1",
     "bootstrap": "^4.0.0-alpha.6",
-    "gl2d": "^0.2.6"
+    "gl2d": "^0.2.6",
+    "spectrum-colorpicker": "^1.8.0"
   },
   "devDependencies": {
     "@types/browserify": "^12.0.30",
     "@types/gulp": "^4.0.2",
     "@types/gulp-rename": "0.0.32",
     "@types/node": "^7.0.15",
+    "@types/spectrum": "^1.5.28",
     "@types/vinyl-source-stream": "^0.0.29",
     "browserify": "^14.3.0",
     "gulp": "^3.9.1",

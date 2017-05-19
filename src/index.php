@@ -18,6 +18,7 @@ $title = "$package->displayName v$major.$minor";
 </head>
 <body>
     <div id="toolbar">
+        <input id="color-picker" type="text" style="display: none" />
         <?php 
             $buttons = ["shape", "line", "ellipse", "pan", "aspect", "select", "delete"];
             foreach ($buttons as $key => $value) {

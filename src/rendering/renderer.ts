@@ -23,7 +23,7 @@ export class Renderer extends Base {
     mesh = this.meshes[1];
     lineThickness = 0.3;
     maintainAspect = true;
-    color = ColorFStruct.create$(0.5,0.7,0.2,0.7);
+    color = new ColorFStruct();
 
     onSurfaceCreated(): void {
         let gl = this.gl;
