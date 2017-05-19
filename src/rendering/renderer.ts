@@ -28,8 +28,6 @@ export class Renderer extends Base {
     onSurfaceCreated(): void {
         let gl = this.gl;
         gl.clearColor(0, 0, 0, 0);
-        // gl.enable(gl.CULL_FACE);
-        // gl.cullFace(gl.BACK);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
@@ -61,9 +59,9 @@ export class Renderer extends Base {
         return null;
     }
 
-    plotPoint(p: IPoint, thickness = 0.03, color = ColorFStruct.create$(1,0,0,1)){
-        let left = Point.create$(p.x - thickness, p.y);
-        let right = Point.create$(p.x + thickness, p.y);
+    plotPoint(p: IPoint, radius = 0.03, color = ColorFStruct.create$(1,0,0,1)){
+        let left = Point.create$(p.x - radius, p.y);
+        let right = Point.create$(p.x + radius, p.y);
         let drawable = new Ellipse(this.ellipseProgram.mesh, color);
         drawable.stretchAcrossLine(left, right);
         this.points.push(drawable);
