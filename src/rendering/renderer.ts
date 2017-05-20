@@ -15,7 +15,10 @@ export class Renderer extends Base {
     ellipseProgram: EllipseProgram;
     frameProgram: FrameProgram;
     drawables: Drawable[] = [];
-    frame = new Frame(ColorFStruct.create$(0, 0.2, 0.9, 0.9), 0.1);
+
+    frame: Frame;
+    hoverFrame: Frame;
+
     points: Drawable[] = [];
     
     meshes = [Mesh.square(), Mesh.star5(), Mesh.diamond(), ];
@@ -32,6 +35,8 @@ export class Renderer extends Base {
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.frameProgram = FrameProgram.create(gl);
+        this.frame = new Frame(ColorFStruct.create$(0, 0.2, 0.9, 0.9), 0.1);
+        this.hoverFrame = new Frame(ColorFStruct.create$(0, 0.2, 0.9, 0.3), 0.1);
     }
 
     onDrawFrame(): void {
@@ -42,6 +47,9 @@ export class Renderer extends Base {
         }
         if(!this.frame.innerRect.isEmpty()){
             this.frame.draw(this);
+        }
+        if(!this.hoverFrame.innerRect.isEmpty()){
+            this.hoverFrame.draw(this);
         }
         for(let point of this.points){
             point.draw(this);
