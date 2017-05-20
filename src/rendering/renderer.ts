@@ -1,4 +1,5 @@
 import { Frame } from '../drawable/frame';
+import { FramedDrawable } from '../drawable/framed';
 import { FrameProgram } from '../program/frame';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Drawable } from '../drawable/drawable';
@@ -8,6 +9,7 @@ import { Renderer as Base } from 'gl2d/rendering/renderer'
 import { Mesh } from "gl2d/drawable/mesh";
 import { IPoint, Point } from "gl2d/struct/point";
 import { Ellipse } from "../drawable/ellipse";
+import { Selection } from '../drawable/selection'
 
 export class Renderer extends Base {
 
@@ -16,8 +18,8 @@ export class Renderer extends Base {
     frameProgram: FrameProgram;
     drawables: Drawable[] = [];
 
-    frame: Frame;
-    hoverFrame: Frame;
+    selection: Selection;
+    hover: FramedDrawable;
 
     points: Drawable[] = [];
     
@@ -32,11 +34,19 @@ export class Renderer extends Base {
         let gl = this.gl;
         gl.clearColor(0, 0, 0, 0);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        // Init programs
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.frameProgram = FrameProgram.create(gl);
-        this.frame = new Frame(ColorFStruct.create$(0, 0.2, 0.9, 0.9), 0.1);
-        this.hoverFrame = new Frame(ColorFStruct.create$(0, 0.2, 0.9, 0.3), 0.1);
+        // Init selection boxes
+        let frameThickness = 0.1;
+        let pointRadius = 0.03;
+        let blue = ColorFStruct.create$(0, 0.2, 0.9, 0.9);
+        let blueHover = ColorFStruct.create$(0, 0.2, 0.9, 0.3);
+        let red = ColorFStruct.create$(1,0,0,0.9);
+        let pointMesh = this.ellipseProgram.mesh;
+        this.selection = Selection.create(blue, frameThickness, pointMesh, red, pointRadius);
+        this.hover = new FramedDrawable(new Frame(blueHover, frameThickness));
     }
 
     onDrawFrame(): void {
@@ -45,11 +55,11 @@ export class Renderer extends Base {
         for(let graphic of this.drawables){
             graphic.draw(this);
         }
-        if(!this.frame.innerRect.isEmpty()){
-            this.frame.draw(this);
+        if(this.selection.target){
+            this.selection.draw(this);
         }
-        if(!this.hoverFrame.innerRect.isEmpty()){
-            this.hoverFrame.draw(this);
+        if(this.hover.target){
+            this.hover.draw(this);
         }
         for(let point of this.points){
             point.draw(this);

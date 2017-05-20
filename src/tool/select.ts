@@ -1,12 +1,12 @@
-import { Ellipse } from 'gl2d/struct/ellipse';
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
 import { Status } from "gl2d/action/status";
-import { Drawable } from "src/drawable/drawable";
+import { Drawable } from "../drawable/drawable";
 import { IPoint } from "gl2d/struct/point";
 import { Vec2 } from "gl2d/struct/vec2";
 import { Mat2d } from "gl2d/struct/mat2d";
+import { Selection } from "../drawable/selection"
 
 type Action = MouseOrTouchAction<Surface>;
 
@@ -19,16 +19,16 @@ const enum Transformation{
 
 export class SelectTool extends MouseOrTouchTool<Surface> {
 
-    selection?: Drawable;
-    hovered?: Drawable;
-    previousPoint?: IPoint;
+    control?: Drawable;
+    previous?: IPoint;
     pivot? : IPoint;
     dragCount = 0;
-    reclicked = false;
+    reselected = false;
     transform: Transformation;
 
     onAction(action: Action): void {
         let pointer = this.getPrimaryPointer(action);
+        
         switch(action.status){
             case Status.Move:
                 this.onMove(action, pointer);
@@ -45,30 +45,23 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
                 this.onEnd(action, pointer);
                 break;
         }
-        action.target.requestRender();
-        this.previousPoint = pointer;
+        
+        this.previous = pointer;
     }
 
     onMove(action: Action, pointer: IPoint){
         let surface = action.target;
         let renderer = surface.renderer;
-        let frame = renderer.frame;
-        let hoverFrame = renderer.hoverFrame;
+        let selection = renderer.selection;
+        let hovered = renderer.hover;
 
-        // If nothing is selected or the cursor is outside of the frame
-        if(!this.selection || !frame.measureBoundaries().containsPoint(pointer)){
-            // And if the current hovered drawable is not the same as the previous
-            if(!this.hovered || !this.hovered.contains(pointer)){
-                // Search for newly hovered drawable
-                this.hovered = renderer.getDrawableContaining(pointer);
-                if(this.hovered){
-                    // Indicate that drawable is being hovered, but do not select it
-                    hoverFrame.innerRect.set(this.hovered.measureBoundaries());
-                } else if(!frame.innerRect.isEmpty()) {
-                    // Indicate that drawable is no longer being hovered
-                    hoverFrame.innerRect.setScalar(0);
-                }
-                // Render to show changes to hover frame
+        // If the point is outside of the selection 
+        if(!selection.contains(pointer)){
+            // And if the hovered target is not the same as the previous
+            if(!hovered.target || !hovered.target.contains(pointer)){
+                // Search for newly hovered drawable and select it if it exists
+                hovered.setTarget(renderer.getDrawableContaining(pointer));
+                // Render to show changes
                 surface.requestRender();
             }
         }
@@ -77,100 +70,98 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     onStart(action: Action, pointer: IPoint) {
         let surface = action.target;
         let renderer = surface.renderer;
-        let frame = renderer.frame;
-        let hoverFrame = renderer.hoverFrame;
+        let selected = renderer.selection;
+        let hovered = renderer.hover;
 
-        // If something is already selected
-        if(this.selection){
-            // Set transformation based on position of pointer relative to selection
-            this.reclicked = true;
-            if (frame.innerRect.containsPoint(pointer)){
-                // Point in frame
-                this.transform = Transformation.Translate;
-            } else if(frame.measureBoundaries().containsPoint(pointer)){
-                // Point on frame
-                this.transform = Transformation.Scale;
-                this.pivot = frame.getVertexOpposite(pointer);
+        if(selected.contains(pointer)){
+            // Reclicked a drawable that has already been selected
+            this.reselected = true;
+            this.transform = this.getTransformType(pointer, selected);
+        } else if(hovered.contains(pointer)){
+            // Selected a drawable that has already been indicated by the hover graphic
+            selected.setTarget(hovered.target);
+            hovered.setTarget(null);
+            this.reselected = false;
+            this.transform = this.getTransformType(pointer, selected);
+        } else {
+            // Selected a new drawable, or clicked on nothing
+            selected.setTarget(renderer.getDrawableContaining(pointer));
+            this.transform = selected.target ? Transformation.Translate : Transformation.None;
+        }
+
+        surface.requestRender();
+    }
+
+    getTransformType(pointer: IPoint, selected?: Selection){
+        let {pivot, control, frame} = selected;
+        // Choose transformation based on position of pointer
+         if(selected.target && selected.contains(pointer)) {
+            if(pivot.contains(pointer)){
+                // Pointer on pivot
+                this.control = pivot;
+                this.pivot = control.measureCenterPointInWorldSpace();
+                return Transformation.Rotate;
+            } else if(control.contains(pointer)){
+                // Pointer on control
+                this.control = control;
+                this.pivot = pivot.measureCenterPointInWorldSpace();
+                return Transformation.Rotate;
+            } else if (frame.innerRect.containsPoint(pointer)){
+                // Pointer in frame
+                this.pivot = null;
+                return Transformation.Translate;
             } else {
-                // Point outside frame
-                let bounds = frame.measureBoundaries();
-                bounds.stretch(Math.SQRT2);
-                let ellipse = Ellipse.fromRect(bounds);
-                if(ellipse.contains(pointer)){
-                    // Point in ellipse surrounding frame
-                    this.transform = Transformation.Rotate;
-                } else {
-                    // Point too far away for transform
-                    this.transform = Transformation.None;
-                }
-            }
-        } 
-
-        // If nothing is selected, or point too far away for transform 
-        if(!this.selection || this.transform === Transformation.None) {
-            // Select the first drawable that contains the point (if any)
-            let drawable = renderer.getDrawableContaining(pointer);
-            if(drawable){
-                let bounds = drawable.measureBoundaries();
-                frame.innerRect.set(bounds);
-                hoverFrame.innerRect.setScalar(0);
-                this.selection = drawable;
-                this.hovered = drawable;
-                this.transform = Transformation.Translate;
+                // Pointer on frame
+                this.pivot = frame.getVertexOpposite(pointer);
+                return Transformation.Scale;
             }
         }
+        // Pointer outside frame
+        return Transformation.None;
     }
 
     onDrag(action: Action, pointer: IPoint) {
         let surface = action.target;
         let renderer = surface.renderer;
-        let frame = renderer.frame;
+        let selection = renderer.selection;
 
-        if(this.selection && this.previousPoint){
-            switch(this.transform){
+        switch(this.transform){
                 case Transformation.Translate:
-                    let vector = Vec2.fromPointToPoint(this.previousPoint, pointer);
-                    this.selection.offset(vector);
-                    frame.innerRect.offset(vector);
+                    selection.offset(Vec2.fromPointToPoint(this.previous, pointer));
                     break;
                 case Transformation.Scale:
-                    let scale = Mat2d.scaleToPoint(this.previousPoint, pointer, this.pivot);
-                    this.selection.transform(scale);
-                    scale.mapRect(frame.innerRect, frame.innerRect);
+                    selection.scale(Mat2d.scaleToPoint(this.previous, pointer, this.pivot));
                     break;
                 case Transformation.Rotate:
-                    let rotation = Mat2d.rotateToPoint(this.previousPoint, pointer, frame.innerRect.center());
-                    this.selection.transform(rotation);
-                    let bounds = this.selection.measureBoundaries();
-                    frame.innerRect.set(bounds);
+                    selection.transform(Mat2d.stretchRotateToPoint(this.control.measureCenterPointInWorldSpace(), pointer, this.pivot));
                     break;
-            }
+                case Transformation.None:
+                    return; // Skip render
         }
+
+        surface.requestRender();
     }
 
     onEnd(action: Action, pointer: IPoint) {
-        if(this.dragCount <3 && this.reclicked){
-            let surface = action.target;
-            let renderer = surface.renderer;
-            let frame = renderer.frame;
-            let drawable = renderer.getDrawableContaining(pointer);
-            if(drawable && drawable !== this.selection){
-                this.selection = drawable;
-                let bounds = drawable.measureBoundaries();
-                frame.innerRect.set(bounds);
-                frame.color.a = 0.9;
-            } else {
-                this.onDetach(surface);
-            }
+        let surface = action.target;
+        let renderer = surface.renderer;
+        let selection = renderer.selection;
+        // End transform if user tapped the selected shape
+        if(this.reselected && this.dragCount <5 && selection.contains(pointer)){
+            this.onDetach(surface);
         }
     }
 
     onDetach(surface: Surface){
-        this.reclicked = false;
-        this.selection = null;
-        this.hovered = null;
-        this.previousPoint = null;
-        surface.renderer.frame.innerRect.setScalar(0);
+        let renderer = surface.renderer;
+        renderer.selection.setTarget(null);
+        renderer.hover.setTarget(null);
+        this.transform = Transformation.None;
+        this.reselected = false;
+        this.dragCount = 0;
+        this.previous = null;
+        this.control = null;
+        this.pivot = null;
         surface.requestRender();
     }
 }

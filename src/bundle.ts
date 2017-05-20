@@ -33,11 +33,12 @@ function setTool(tool: _MouseOrTouchTool){
 }
 
 ColorPicker.create("#color-picker", color => {
+    let renderer = surface.renderer;
+    let drawColor = renderer.color;
+    let selection = renderer.selection.target;
     // Update draw color
-    let drawColor = surface.renderer.color;
     drawColor.setFromColor(color);
     // Update color of selection (if any)
-    let selection = selectTool.selection
     if(selection){
         selection.color.set(drawColor);
         surface.requestRender();
@@ -72,10 +73,11 @@ $("#aspect-button").click(function(){
 $("#delete-button").click(function(){
     let renderer = surface.renderer;
     let drawables = renderer.drawables;
+    let selection = renderer.selection.target;
     if(drawables.length > 0){
-        if(currentTool === selectTool && selectTool.selection){
+        if(selection){
             renderer.drawables = drawables.filter(drawable =>{
-                return drawable !== selectTool.selection;
+                return drawable !== selection;
             })
             selectTool.onDetach(surface);
         } else {

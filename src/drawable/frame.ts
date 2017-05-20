@@ -7,7 +7,7 @@ export class Frame {
 
     color: ColorFStruct
     thickness: number;
-    innerRect: RectStruct
+    innerRect: RectStruct;
 
     constructor(color: ColorFStruct, thickness: number, innerRect?: RectStruct){
         this.color = color;
@@ -24,6 +24,10 @@ export class Frame {
         let inset = -this.thickness;
         bounds.inset$(inset, inset);
         return bounds;
+    }
+
+    contains(point: IPoint){
+        return this.measureBoundaries().containsPoint(point);
     }
 
     /**

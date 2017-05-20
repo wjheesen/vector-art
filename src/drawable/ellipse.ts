@@ -6,14 +6,17 @@ import { Rect } from "gl2d/struct/rect";
 
 export class Ellipse extends Drawable {
 
-    draw(renderer: Renderer){
-        let gl = renderer.gl;
-        let program = renderer.ellipseProgram;
-        renderer.useProgram(program);
-        program.setProjection(gl, renderer.camera.matrix);
-        program.setColor(gl, this.color);
-        program.setMatrix(gl, this.matrix);
-        program.draw(gl);
+    /**
+     * Sets this ellipse to an ellipse with the specified axes and center point.
+     * @param rx the semi-x axis.
+     * @param ry the semi-y axis.
+     * @param center the center of the ellipse. Defaults to the origin.
+     */
+    set(rx: number, ry: number, center?: IPoint){
+        this.matrix.setScale(rx, ry);
+        if(center){
+            this.matrix.postTranslate(center);
+        }
     }
 
     measureBoundaries(){
@@ -65,5 +68,15 @@ export class Ellipse extends Drawable {
         } else {
             return false;
         }
+    }
+
+    draw(renderer: Renderer){
+        let gl = renderer.gl;
+        let program = renderer.ellipseProgram;
+        renderer.useProgram(program);
+        program.setProjection(gl, renderer.camera.matrix);
+        program.setColor(gl, this.color);
+        program.setMatrix(gl, this.matrix);
+        program.draw(gl);
     }
 }
