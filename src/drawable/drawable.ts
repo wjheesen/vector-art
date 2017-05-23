@@ -1,50 +1,34 @@
-import { Drawable as Base } from 'gl2d/drawable/drawable'
-import { Renderer } from '../rendering/renderer'
-import { IPoint, Point } from "gl2d/struct/point";
-import { Vec2 } from "gl2d/struct/vec2";
+import { ColorFStruct } from 'gl2d/struct/colorf';
+import { Renderer } from '../rendering/renderer';
+import { Drawable as Base} from 'gl2d/drawable/drawable';
+import { Rect } from "gl2d/struct/rect";
+import { IVec2 } from "gl2d/struct/vec2";
+import { IMat2d } from "gl2d/struct/mat2d";
+import { IPoint } from "gl2d/struct/point";
 
-export abstract class Drawable extends Base<Renderer>{
-
+export interface Drawable extends Base<Renderer>{
     /**
-     * Converts a point in this drawable's model space to a point in world space.
-     * @param pointInModel the point in model space.
-     * @param dst where to store the result.
-     * @returns dst.
+     * The color of this drawable. 
      */
-    convertPointToWorldSpace(pointInModel: IPoint, dst: IPoint = new Point()){
-        this.matrix.map(pointInModel, dst);
-        return dst;
-    }
-
+    color: ColorFStruct;
     /**
-     * Measures the position of this drawable's center point in world space.
-     * @returns the position of the center point in world space.
+     * Measures the boundaries of this drawable in world space.
+     * @returns the boundaries of this drawable.
      */
-    measureCenterPointInWorldSpace(){
-        return this.convertPointToWorldSpace(this.mesh.bounds.center());
-    }
-
+    measureBoundaries(): Rect;
     /**
-     * Measures the position of this drawable's fixed point in world space.
-     * @returns the position of the fixed point in world space.
+     * Checks if this drawable contains the point (x,y).
+     * @param point the point to check.
+     * @returns true if the point lies on or within this drawable; false otherwise.
      */
-    measurePivotPointInWorldSpace(){
-        return this.convertPointToWorldSpace(this.mesh.bounds.centerTop());
-    }
-
+    contains(pt: IPoint): boolean;
     /**
-     * Measures the position of this drawable's control point in world space.
-     * @returns the position of the control point in world space.
+     * Offsets this drawable by the specified vector.
      */
-    measureControlPointInWorldSpace(){
-        return this.convertPointToWorldSpace(this.mesh.bounds.centerBottom());
-    }
-
+    offset(vec: IVec2): void;
     /**
-     * Offsets this drawable so that it is centered at the specified point.
-     * @param center the new center point for this drawable.
+     * Transforms this drawable by the specified matrix.
+     * @param matrix the transformation matrix.
      */
-    offsetTo(center: IPoint){
-        this.offset(Vec2.fromPointToPoint(this.measureCenterPointInWorldSpace(), center));
-    }
+    transform(matrix: IMat2d): void;
 }

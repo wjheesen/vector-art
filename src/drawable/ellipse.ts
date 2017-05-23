@@ -1,10 +1,10 @@
-import { Drawable } from './drawable';
+import { Shape } from './shape';
 import { Renderer } from '../rendering/renderer';
 import { IPoint,} from "gl2d/struct/point";
 import { IMat2d } from 'gl2d/struct/mat2d';
 import { Rect } from "gl2d/struct/rect";
 
-export class Ellipse extends Drawable {
+export class Ellipse extends Shape {
 
     /**
      * Sets this ellipse to an ellipse with the specified axes and center point.
@@ -63,7 +63,7 @@ export class Ellipse extends Drawable {
      */
     contains(pt: IPoint, inverse?: IMat2d) {
         let modelPoint = this.convertPointToModelSpace(pt, inverse);
-        if(this.mesh.bounds.containsPoint(modelPoint)){
+        if(this.mesh.bounds.contains(modelPoint)){
             return modelPoint.distance2() <= 1;
         } else {
             return false;

@@ -1,8 +1,8 @@
+import { Ellipse } from '../drawable/ellipse';
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
 import { Status } from "gl2d/action/status";
-import { Drawable } from "../drawable/drawable";
 import { IPoint } from "gl2d/struct/point";
 import { Vec2 } from "gl2d/struct/vec2";
 import { Mat2d } from "gl2d/struct/mat2d";
@@ -19,7 +19,7 @@ const enum Transformation{
 
 export class SelectTool extends MouseOrTouchTool<Surface> {
 
-    control?: Drawable;
+    control?: Ellipse;
     previous?: IPoint;
     pivot? : IPoint;
     dragCount = 0;
@@ -60,7 +60,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
             // And if the hovered target is not the same as the previous
             if(!hovered.target || !hovered.target.contains(pointer)){
                 // Search for newly hovered drawable and select it if it exists
-                hovered.setTarget(renderer.getDrawableContaining(pointer));
+                hovered.setTarget(renderer.getShapeContaining(pointer));
                 // Render to show changes
                 surface.requestRender();
             }
@@ -85,7 +85,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
             this.transform = this.getTransformType(pointer, selected);
         } else {
             // Selected a new drawable, or clicked on nothing
-            selected.setTarget(renderer.getDrawableContaining(pointer));
+            selected.setTarget(renderer.getShapeContaining(pointer));
             this.transform = selected.target ? Transformation.Translate : Transformation.None;
         }
 
@@ -99,14 +99,14 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
             if(pivot.contains(pointer)){
                 // Pointer on pivot
                 this.control = pivot;
-                this.pivot = control.measureCenterPointInWorldSpace();
+                this.pivot = control.measureCenter();
                 return Transformation.Rotate;
             } else if(control.contains(pointer)){
                 // Pointer on control
                 this.control = control;
-                this.pivot = pivot.measureCenterPointInWorldSpace();
+                this.pivot = pivot.measureCenter();
                 return Transformation.Rotate;
-            } else if (frame.innerRect.containsPoint(pointer)){
+            } else if (frame.innerRect.contains(pointer)){
                 // Pointer in frame
                 this.pivot = null;
                 return Transformation.Translate;
@@ -133,7 +133,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
                     selection.scale(Mat2d.scaleToPoint(this.previous, pointer, this.pivot));
                     break;
                 case Transformation.Rotate:
-                    selection.transform(Mat2d.stretchRotateToPoint(this.control.measureCenterPointInWorldSpace(), pointer, this.pivot));
+                    selection.transform(Mat2d.stretchRotateToPoint(this.control.measureCenter(), pointer, this.pivot));
                     break;
                 case Transformation.None:
                     return; // Skip render

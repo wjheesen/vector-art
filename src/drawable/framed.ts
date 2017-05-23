@@ -1,9 +1,9 @@
+import { Drawable } from './drawable';
 import { Renderer } from '../rendering/renderer';
 import { Frame } from './frame';
-import { Drawable } from './drawable';
 import { IPoint } from "gl2d/struct/point";
 
-export class FramedDrawable {
+export class FramedDrawable{
 
     frame: Frame;
     target: Drawable;

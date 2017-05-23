@@ -1,12 +1,21 @@
 import { Drawable } from './drawable';
+import { Mat2dStruct } from 'gl2d/struct/mat2d';
+import { Shape as Base } from 'gl2d/drawable/shape';
 import { Renderer } from '../rendering/renderer';
+import { Mesh } from "gl2d/drawable/mesh";
+import { ColorFStruct } from "gl2d/struct/colorf";
 
-export class Shape extends Drawable {
+export class Shape extends Base implements Drawable {
 
-     /**
-     * The inverse of this shape's model matrix. Cached for performance of contains method.
+    /**
+     * The color of this shape. 
      */
-    // public inverse = new Mat2dStruct();
+    color: ColorFStruct;
+
+    constructor(mesh: Mesh, color: ColorFStruct, matrix?: Mat2dStruct){
+        super(mesh, matrix);
+        this.color = color;
+    }
 
     draw(renderer: Renderer){
         let gl = renderer.gl;

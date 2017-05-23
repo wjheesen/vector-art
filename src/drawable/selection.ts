@@ -1,6 +1,7 @@
+import { Drawable } from './drawable';
+import { Shape } from './shape';
 import { Ellipse } from './ellipse';
 import { Frame } from './frame';
-import { Drawable } from './drawable';
 import { Renderer } from "src/rendering/renderer";
 import { IVec2 } from "gl2d/struct/vec2";
 import { IMat2d } from "gl2d/struct/mat2d";
@@ -36,8 +37,8 @@ export class Selection {
             let radius = this.pointRadius;
             let bounds = target.measureBoundaries();
             this.frame.innerRect.set(bounds);
-            this.pivot.set(radius, radius, target.measurePivotPointInWorldSpace());
-            this.control.set(radius, radius, target.measureControlPointInWorldSpace())
+            this.pivot.set(radius, radius, this.getPivot());
+            this.control.set(radius, radius, this.getControl());
         } else {
             this.frame.innerRect.setScalar(0);
         }
@@ -59,16 +60,32 @@ export class Selection {
         let frameRect = this.frame.innerRect;
         target.transform(scale);
         IMat2d.mapRect(scale, frameRect, frameRect);
-        this.pivot.offsetTo(target.measurePivotPointInWorldSpace());
-        this.control.offsetTo(target.measureControlPointInWorldSpace());
+        this.pivot.offsetTo(this.getPivot());
+        this.control.offsetTo(this.getControl());
     }
 
     transform(matrix: IMat2d){
         let target = this.target;
         this.target.transform(matrix);
         this.frame.innerRect.set(target.measureBoundaries());
-        this.pivot.offsetTo(target.measurePivotPointInWorldSpace());
-        this.control.offsetTo(target.measureControlPointInWorldSpace());
+        this.pivot.offsetTo(this.getPivot());
+        this.control.offsetTo(this.getControl());
+    }
+
+    private getPivot(){
+        if(this.target instanceof Shape){
+            return this.target.measurePivot();
+        } else {
+            return this.frame.innerRect.center();
+        }
+    }
+
+    private getControl(){
+        if(this.target instanceof Shape){
+            return this.target.measureControl();
+        } else {
+            return this.frame.innerRect.centerBottom();
+        }
     }
 
     draw(renderer: Renderer){

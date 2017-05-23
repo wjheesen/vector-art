@@ -1,3 +1,4 @@
+import { StrokeTool } from './tool/stroke';
 import { SelectTool } from './tool/select';
 import { EllipseTool } from './tool/ellipse';
 import { LineTool } from './tool/line';
@@ -20,6 +21,7 @@ let scrollZoomTool = new ScrollZoomTool(1.5);
 let pinchZoomTool = new PinchZoomTool();
 let panTool = new PanTool();
 let selectTool = new SelectTool();
+let brush = new StrokeTool();
 
 setTool(shapeTool);
 
@@ -58,6 +60,10 @@ $("#ellipse-button").click(function(){
     setTool(ellipseTool);
 })
 
+$("#brush-button").click(function(){
+    setTool(brush);
+})
+
 $("#pan-button").click(function(){
     setTool(panTool);
 })
@@ -72,11 +78,11 @@ $("#aspect-button").click(function(){
 
 $("#delete-button").click(function(){
     let renderer = surface.renderer;
-    let drawables = renderer.drawables;
+    let drawables = renderer.graphics;
     let selection = renderer.selection.target;
     if(drawables.length > 0){
         if(selection){
-            renderer.drawables = drawables.filter(drawable =>{
+            renderer.graphics = drawables.filter(drawable =>{
                 return drawable !== selection;
             })
             selectTool.onDetach(surface);

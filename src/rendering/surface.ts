@@ -14,7 +14,7 @@ export class Surface extends Base<Renderer> {
             drawingBuffer = document.getElementById(canvas) as HTMLCanvasElement;
         }
         let gl = drawingBuffer.getContext('webgl');
-        let camera = new Camera(Rect.create$(-1,1,1,-1), 1, 1000);
+        let camera = new Camera(Rect.create$(-1,1,1,-1), 1.0, 1000);
         let renderer = new Renderer(gl, camera);
         return new Surface(drawingBuffer, renderer);
     }

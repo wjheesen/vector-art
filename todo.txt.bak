@@ -13,5 +13,4 @@
 x 2017-05-22 2017-05-19 (B) Indicate shape under cursor with a semi-transparent frame, even when a shape is already selected @select-tool
 2017-05-19 (B) When an item is selected, replace the undo icon with a delete icon @select-tool @idea
 2017-05-19 (B) When an item is selected, delete it on delete key press @select-tool
-x 2017-05-22 2017-05-19 (A) Create a stroke drawable for free-form brush strokes +stroke @feature
-2017-05-23 implement an onInterrupt method for each tool
+2017-05-19 (A) Create a stroke drawable for free-form brush strokes +stroke @feature

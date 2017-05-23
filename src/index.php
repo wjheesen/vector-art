@@ -20,7 +20,7 @@ $title = "$package->displayName v$major.$minor";
     <div id="toolbar">
         <input id="color-picker" type="text" style="display: none" />
         <?php 
-            $buttons = ["shape", "line", "ellipse", "pan", "aspect", "select", "delete"];
+            $buttons = ["shape", "line", "ellipse", "brush", "pan", "aspect", "select", "delete"];
             foreach ($buttons as $key => $value) {
                 echo "<button id='$value-button' class='btn btn-sm btn-primary' type='button'>$value</button>\n";
             }

@@ -2,8 +2,9 @@ import { Renderer } from '../rendering/renderer';
 import { RectStruct, Rect } from 'gl2d/struct/rect';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { IPoint, Point } from "gl2d/struct/point";
+import { Drawable } from "gl2d/drawable/drawable";
 
-export class Frame {
+export class Frame implements Drawable<Renderer>{
 
     color: ColorFStruct
     thickness: number;
@@ -27,7 +28,7 @@ export class Frame {
     }
 
     contains(point: IPoint){
-        return this.measureBoundaries().containsPoint(point);
+        return this.measureBoundaries().contains(point);
     }
 
     /**
