@@ -50,6 +50,8 @@ export class StrokeBuilder {
         let prevCen = Point.midpoint(prevTop, prevBot);
         let line = Vec2.fromPointToPoint(prevCen, point);
         let prevLine: Vec2;
+        let miter: Vec2;
+        let ortho: Vec2;
 
         // If previous line exists
         if(position >= 4){
@@ -71,7 +73,7 @@ export class StrokeBuilder {
                 line = Vec2.fromPointToPoint(prevCen, point);
                 prevLine = null;
 
-                // Compute the (new) previous line if it exists
+                // Compute the (previous) previous line if it exists
                 if(position >= 4){
                     prevPrevTop = <Vec2> vertices.get(position - 4);
                     prevPrevBot = <Vec2> vertices.get(position - 3);
@@ -82,14 +84,18 @@ export class StrokeBuilder {
         } 
         
         // Compute the ortho vector needed to compute the top and bottom right vertices of the line segment.
-        let ortho = Vec2.create(line);
+        ortho = Vec2.create(line);
         ortho.normalize();
         ortho.rotateLeft();
         ortho.mulScalar(halfThickness);
 
-        // If there are more than two line segments, use a miter vector join them. 
+        // If there are more than two line segments (with non-zero length), use a miter vector join them. 
         // Otherwise use the ortho vector to compute the top and bottom left vertices of the line segment.
-        let miter = prevLine ? miterVector(prevLine, line, halfThickness, halfThickness*3) : ortho;
+        if(prevLine && !prevLine.epsilonEqualsScalar(0, halfThickness/8)){
+            miter =  miterVector(prevLine, line, halfThickness, halfThickness*3);
+        } else {
+            miter = ortho;
+        }
 
         // Update vertices
         vertices.moveToPosition(position - 2);
@@ -131,8 +137,8 @@ export class StrokeBuilder {
 
 /**
  * Measures the miter vector for the joining of two lines.
- * @param line1 the vector from the start of the previous line to the end of the previous line.
- * @param line2 the vector from the start of the previous line to the end of the previous line.
+ * @param prevLine the nonzero vector from the start of the previous line to the end of the previous line.
+ * @param line the nonzero vector from the start of the previous line to the end of the previous line.
  * @param halfThickness half the thickness of the second line.
  * @param miterLimit the maximum allowable miter length before a bevel is applied.
  * @returns the miter vector.
@@ -156,8 +162,13 @@ function miterVector(prevLine: IVec2, line: IVec2, halfThickness: number, miterL
     // Measure the length of the miter by projecting it onto one of the ortho norms and inverting it.
     let length = halfThickness / miter.dot(n2);
 
-    // Scale vector to the measured length, ensuring it does not exceed the bevel
-    miter.mulScalar(Math.min(miterLimit, length));
+    // Ensure length does not exceed miter limit
+    if(length > miterLimit){
+        length = miterLimit;
+    }
+
+    // Scale vector to the measured length
+    miter.mulScalar(length);
 
     return miter;
 }

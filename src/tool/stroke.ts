@@ -39,7 +39,6 @@ export class StrokeTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         let pointer = this.getPrimaryPointer(action);
         this.strokeBuilder.add(this.stroke, pointer, renderer.lineThickness);
-        // console.log("sections", this.stroke.vertices.position() / 2 - 1)
         surface.requestRender();
     }
 

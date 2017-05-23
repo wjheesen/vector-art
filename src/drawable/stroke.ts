@@ -23,7 +23,7 @@ export class Stroke implements Drawable {
 
     contains(pt: Point, inverse?: Mat2d): boolean {
         let vertices = this.vertices;
-        let count = vertices.position();
+        let count = vertices.capacity();
         // If the stroke has at least one segment
         if (count > 3) {
             // Return true if any of the segments inside this stroke contain the point

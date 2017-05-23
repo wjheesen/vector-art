@@ -4,7 +4,7 @@ import { Ellipse } from './ellipse';
 import { Frame } from './frame';
 import { Renderer } from "src/rendering/renderer";
 import { IVec2 } from "gl2d/struct/vec2";
-import { IMat2d } from "gl2d/struct/mat2d";
+import { IMat2d, Mat2dStruct } from 'gl2d/struct/mat2d';
 import { Mesh } from "gl2d/drawable/mesh";
 import { ColorFStruct } from "gl2d/struct/colorf";
 import { IPoint } from "gl2d/struct/point";
@@ -15,30 +15,27 @@ export class Selection {
     pivot: Ellipse;
     control: Ellipse;
     target: Drawable;
-    pointRadius: number;
 
-    constructor(frame: Frame, pivot: Ellipse, control: Ellipse, pointRadius: number){
+    constructor(frame: Frame, pivot: Ellipse, control: Ellipse){
         this.frame = frame;
         this.pivot = pivot;
         this.control = control;
-        this.pointRadius = pointRadius;
     }
 
     static create(frameColor: ColorFStruct, frameThickness: number, pointMesh: Mesh, pointColor: ColorFStruct, pointRadius: number){
         let frame = new Frame(frameColor, frameThickness);
-        let pivot = new Ellipse(pointMesh, pointColor);
-        let control = new Ellipse(pointMesh, pointColor);
-        return new Selection(frame, pivot, control, pointRadius);
+        let pivot = new Ellipse(pointMesh, pointColor, Mat2dStruct.stretch(pointRadius));
+        let control = new Ellipse(pointMesh, pointColor, Mat2dStruct.stretch(pointRadius));
+        return new Selection(frame, pivot, control);
     }
 
     setTarget(target?: Drawable){
         this.target = target;
         if(target){
-            let radius = this.pointRadius;
             let bounds = target.measureBoundaries();
             this.frame.innerRect.set(bounds);
-            this.pivot.set(radius, radius, this.getPivot());
-            this.control.set(radius, radius, this.getControl());
+            this.pivot.offsetTo(this.getPivot());
+            this.control.offsetTo(this.getControl());
         } else {
             this.frame.innerRect.setScalar(0);
         }
@@ -65,18 +62,25 @@ export class Selection {
     }
 
     transform(matrix: IMat2d){
+        // Transform target and frame
         let target = this.target;
         this.target.transform(matrix);
         this.frame.innerRect.set(target.measureBoundaries());
-        this.pivot.offsetTo(this.getPivot());
-        this.control.offsetTo(this.getControl());
+        // Transform pivot point
+        let pc = this.pivot.measureCenter();
+        IMat2d.map(matrix, pc, pc);
+        this.pivot.offsetTo(pc);
+        // Transform control point        
+        let cc = this.control.measureCenter();
+        IMat2d.map(matrix, cc, cc);
+        this.control.offsetTo(cc);
     }
 
     private getPivot(){
         if(this.target instanceof Shape){
             return this.target.measurePivot();
         } else {
-            return this.frame.innerRect.center();
+            return this.frame.innerRect.centerTop();
         }
     }
 

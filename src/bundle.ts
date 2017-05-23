@@ -95,6 +95,8 @@ $("#delete-button").click(function(){
 
 surface.onScrollAction(action => {
     scrollZoomTool.onAction(action);
+    // TODO: interrupt other tools
+
 })
 
 surface.onMouseAction(action =>{
@@ -103,6 +105,7 @@ surface.onMouseAction(action =>{
             return currentTool.onAction(action);
         case 1: /*Wheel*/
             return panTool.onAction(action);
+            // TODO: interrupt other tools
         case 2: /*Right*/
             return;
     }
@@ -113,6 +116,7 @@ surface.onTouchAction(action => {
         currentTool.onAction(action);
     } else {
         pinchZoomTool.onAction(action);
+        // TODO: interrupt other tools
     }
 })
 

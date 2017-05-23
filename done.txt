@@ -1,0 +1,4 @@
+﻿x 2017-05-23 2017-05-19 (B) Override current tool with pan tool if mouse wheel held @shortcut
+x 2017-05-22 2017-05-19 (B) Indicate shape under cursor with a semi-transparent frame, even when a shape is already selected @select-tool
+x 2017-05-22 2017-05-19 (A) Create a stroke drawable for free-form brush strokes +stroke @feature
+x 2017-05-23 2017-05-23 (A) Adjust frame size and control point size for zoom @select-tool

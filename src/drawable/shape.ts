@@ -1,5 +1,5 @@
 import { Drawable } from './drawable';
-import { Mat2dStruct } from 'gl2d/struct/mat2d';
+import { Mat2dStruct, Mat2d } from 'gl2d/struct/mat2d';
 import { Shape as Base } from 'gl2d/drawable/shape';
 import { Renderer } from '../rendering/renderer';
 import { Mesh } from "gl2d/drawable/mesh";
@@ -15,6 +15,18 @@ export class Shape extends Base implements Drawable {
     constructor(mesh: Mesh, color: ColorFStruct, matrix?: Mat2dStruct){
         super(mesh, matrix);
         this.color = color;
+    }
+
+    scale(sx: number, sy: number){
+        this.transform(Mat2d.scale(sx, sy, this.measureCenter()));
+    }
+
+    stretch(ratio: number){
+        this.scale(ratio, ratio);
+    }
+
+    rotate(angle: number){
+        this.transform(Mat2d.rotate(angle, this.measureCenter()));
     }
 
     draw(renderer: Renderer){

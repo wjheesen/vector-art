@@ -47,10 +47,10 @@ export class Renderer extends Base {
         // Init background
         this.foreground = new Frame(ColorFStruct.create$(.6,.6,.6,1), 10, RectStruct.lrbt(-1,1,-1,1));
         // Init selection boxes
-        let frameThickness = 0.1;
+        let frameThickness = 0.08;
         let pointRadius = 0.03;
         let blue = ColorFStruct.create$(0, 0.2, 0.9, 0.9);
-        let blueHover = ColorFStruct.create$(0, 0.2, 0.9, 0.3);
+        let blueHover = ColorFStruct.create$(0, 0.2, 0.9, 0.5);
         let red = ColorFStruct.create$(1,0,0,0.9);
         let pointMesh = this.ellipseProgram.mesh;
         this.selection = Selection.create(blue, frameThickness, pointMesh, red, pointRadius);
