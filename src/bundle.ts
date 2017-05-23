@@ -78,11 +78,11 @@ $("#aspect-button").click(function(){
 
 $("#delete-button").click(function(){
     let renderer = surface.renderer;
-    let drawables = renderer.graphics;
+    let drawables = renderer.drawables;
     let selection = renderer.selection.target;
     if(drawables.length > 0){
         if(selection){
-            renderer.graphics = drawables.filter(drawable =>{
+            renderer.drawables = drawables.filter(drawable =>{
                 return drawable !== selection;
             })
             selectTool.onDetach(surface);

@@ -37,7 +37,7 @@ export class EllipseTool extends MouseOrTouchTool<Surface> {
         if(!this.ellipse){ 
             let color = ColorFStruct.create(renderer.color);
             this.ellipse = new Ellipse(renderer.ellipseProgram.mesh, color);
-            renderer.graphics.push(this.ellipse);
+            renderer.drawables.push(this.ellipse);
         }
         let start = this.start;
         let end = this.getPrimaryPointer(action);
@@ -52,5 +52,9 @@ export class EllipseTool extends MouseOrTouchTool<Surface> {
     onEnd(action: Action) {
         this.start = null;
         this.ellipse = null;
+        let surface = action.target;
+        let renderer = surface.renderer;
+        renderer.removeTopmostDrawableIfOutsideTarget();
+        surface.requestRender();
     }
 }

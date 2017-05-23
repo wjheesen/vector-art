@@ -11,5 +11,4 @@
 2017-05-19 (C) Allow user to select multiple shapes, expanding the frame to encompass each of the shapes +multi-select @select-tool @idea
 2017-05-19 (B) When an item is selected, delete it on delete key press @select-tool
 2017-05-23 (B) Implement an onInterrupt method for each tool
-2017-05-23 (A) Delete shapes when they go off screen.
 2017-05-23 (C) Add move forward, move backward, move to front, and move to back options @feature @idea

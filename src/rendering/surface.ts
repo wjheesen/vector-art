@@ -1,7 +1,7 @@
 import { Renderer } from './renderer'
 import { Surface as Base } from 'gl2d/rendering/surface'
 import { Camera } from "gl2d/rendering/camera";
-import { Rect } from "gl2d/struct/rect";
+import { RectStruct } from 'gl2d/struct/rect';
 import { IPoint } from "gl2d/struct/point";
 
 export class Surface extends Base<Renderer> {
@@ -15,7 +15,7 @@ export class Surface extends Base<Renderer> {
             drawingBuffer = document.getElementById(canvas) as HTMLCanvasElement;
         }
         let gl = drawingBuffer.getContext('webgl');
-        let camera = new Camera(Rect.create$(-1,1,1,-1), 1.0, 1000);
+        let camera = new Camera(RectStruct.create$(-1,1,1,-1), 1.0, 1000);
         let renderer = new Renderer(gl, camera);
         return new Surface(drawingBuffer, renderer);
     }
