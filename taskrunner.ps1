@@ -35,7 +35,7 @@ function Update-Shaders(){
     gulp.cmd update:shaders
 }
 
-function Update-Bundle(){
+function Update-Js(){
     gulp.cmd update:bundle --gulpfile $gulpfile
 }
 
@@ -49,7 +49,7 @@ function Update-Html(){
 
 function Update-Debug(){
     Remove-Directory $debug
-    Update-Bundle
+    Update-Js
     Update-Css
     Update-Html
 }

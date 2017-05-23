@@ -11,22 +11,32 @@ export type OnColorPick = (color: Color) => any;
 
 export class ColorPicker{
     
-    // pickedColor: ColorOption;
-    // alpha: number;
-    // onColorPick: OnColorPick
+    alpha: number;
+    color: ColorOption;
+    callback: OnColorPick;
+    input: JQuery;
 
     private constructor(){}
 
+    pickRandom(){
+        this.color.val.setRandom();
+        this.color.unparsed.val = this.color.val.toArgbString();
+        this.input.spectrum("set", this.color.unparsed.val);
+        this.callback(this.color.val);
+    }
+
     static create(id: string, onColorPick: OnColorPick){
 
-        let colorPicker = $(id);
-        let pickedColor = ColorOption.create("drawColor", Color.create$(39, 78, 19, 255));
-        let alpha = pickedColor.val.a / 0xff;
+        let picker = new ColorPicker();
+        picker.input = $(id);
+        picker.color = ColorOption.create("drawColor", Color.create$(39, 78, 19, 255));
+        picker.alpha = picker.color.val.a / 0xff;
+        picker.callback = onColorPick;
 
-        onColorPick(pickedColor.val);
+        onColorPick(picker.color.val);
 
-        colorPicker.spectrum({
-            color: pickedColor.unparsed.val,
+        picker.input.spectrum({
+            color: picker.color.unparsed.val,
             flat: false,
             showInput: false,
             showInitial: false,
@@ -52,27 +62,29 @@ export class ColorPicker{
             change: function (tinycolor) {
                 if (tinycolor) {
                     // Override alpha (in case of palette selection)
-                    tinycolor.setAlpha(alpha);
+                    tinycolor.setAlpha(picker.alpha);
                     // Update UI component
                     let argb = tinycolor.toHex8String();
-                    $(this).spectrum("set", argb);
+                    picker.input.spectrum("set", argb);
                     // Update color
-                    pickedColor.val.setFromArgbString(argb);
-                    pickedColor.unparsed.val = argb;
+                    picker.color.val.setFromArgbString(argb);
+                    picker.color.unparsed.val = argb;
                     // Update renderer color
-                    onColorPick(pickedColor.val);
+                    onColorPick(picker.color.val);
                 }
             },
             hide: function (tinycolor) {
                 // Set unconfirmed alpha back to alpha
-                alpha = pickedColor.val.a / 0xff;
+                picker.alpha = picker.color.val.a / 0xff;
             }
         });
 
-        colorPicker.on("dragstop.spectrum", function (e, tinyColor) {
+        picker.input.on("dragstop.spectrum", function (e, tinyColor) {
             // Value confirmed if change event is called.
             // Otherwise reverts to alpha when color picker is hidden.
-            alpha = tinyColor.getAlpha();
+            picker.alpha = tinyColor.getAlpha();
         });
+
+        return picker;
     }
 }

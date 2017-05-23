@@ -10,6 +10,7 @@ import { Surface } from './rendering/surface'
 import { _MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { ColorPicker } from "./component/colorPicker";
 import * as $ from 'jquery';
+import { Status } from "gl2d/action/status";
 
 let surface = Surface.create("canvas");
 
@@ -34,7 +35,7 @@ function setTool(tool: _MouseOrTouchTool){
     }
 }
 
-ColorPicker.create("#color-picker", color => {
+let colorPicker = ColorPicker.create("#color-picker", color => {
     let renderer = surface.renderer;
     let drawColor = renderer.color;
     let selection = renderer.selection.target;
@@ -46,7 +47,6 @@ ColorPicker.create("#color-picker", color => {
         surface.requestRender();
     }
 });
-
 
 $("#shape-button").click(function(){
     setTool(shapeTool);
@@ -82,9 +82,7 @@ $("#delete-button").click(function(){
     let selection = renderer.selection.target;
     if(drawables.length > 0){
         if(selection){
-            renderer.drawables = drawables.filter(drawable =>{
-                return drawable !== selection;
-            })
+            renderer.removeDrawable(selection);
             selectTool.onDetach(surface);
         } else {
             drawables.pop();
@@ -93,16 +91,72 @@ $("#delete-button").click(function(){
     }
 })
 
+let key = -1;
+$(document)
+    .on("keydown", e => {
+        key = e.which;
+    })
+    .on("keyup", e => {
+        key = -1;
+        if(e.which === 46 /* Delete */){
+            let renderer = surface.renderer;
+            let selection = renderer.selection.target;
+            if(selection){
+                renderer.removeDrawable(selection);
+                selectTool.onDetach(surface);
+                surface.requestRender();
+            }
+        }
+    })
+    .on("keypress", e => {
+        if (key === -1) { return; }
+        switch(String.fromCharCode(key).toLowerCase()){
+            case "r":
+                return colorPicker.pickRandom();
+        }
+    })
+
+
 surface.onScrollAction(action => {
     scrollZoomTool.onAction(action);
-    // TODO: interrupt other tools
-
+    // TODO: interrupt other tools?
 })
 
+let isCtrlHeld = false;
+
 surface.onMouseAction(action =>{
-    switch(action.src.button){
+    let event = action.src;
+    switch(event.button){
         case 0: /*Left*/
-            return currentTool.onAction(action);
+
+            if(isCtrlHeld){
+                // Ctrl previously held
+                isCtrlHeld = event.metaKey || event.ctrlKey;
+                if(isCtrlHeld){
+                    // Ctrl still held
+                    selectTool.onAction(action);
+                } else {
+                    // Ctrl no longer held
+                    selectTool.onDetach(action.target);
+                }
+            } else {
+                // Ctrl not previously held
+                switch(action.status){
+                    case Status.Start:
+                    case Status.Move:
+                        isCtrlHeld = event.metaKey || event.ctrlKey;
+                        break;
+                }
+
+                if(isCtrlHeld){
+                    // Ctrl held for first time
+                    selectTool.onAction(action);
+                } else {
+                    // Ctrl not held
+                    currentTool.onAction(action);
+                }
+            }
+            break;
         case 1: /*Wheel*/
             return panTool.onAction(action);
             // TODO: interrupt other tools

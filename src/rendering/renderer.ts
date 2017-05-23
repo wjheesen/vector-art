@@ -84,10 +84,14 @@ export class Renderer extends Base {
         return null;
     }
 
+    removeDrawable(drawable: Drawable){
+        this.drawables = this.drawables.filter(d => d !== drawable);
+    }
+
     removeDrawableIfOutsideTarget(drawable?: Drawable){
         let target = this.camera.target;
         if(drawable && !target.intersects(drawable.measureBoundaries())){
-            this.drawables = this.drawables.filter(d => d !== drawable);
+            this.removeDrawable(drawable);
         }
     }
 

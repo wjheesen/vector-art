@@ -3,3 +3,6 @@ x 2017-05-22 2017-05-19 (B) Indicate shape under cursor with a semi-transparent 
 x 2017-05-22 2017-05-19 (A) Create a stroke drawable for free-form brush strokes +stroke @feature
 x 2017-05-23 2017-05-23 (A) Adjust frame size and control point size for zoom @select-tool
 x 2017-05-23 2017-05-23 (A) Delete shapes when they go off screen.
+x 2017-05-23 2017-05-19 (B) Set draw color to random whenever 'r' is pressed +color-picker @shortcut
+x 2017-05-23 2017-05-19 (B) Override current tool with select tool if ctrl key held @select-tool @shortcut
+x 2017-05-23 2017-05-19 (B) When an item is selected, delete it on delete key press @select-tool @shortcut

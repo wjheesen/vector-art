@@ -28,6 +28,6 @@ export class FramedDrawable{
 
     draw(renderer: Renderer){
         this.frame.draw(renderer);
-        this.target.draw(renderer);
+        this.target.draw(renderer); // Draw twice so target is shown on top and highlighted if transparent
     }
 }
