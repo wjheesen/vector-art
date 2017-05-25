@@ -2,3 +2,4 @@ node_modules/
 build/
 gulpfile.js
 todo.txt.bak
+src/icon/

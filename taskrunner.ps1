@@ -16,6 +16,8 @@ $src = "$PSScriptRoot\src"
     $php = "$src\index.php"
     $scss = "$src\style.scss"
     $ts = "$src\bundle.ts"
+    $svg = "$src\svg"
+    $icon = "$src\icon"
 
 $gulpfile = "$PSScriptRoot\gulpfile.js"
 $taskrunner = "$PSScriptRoot\taskrunner.ps1"
@@ -47,11 +49,18 @@ function Update-Html(){
     php.exe $php | Out-Utf8 $html
 } 
 
+function Update-Icons(){
+    Remove-Directory $icon
+    New-Item $icon -ItemType "Directory"
+    icon-font-generator.cmd "$svg\*.svg" --out $icon --prefix "icon"
+}
+
 function Update-Debug(){
     Remove-Directory $debug
     Update-Js
     Update-Css
     Update-Html
+    Copy-Item $icon $debug -Recurse
 }
 
 function Update-Release(){
@@ -59,6 +68,7 @@ function Update-Release(){
     Get-Content $html | Out-Utf8 $minHtml
     cleancss.cmd -O2 $css | Out-Utf8 $minCss
     uglifyjs.cmd $js --compress --mangle | Out-Utf8 $minJs
+    Copy-Item $icon $release -Recurse
 }
 
 function Update-Build(){

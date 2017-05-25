@@ -1,10 +1,6 @@
 import { Color } from "gl2d/struct/color";
 import { ColorOption } from '../option/color';
 import * as $ from 'jquery';
-(<any> window).jQuery = $;
-import * as tether from 'tether';
-(<any> window).Tether = tether;
-import 'bootstrap';
 import 'spectrum-colorpicker';
 
 export type OnColorPick = (color: Color) => any;

@@ -1,4 +1,3 @@
-import { VertexBuffer } from 'gl2d/struct/vertex';
 import {Program} from 'gl2d/rendering/program';
 import {ColorFStruct} from 'gl2d/struct/colorf';
 import {Mat4Struct} from 'gl2d/struct/mat4';
@@ -12,7 +11,7 @@ import { Mesh } from "gl2d/drawable/mesh";
 export class EllipseProgram extends Program<Shader.Uniforms, Shader.Attributes> {
 
     positionBuffer: WebGLBuffer;
-    mesh = new Mesh(new VertexBuffer(new Float32Array([-1,1, -1,-1, 1,-1, 1,1])));
+    mesh = Mesh.fromSource({vertices: [-1,1, -1,-1, 1,-1, 1,1] });
 
     static create(gl: WebGLRenderingContext) {
         let program = new EllipseProgram();

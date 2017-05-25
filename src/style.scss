@@ -28,3 +28,14 @@ body {
     display: inline-flex;
     background-color: $background-color;
 }
+
+/* Rules for sizing the icon. */
+.md-18 {
+    font-size: 18px;
+}
+
+/* Rules for using icons as black on a light background. */
+.md-dark { 
+    color: rgba(0, 0, 0, .8); 
+    .md-inactive { color: rgba(0, 0, 0, 0.26); }
+}

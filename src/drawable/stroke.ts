@@ -4,7 +4,7 @@ import { VertexBuffer } from 'gl2d/struct/vertex';
 import { Renderer } from '../rendering/renderer';
 import { Rect } from "gl2d/struct/rect";
 import { Mat2d, IMat2d } from 'gl2d/struct/mat2d';
-import { Point } from "gl2d/struct/point";
+import { IPoint } from "gl2d/struct/point";
 import { IVec2 } from "gl2d/struct/vec2";
 
 export class Stroke implements Drawable {
@@ -21,7 +21,7 @@ export class Stroke implements Drawable {
         return this.vertices.measureBoundaries();
     }
 
-    contains(pt: Point, inverse?: Mat2d): boolean {
+    contains(pt: IPoint, inverse?: Mat2d): boolean {
         let vertices = this.vertices;
         let count = vertices.capacity();
         // If the stroke has at least one segment

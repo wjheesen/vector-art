@@ -1,3 +1,7 @@
+import { MeshSource } from 'gl2d';
+import { Batch } from '../drawable/batch';
+import { Stroke } from '../drawable/stroke';
+import { Shape } from '../drawable/shape';
 import { StrokeProgram } from '../program/stroke';
 import { Drawable } from '../drawable/drawable';
 import { Frame } from '../drawable/frame';
@@ -26,10 +30,22 @@ export class Renderer extends Base {
 
     // points: Ellipse[] = [];
     
-    meshes = [Mesh.square(), Mesh.star5(), Mesh.diamond(), ];
-    lineMesh = this.meshes[0];
-    mesh = this.meshes[1];
+    meshes = [
+        Mesh.polygon(3),
+        Mesh.square(),
+        Mesh.diamond(),
+        Mesh.polygon(5),
+        Mesh.polygon(6),
+        Mesh.star5(),
+        Mesh.fromSource(heart()),
+        Mesh.fromSource(flower()),
+        Mesh.fromSource(bat()),
+    ]; 
+
+    lineMesh = this.meshes[1];
+    mesh = this.meshes[0];
     lineThickness = 0.01;
+    sprayRadius = 0.01;
     maintainAspect = true;
     color = new ColorFStruct();
 
@@ -71,6 +87,7 @@ export class Renderer extends Base {
         if(this.hover.target){
             this.hover.draw(this);
         }
+        // console.log("stack size", this.measureStackSize())
     }
 
     getShapeContaining(point: IPoint){
@@ -104,6 +121,24 @@ export class Renderer extends Base {
         } 
     }
 
+    measureStackSize(){
+        let size = 0;
+        for(let drawable of this.drawables){
+            size += drawable.color.data.buffer.byteLength;
+            if(drawable instanceof Shape){
+                size += drawable.matrix.data.buffer.byteLength;
+            } else if (drawable instanceof Stroke){
+                size += drawable.vertices.data.buffer.byteLength;
+            } else if (drawable instanceof Batch){
+                for(let instance of drawable.instances){
+                    size += instance.matrix.data.buffer.byteLength;
+                }
+            }
+        }
+        return size;
+    }
+
+
     // plotPoint(p: IPoint, radius = 0.001, color = ColorFStruct.create$(1,0,0,1)){
     //     let left = Point.create$(p.x - radius, p.y);
     //     let right = Point.create$(p.x + radius, p.y);
@@ -113,3 +148,25 @@ export class Renderer extends Base {
     // }
 
 }
+
+function heart(): MeshSource {
+    return {
+         vertices: [0,12,-3,16,-5,16,-8,12,-8,8,0,0,8,8,8,12,5,16,3,16], 
+         indices: Mesh.polygonIndices(10)
+    }
+}
+
+function flower(): MeshSource {
+    return { 
+        vertices: [0,-2,-1,-1,-2,-1,-2,-2,-3,-3,-1,-3,-2,-4,-2,-5,-1,-5,0,-6,0,-4,1,-5,2,-5,2,-4,3,-3,1,-3,2,-2,2,-1,1,-1,0,0], 
+        indices: [5,0,1,5,1,2,5,2,3,5,3,4,5,6,7,5,7,8,5,8,9,5,9,10,5,10,0,15,0,10,15,10,11,15,11,12,15,12,13,15,13,14,15,16,17,15,17,18,15,18,19,15,19,0] 
+    };
+}
+
+function bat(): MeshSource {
+    return { 
+        vertices: [0,3,-2,5,-3,2,-5,0,-8,3,-10,7,-17,10,-13,5,-12,-1,-3,-7,0,-10,3,-7,12,-1,13,5,17,10,10,7,8,3,5,0,3,2,2,5], 
+        indices: [0,1,2,0,2,3,0,3,9,0,9,10,0,10,11,0,11,17,0,17,18,0,18,19,4,5,6,4,6,7,4,7,8,4,8,9,4,9,3,16,14,15,16,13,14,16,12,13,16,11,12,16,17,11] 
+    };
+}
+

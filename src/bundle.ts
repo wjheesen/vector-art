@@ -1,3 +1,4 @@
+import { ShapeOptionsDialog } from './component/shapeOptions';
 import { StrokeTool } from './tool/stroke';
 import { SelectTool } from './tool/select';
 import { EllipseTool } from './tool/ellipse';
@@ -9,8 +10,12 @@ import { PanTool } from 'gl2d/tool/pan';
 import { Surface } from './rendering/surface'
 import { _MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { ColorPicker } from "./component/colorPicker";
-import * as $ from 'jquery';
 import { Status } from "gl2d/action/status";
+import * as $ from 'jquery';
+(<any> window).jQuery = $;
+import * as tether from 'tether';
+(<any> window).Tether = tether;
+import 'bootstrap';
 
 let surface = Surface.create("canvas");
 
@@ -18,11 +23,11 @@ let currentTool: _MouseOrTouchTool;
 let shapeTool = new ShapeTool();
 let lineTool = new LineTool();
 let ellipseTool = new EllipseTool();
+let brush = new StrokeTool();
 let scrollZoomTool = new ScrollZoomTool(1.5);
 let pinchZoomTool = new PinchZoomTool();
 let panTool = new PanTool();
 let selectTool = new SelectTool();
-let brush = new StrokeTool();
 
 setTool(shapeTool);
 
@@ -48,16 +53,45 @@ let colorPicker = ColorPicker.create("#color-picker", color => {
     }
 });
 
-$("#shape-button").click(function(){
-    setTool(shapeTool);
-})
+ShapeOptionsDialog.create("#shape-button", 
+    aspect => { 
+        surface.renderer.maintainAspect = aspect 
+    },
+    shape => {
+        let renderer = surface.renderer;
+        let meshes = renderer.meshes;
+        switch(shape){
+            case "triangle":
+                renderer.mesh = meshes[0];
+                break;
+            case "square":
+                renderer.mesh = meshes[1];
+                break;
+            case "diamond":
+                renderer.mesh = meshes[2];
+                break;
+            case "pentagon":
+                renderer.mesh = meshes[3];
+                break;
+            case "hexagon":
+                renderer.mesh = meshes[4];
+                break;
+            case "star":
+                renderer.mesh = meshes[5];
+                break;
+            case "heart":
+                renderer.mesh = meshes[6];
+                break;
+            case "flower":
+                renderer.mesh = meshes[7];
+                break;
+        }
+        setTool(shape === "circle" ? ellipseTool : shapeTool);
+    }
+);
 
 $("#line-button").click(function(){
     setTool(lineTool);
-})
-
-$("#ellipse-button").click(function(){
-    setTool(ellipseTool);
 })
 
 $("#brush-button").click(function(){
