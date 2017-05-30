@@ -37,7 +37,7 @@ export class ShapeTool extends MouseOrTouchTool<Surface> {
         if (!this.shape) {
             let color = ColorFStruct.create(renderer.color);
             this.shape = new Shape(renderer.mesh, color);
-            renderer.drawables.push(this.shape);
+            renderer.temp = this.shape;
         }
         let start = this.start;
         let end = this.getPrimaryPointer(action);
@@ -54,7 +54,7 @@ export class ShapeTool extends MouseOrTouchTool<Surface> {
         this.shape = null;
         let surface = action.target;
         let renderer = surface.renderer;
-        renderer.removeTopmostDrawableIfOutsideTarget();
+        renderer.addDrawable();
         surface.requestRender();
     }
 }

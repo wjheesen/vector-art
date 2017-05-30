@@ -1,4 +1,5 @@
-import { ToolDialog } from './dialog/tool';
+import { Option } from './option/option';
+import { CursorDialog } from './dialog/cusor';
 import { StrokeDialog } from './dialog/stroke';
 import { ShapeDialog } from './dialog/shape';
 import { StrokeTool } from './tool/stroke';
@@ -21,6 +22,9 @@ import 'bootstrap';
 
 let surface = Surface.create("canvas");
 
+type ToolType = "shape" | "stroke" | "cursor";
+let toolType = Option.str("tool", "shape") as Option<ToolType>;
+
 let currentTool: _MouseOrTouchTool;
 let shapeTool = new ShapeTool();
 let lineTool = new LineTool();
@@ -31,8 +35,6 @@ let pinchZoomTool = new PinchZoomTool();
 let panTool = new PanTool();
 let selectTool = new SelectTool();
 
-setTool(shapeTool);
-
 function setTool(tool: _MouseOrTouchTool){
     if(currentTool !== tool){
         if(currentTool === selectTool ){
@@ -40,6 +42,12 @@ function setTool(tool: _MouseOrTouchTool){
         }
         currentTool = tool;
     }
+}
+
+function setToolType(type: ToolType){
+    $(`#${toolType.val}-button`).children("i").addClass("md-inactive")
+    $(`#${type}-button`).children("i").removeClass("md-inactive");
+    toolType.val = type;
 }
 
 let colorPicker = ColorPicker.create("#color-picker", color => {
@@ -62,6 +70,7 @@ ShapeDialog.create("#shape-button",
     shape => {
         let renderer = surface.renderer;
         let meshes = renderer.meshes;
+        setToolType("shape");
         switch(shape){
             case "triangle":
                 renderer.mesh = meshes[0];
@@ -100,6 +109,7 @@ StrokeDialog.create("#stroke-button",
         surface.renderer.lineThickness = thickness/1000;
     }, 
     strokeType => {
+        setToolType("stroke");
         switch(strokeType){
             case "brush":
                 return setTool(brush);
@@ -109,7 +119,9 @@ StrokeDialog.create("#stroke-button",
     }
 )
 
-ToolDialog.create("#tool-button", toolType =>{
+
+CursorDialog.create("#cursor-button", toolType =>{
+    setToolType("cursor");
     switch(toolType){
         case "select":
             return setTool(selectTool);
@@ -117,6 +129,9 @@ ToolDialog.create("#tool-button", toolType =>{
             return setTool(panTool);
     }
 })
+
+// Set initial tool
+$(`#${toolType.val}-button`).click();
 
 $("#undo").click(function(){
     let renderer = surface.renderer;
@@ -141,13 +156,14 @@ $("#redo").click(function(){
     }  
 })
 
-let key = -1;
+let key: string;
+
 $(document)
     .on("keydown", e => {
-        key = e.which;
+        key = String.fromCharCode(e.which);
     })
     .on("keyup", e => {
-        key = -1;
+        key = null;
         if(e.which === 46 /* Delete */){
             let renderer = surface.renderer;
             let selection = renderer.selection.target;
@@ -159,8 +175,8 @@ $(document)
         }
     })
     .on("keypress", e => {
-        if (key === -1) { return; }
-        switch(String.fromCharCode(key).toLowerCase()){
+        if (!key) { return; }
+        switch(key){
             case "r":
                 return colorPicker.pickRandom();
         }

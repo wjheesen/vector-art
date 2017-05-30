@@ -23,7 +23,6 @@ export class ShapeDialog {
         options.onShapePick = onShapePick;
 
         onAspectChange(options.aspect.val);
-        onShapePick(options.shape.val);
 
         $(buttonId)
             .click(() => {

@@ -11,7 +11,8 @@ $actions = ["undo", "redo"];
 $btn = "btn btn-sm";
 $toggle = "dropdown-toggle dropdown-toggle-split";
 $btn_toggle = "$btn $toggle";
-$md = "md-dark md-18";
+$md = "md";
+$md_inactive = "$md md-inactive";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -31,7 +32,7 @@ $md = "md-dark md-18";
         <div class="btn-group"> 
             <div class="btn-group">
                 <button id="shape-button" type="button" class="<?=$btn?>">
-                    <i></i>
+                    <i class="<?=$md_inactive?>"></i>
                 </button>
                 <button type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="sr-only">Toggle Dropdown</span>
@@ -49,7 +50,7 @@ $md = "md-dark md-18";
             </div>
             <div class="btn-group">
                 <button id="stroke-button" type="button" class="<?=$btn?>">
-                    <i></i>
+                    <i class="<?=$md_inactive?>"></i>
                 </button>
                 <button type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="sr-only">Toggle Dropdown</span>
@@ -66,13 +67,13 @@ $md = "md-dark md-18";
                 </div>
             </div>
             <div class="btn-group">
-                <button id="tool-button" type="button" class="<?=$btn?>">
-                    <i></i>
+                <button id="cursor-button" type="button" class="<?=$btn?>">
+                    <i class="<?=$md_inactive?>"></i>
                 </button>
                 <button type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
-                <div id="tool-settings" class="dropdown-menu">
+                <div id="cursor-settings" class="dropdown-menu">
                     <?php foreach($tools as $key=>$value): ?>
                         <a id="<?= $value?>" role="button">
                             <i class="icon-<?= $value?> <?=$md?>"></i>

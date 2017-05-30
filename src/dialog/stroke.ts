@@ -24,7 +24,6 @@ export class StrokeDialog {
         options.onStrokePick = onStrokePick;
 
         onStrokeThicknessPick(options.thickness.val);
-        onStrokePick(options.strokeType.val);
 
         $(buttonId)
             .click(() => {

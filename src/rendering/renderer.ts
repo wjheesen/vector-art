@@ -25,6 +25,7 @@ export class Renderer extends Base {
     foreground: Frame;
     drawables: Drawable[] = [];
     removed: Drawable[] = [];
+    temp: Drawable;
 
     selection: Selection;
     hover: FramedDrawable;
@@ -78,6 +79,9 @@ export class Renderer extends Base {
         for(let drawable of this.drawables){
             drawable.draw(this);
         }
+        if(this.temp){
+            this.temp.draw(this);
+        }
         this.foreground.draw(this);
         // for(let point of this.points){
         //     point.draw(this);
@@ -102,6 +106,16 @@ export class Renderer extends Base {
         return null;
     }
 
+    addDrawable(drawable?: Drawable){
+        if(!drawable){
+            drawable = this.temp;
+            this.temp = null;
+        }
+        if(drawable && this.camera.target.intersects(drawable.measureBoundaries())){
+            this.drawables.push(drawable);
+        }
+    }
+
     removeDrawable(drawable?: Drawable){
         if(drawable){
             this.drawables = this.drawables.filter(d => d !== drawable);
@@ -109,22 +123,6 @@ export class Renderer extends Base {
             drawable = this.drawables.pop();
         }
         this.removed.push(drawable);
-    }
-
-    removeDrawableIfOutsideTarget(drawable?: Drawable){
-        let target = this.camera.target;
-        if(drawable && !target.intersects(drawable.measureBoundaries())){
-            this.removeDrawable(drawable);
-        }
-    }
-
-    removeTopmostDrawableIfOutsideTarget(){
-        let target = this.camera.target;
-        let drawables = this.drawables;
-        let count = drawables.length;
-        if(count > 0 && !target.intersects(drawables[count-1].measureBoundaries())){
-            this.drawables.pop();
-        } 
     }
 
     measureStackSize(){

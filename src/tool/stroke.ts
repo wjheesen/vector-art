@@ -30,7 +30,7 @@ export class StrokeTool extends MouseOrTouchTool<Surface> {
         let pointer = this.getPrimaryPointer(action);
         let color = ColorFStruct.create(renderer.color);
         this.stroke = this.strokeBuilder.begin(color, pointer, renderer.lineThickness);
-        renderer.drawables.push(this.stroke);
+        renderer.temp = this.stroke;
     }
 
     onDrag(action: MouseOrTouchAction<Surface>) {
@@ -45,12 +45,9 @@ export class StrokeTool extends MouseOrTouchTool<Surface> {
     onEnd(action: Action) {
         let surface = action.target;
         let renderer = surface.renderer;
-        if(!this.strokeBuilder.end(this.stroke)){
-            renderer.drawables.pop();
-        } else {
-            renderer.removeTopmostDrawableIfOutsideTarget();
-        }
+        renderer.temp = this.strokeBuilder.end(this.stroke);
         this.stroke = null;
+        renderer.addDrawable();
         surface.requestRender();
     }
 }
