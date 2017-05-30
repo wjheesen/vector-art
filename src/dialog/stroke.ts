@@ -6,7 +6,7 @@ export type OnStrokeThicknessPick = (strokeThickness: number) => any;
 export type OnStrokePick = (id: StrokeType) => any;
 export type StrokeType = "brush" | "line" ;
 
-export class StrokeSettingsDialog {
+export class StrokeDialog {
     
     thickness: Option<number>;
     strokeType: Option<StrokeType>;
@@ -17,7 +17,7 @@ export class StrokeSettingsDialog {
 
     static create(buttonId: string, onStrokeThicknessPick: OnStrokeThicknessPick, onStrokePick: OnStrokePick){
 
-        let options = new StrokeSettingsDialog();
+        let options = new StrokeDialog();
         options.thickness = Option.num("stroke-thickness", 500, 1, 1000);
         options.strokeType = Option.str("stroke", "brush") as Option<StrokeType>;
         options.onStrokeThicknessPick = onStrokeThicknessPick;

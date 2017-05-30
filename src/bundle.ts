@@ -1,5 +1,6 @@
-import { StrokeSettingsDialog } from './component/strokeSettings';
-import { ShapeSettingsDialog } from './component/shapeSettings';
+import { ToolDialog } from './dialog/tool';
+import { StrokeDialog } from './dialog/stroke';
+import { ShapeDialog } from './dialog/shape';
 import { StrokeTool } from './tool/stroke';
 import { SelectTool } from './tool/select';
 import { EllipseTool } from './tool/ellipse';
@@ -54,7 +55,7 @@ let colorPicker = ColorPicker.create("#color-picker", color => {
     }
 });
 
-ShapeSettingsDialog.create("#shape-button", 
+ShapeDialog.create("#shape-button", 
     aspect => { 
         surface.renderer.maintainAspect = aspect 
     },
@@ -94,7 +95,7 @@ ShapeSettingsDialog.create("#shape-button",
     }
 );
 
-StrokeSettingsDialog.create("#stroke-button", 
+StrokeDialog.create("#stroke-button", 
     thickness => {
         surface.renderer.lineThickness = thickness/1000;
     }, 
@@ -108,39 +109,36 @@ StrokeSettingsDialog.create("#stroke-button",
     }
 )
 
-$("#line-button").click(function(){
-    setTool(lineTool);
+ToolDialog.create("#tool-button", toolType =>{
+    switch(toolType){
+        case "select":
+            return setTool(selectTool);
+        case "pan":
+            return setTool(panTool);
+    }
 })
 
-$("#brush-button").click(function(){
-    setTool(brush);
-})
-
-$("#pan-button").click(function(){
-    setTool(panTool);
-})
-
-$("#select-button").click(function(){
-    setTool(selectTool);
-})
-
-$("#aspect-button").click(function(){
-    surface.renderer.maintainAspect = !surface.renderer.maintainAspect;
-})
-
-$("#delete-button").click(function(){
+$("#undo").click(function(){
     let renderer = surface.renderer;
-    let drawables = renderer.drawables;
     let selection = renderer.selection.target;
-    if(drawables.length > 0){
+    if(renderer.drawables.length > 0){ 
         if(selection){
             renderer.removeDrawable(selection);
             selectTool.onDetach(surface);
         } else {
-            drawables.pop();
+            renderer.removeDrawable();
             surface.requestRender();
         }
-    }
+    } 
+})
+
+$("#redo").click(function(){
+    let renderer = surface.renderer;
+    let removed = renderer.removed;
+    if(removed.length > 0){
+        renderer.drawables.push(removed.pop());
+        surface.requestRender();
+    }  
 })
 
 let key = -1;

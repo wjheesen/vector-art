@@ -53,6 +53,10 @@ function Update-Icons(){
     Remove-Directory $icon
     New-Item $icon -ItemType "Directory"
     icon-font-generator.cmd "$svg\*.svg" --out $icon --prefix "icon"
+    Remove-Directory "$debug\icon";
+    Remove-Directory "$release\icon"
+    Copy-Item $icon $debug -Recurse -ErrorAction Ignore
+    Copy-Item $icon $release -Recurse -ErrorAction Ignore
 }
 
 function Update-Debug(){

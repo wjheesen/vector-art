@@ -24,6 +24,7 @@ export class Renderer extends Base {
 
     foreground: Frame;
     drawables: Drawable[] = [];
+    removed: Drawable[] = [];
 
     selection: Selection;
     hover: FramedDrawable;
@@ -101,8 +102,13 @@ export class Renderer extends Base {
         return null;
     }
 
-    removeDrawable(drawable: Drawable){
-        this.drawables = this.drawables.filter(d => d !== drawable);
+    removeDrawable(drawable?: Drawable){
+        if(drawable){
+            this.drawables = this.drawables.filter(d => d !== drawable);
+        } else {
+            drawable = this.drawables.pop();
+        }
+        this.removed.push(drawable);
     }
 
     removeDrawableIfOutsideTarget(drawable?: Drawable){

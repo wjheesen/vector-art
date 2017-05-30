@@ -5,7 +5,7 @@ export type OnAspectPick = (maintainAspect: boolean) => any;
 export type OnShapePick = (id: ShapeType) => any;
 export type ShapeType = "triangle" | "square" | "diamond" | "pentagon" | "hexagon" | "circle" | "star" | "heart" | "flower" | "bat";
 
-export class ShapeSettingsDialog {
+export class ShapeDialog {
     
     aspect: Option<boolean>;
     shape: Option<ShapeType>;
@@ -16,7 +16,7 @@ export class ShapeSettingsDialog {
 
     static create(buttonId: string, onAspectChange: OnAspectPick, onShapePick: OnShapePick){
 
-        let options = new ShapeSettingsDialog();
+        let options = new ShapeDialog();
         options.aspect = Option.bool("maintain-aspect", true);
         options.shape = Option.str("shape", "triangle") as Option<ShapeType>;
         options.onAspectChange = onAspectChange;

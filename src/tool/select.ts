@@ -79,14 +79,14 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
             this.transform = this.getTransformType(pointer, selected);
         } else if(hovered.contains(pointer)){
             // Selected a drawable that has already been indicated by the hover graphic
-            renderer.removeDrawableIfOutsideTarget(selected.target);
+            // renderer.removeDrawableIfOutsideTarget(selected.target);
             selected.setTarget(hovered.target);
             hovered.setTarget(null);
             this.reselected = false;
             this.transform = this.getTransformType(pointer, selected);
         } else {
             // Selected a new drawable, or clicked on nothing
-            renderer.removeDrawableIfOutsideTarget(selected.target);
+            // renderer.removeDrawableIfOutsideTarget(selected.target);
             selected.setTarget(renderer.getShapeContaining(pointer));
             this.reselected = false;
             this.transform = selected.target ? Transformation.Translate : Transformation.None;
@@ -159,7 +159,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         let selection = renderer.selection;
         let hover = renderer.hover;
-        renderer.removeDrawableIfOutsideTarget(selection.target);
+        // renderer.removeDrawableIfOutsideTarget(selection.target);
         selection.setTarget(null);
         hover.setTarget(null);
         this.transform = Transformation.None;

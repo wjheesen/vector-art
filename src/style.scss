@@ -30,9 +30,13 @@ body {
     background-color: $background-color;
 }
 
-.slider-selection {
-    background: #BABABA;
+.slider{
+    width: 100% !important;
+    .slider-selection {
+        background: #BABABA;
+    }
 }
+
 
 /* Rules for sizing the icon. */
 .md-18 {
