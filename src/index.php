@@ -4,7 +4,12 @@ $version = explode(".", $package->version);
 $major = $version[0];
 $minor = $version[1];
 $title = "$package->displayName v$major.$minor";
-$shapes = ["triangle", "square", "diamond", "pentagon", "hexagon", "circle", "star", "heart", "flower", "bat"]
+$shapes = ["triangle", "square", "diamond", "pentagon", "hexagon", "circle", "star", "heart", "flower", "bat"];
+$strokes = ["brush", "line"];
+$btn = "btn btn-sm";
+$toggle = "dropdown-toggle dropdown-toggle-split";
+$btn_toggle = "$btn $toggle";
+$md = "md-dark md-18";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,25 +27,43 @@ $shapes = ["triangle", "square", "diamond", "pentagon", "hexagon", "circle", "st
     <div id="toolbar">
         <input id="color-picker" type="text" style="display: none" />
         <div class="btn-group">
-                <button id="shape-button" type="button" class="btn btn-sm">
-                    <i></i>
-                </button>
-                <button type="button" class="btn btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                </button>
-                <div class="dropdown-menu">
-                    <label for="maintainAspect">Maintain aspect:</label>
-                    <input name="maintainAspect" type="checkbox" checked />
-                    <div class="dropdown-divider"></div>
-                    <?php foreach($shapes as $key=>$value): ?>
-                        <a id="<?= $value?>" role="button">
-                            <i class="icon-<?= $value?> md-dark md-18"></i>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
+            <button id="shape-button" type="button" class="<?=$btn?>">
+                <i></i>
+            </button>
+            <button type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div id="shape-settings" class="dropdown-menu">
+                <label for="maintain-aspect">Maintain aspect:</label>
+                <input name="maintain-aspect" type="checkbox" checked />
+                <div class="dropdown-divider"></div>
+                <?php foreach($shapes as $key=>$value): ?>
+                    <a id="<?= $value?>" role="button">
+                        <i class="icon-<?= $value?> <?=$md?>"></i>
+                    </a>
+                <?php endforeach; ?>
             </div>
+        </div>
+        <div class="btn-group">
+            <button id="stroke-button" type="button" class="<?=$btn?>">
+                <i></i>
+            </button>
+            <button type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div id="stroke-settings" class="dropdown-menu">
+                <label for="stroke-thickness">Thickness:</label>
+                <input name="stroke-thickness" type="number" />
+                <div class="dropdown-divider"></div>
+                <?php foreach($strokes as $key=>$value): ?>
+                    <a id="<?= $value?>" role="button">
+                        <i class="icon-<?= $value?> <?=$md?>"></i>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
         <?php 
-            $buttons = ["line", "brush", "spray", "pan", "select", "delete"];
+            $buttons = ["pan", "select", "delete"];
             foreach ($buttons as $key => $value) {
                 echo "<button id='$value-button' class='btn btn-sm btn-primary' type='button'>$value</button>\n";
             }

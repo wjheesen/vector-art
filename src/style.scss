@@ -1,4 +1,5 @@
 ﻿@import "../node_modules/bootstrap/scss/bootstrap";
+@import "../node_modules/bootstrap-slider/src/sass/bootstrap-slider";
 @import "../node_modules/spectrum-colorpicker/spectrum";
 
 $background-color: #999999;
@@ -27,6 +28,10 @@ body {
     cursor: default;
     display: inline-flex;
     background-color: $background-color;
+}
+
+.slider-selection {
+    background: #BABABA;
 }
 
 /* Rules for sizing the icon. */

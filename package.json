@@ -23,10 +23,12 @@
     "@types/jquery": "^2.0.43",
     "@types/tether": "^1.4.1",
     "bootstrap": "^4.0.0-alpha.6",
+    "bootstrap-slider": "^9.8.0",
     "gl2d": "^0.3.4",
     "spectrum-colorpicker": "^1.8.0"
   },
   "devDependencies": {
+    "@types/bootstrap-slider": "^4.8.32",
     "@types/browserify": "^12.0.30",
     "@types/gulp": "^4.0.2",
     "@types/gulp-rename": "0.0.32",

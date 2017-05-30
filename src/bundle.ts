@@ -1,4 +1,5 @@
-import { ShapeOptionsDialog } from './component/shapeOptions';
+import { StrokeSettingsDialog } from './component/strokeSettings';
+import { ShapeSettingsDialog } from './component/shapeSettings';
 import { StrokeTool } from './tool/stroke';
 import { SelectTool } from './tool/select';
 import { EllipseTool } from './tool/ellipse';
@@ -53,7 +54,7 @@ let colorPicker = ColorPicker.create("#color-picker", color => {
     }
 });
 
-ShapeOptionsDialog.create("#shape-button", 
+ShapeSettingsDialog.create("#shape-button", 
     aspect => { 
         surface.renderer.maintainAspect = aspect 
     },
@@ -85,10 +86,27 @@ ShapeOptionsDialog.create("#shape-button",
             case "flower":
                 renderer.mesh = meshes[7];
                 break;
+            case "bat":
+                renderer.mesh = meshes[8];
+                break;
         }
         setTool(shape === "circle" ? ellipseTool : shapeTool);
     }
 );
+
+StrokeSettingsDialog.create("#stroke-button", 
+    thickness => {
+        surface.renderer.lineThickness = thickness/1000;
+    }, 
+    strokeType => {
+        switch(strokeType){
+            case "brush":
+                return setTool(brush);
+            case "line":
+                return setTool(lineTool);
+        }
+    }
+)
 
 $("#line-button").click(function(){
     setTool(lineTool);

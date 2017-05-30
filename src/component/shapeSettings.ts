@@ -5,7 +5,7 @@ export type OnAspectPick = (maintainAspect: boolean) => any;
 export type OnShapePick = (id: ShapeType) => any;
 export type ShapeType = "triangle" | "square" | "diamond" | "pentagon" | "hexagon" | "circle" | "star" | "heart" | "flower" | "bat";
 
-export class ShapeOptionsDialog {
+export class ShapeSettingsDialog {
     
     aspect: Option<boolean>;
     shape: Option<ShapeType>;
@@ -16,7 +16,7 @@ export class ShapeOptionsDialog {
 
     static create(buttonId: string, onAspectChange: OnAspectPick, onShapePick: OnShapePick){
 
-        let options = new ShapeOptionsDialog();
+        let options = new ShapeSettingsDialog();
         options.aspect = Option.bool("maintain-aspect", true);
         options.shape = Option.str("shape", "triangle") as Option<ShapeType>;
         options.onAspectChange = onAspectChange;
@@ -32,7 +32,7 @@ export class ShapeOptionsDialog {
             .children("i")
                 .addClass("icon-" + options.shape.val)
 
-        $("input[name=maintainAspect]")
+        $("input[name=maintain-aspect]")
             .prop('checked', options.aspect.val)
             .change(function(){
                 let aspect = this.checked ? true : false;
@@ -41,7 +41,7 @@ export class ShapeOptionsDialog {
             }
         );
 
-        $(".dropdown-menu > a").click(function(){
+        $("#shape-settings > a").click(function(){
             let shape = $(this).attr("id") as ShapeType;
             // Set shape as button icon
             $(buttonId).children("i")
