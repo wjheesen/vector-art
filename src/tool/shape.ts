@@ -1,3 +1,4 @@
+import { Ellipse } from '../drawable/ellipse';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { ScaleToFit } from 'gl2d/struct/mat2d';
 import { Rect } from 'gl2d/struct/rect';
@@ -13,7 +14,6 @@ type Action = MouseOrTouchAction<Surface>;
 export class ShapeTool extends MouseOrTouchTool<Surface> {
 
     private start: IPoint;
-    private shape: Shape;
 
     onAction(action: Action): void {
         switch(action.status){
@@ -28,30 +28,37 @@ export class ShapeTool extends MouseOrTouchTool<Surface> {
 
    onStart(action: Action) {
         this.start = this.getPrimaryPointer(action);
-    }
+   }
 
     onDrag(action: MouseOrTouchAction<Surface>) {
         if (!this.start) { return; }
         let surface = action.target;
         let renderer = surface.renderer;
-        if (!this.shape) {
+        let mesh = renderer.mesh;
+        let shape = renderer.temp as Shape;
+        // Init shape if needed
+        if (!shape) {
             let color = ColorFStruct.create(renderer.color);
-            this.shape = new Shape(renderer.mesh, color);
-            renderer.temp = this.shape;
+            if(mesh){
+                shape = new Shape(mesh, color);
+            } else {
+                shape = new Ellipse(renderer.ellipseProgram.mesh, color);
+            }
+            renderer.temp = shape;
         }
+        //Transform shape based on start and end points
         let start = this.start;
         let end = this.getPrimaryPointer(action);
         if (renderer.maintainAspect) {
-            this.shape.stretchAcrossLine(start, end);
+            shape.stretchAcrossLine(start, end);
         } else {
-            this.shape.mapToRect(Rect.unionOfPoints([start, end]), ScaleToFit.Fill);
+            shape.mapToRect(Rect.unionOfPoints([start, end]), ScaleToFit.Fill);
         }
         surface.requestRender();
     }
 
     onEnd(action: Action) {
         this.start = null;
-        this.shape = null;
         let surface = action.target;
         let renderer = surface.renderer;
         renderer.addDrawable();

@@ -54,7 +54,7 @@ export class Stroke implements Drawable {
         program.setProjection(gl, renderer.camera.matrix);
         program.setColor(gl, this.color);
         program.setVertices(gl, vertices);
-        program.draw(gl, vertices.position()); // Capacity ?
+        program.draw(gl, vertices.position()); 
     }
 }
 

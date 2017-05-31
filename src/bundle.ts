@@ -1,11 +1,10 @@
-import { SprayTool } from './tool/spray';
+import { ShapeStrokeTool } from './tool/shapeStroke';
 import { Option } from './option/option';
 import { CursorDialog } from './dialog/cursor';
 import { StrokeDialog } from './dialog/stroke';
-import { ShapeDialog } from './dialog/shape';
+import { ShapeDialog, ShapeType } from './dialog/shape';
 import { StrokeTool } from './tool/stroke';
 import { SelectTool } from './tool/select';
-import { EllipseTool } from './tool/ellipse';
 import { LineTool } from './tool/line';
 import { ShapeTool } from './tool/shape';
 import { ScrollZoomTool } from 'gl2d/tool/scrollZoom';
@@ -29,8 +28,7 @@ let toolType = Option.str("tool", "shape") as Option<ToolType>;
 let currentTool: _MouseOrTouchTool;
 let shapeTool = new ShapeTool();
 let lineTool = new LineTool();
-let sprayCan = new SprayTool();
-let ellipseTool = new EllipseTool();
+let sprayCan = new ShapeStrokeTool();
 let brush = new StrokeTool();
 let scrollZoomTool = new ScrollZoomTool(1.5);
 let pinchZoomTool = new PinchZoomTool();
@@ -52,6 +50,12 @@ function setToolType(type: ToolType){
     toolType.val = type;
 }
 
+function setShapeType(type: ShapeType){
+    let renderer = surface.renderer;
+    let meshes = renderer.meshes;
+    renderer.mesh = meshes[type];
+}
+
 let colorPicker = ColorPicker.create("#color-picker", color => {
     let renderer = surface.renderer;
     let drawColor = renderer.color;
@@ -65,44 +69,14 @@ let colorPicker = ColorPicker.create("#color-picker", color => {
     }
 });
 
-ShapeDialog.create("#shape-button", 
+let shapeDialog = ShapeDialog.create("#shape-button", 
     aspect => { 
         surface.renderer.maintainAspect = aspect 
     },
     shape => {
-        let renderer = surface.renderer;
-        let meshes = renderer.meshes;
+        setTool(shapeTool);
         setToolType("shape");
-        switch(shape){
-            case "triangle":
-                renderer.mesh = meshes[0];
-                break;
-            case "square":
-                renderer.mesh = meshes[1];
-                break;
-            case "diamond":
-                renderer.mesh = meshes[2];
-                break;
-            case "pentagon":
-                renderer.mesh = meshes[3];
-                break;
-            case "hexagon":
-                renderer.mesh = meshes[4];
-                break;
-            case "star":
-                renderer.mesh = meshes[5];
-                break;
-            case "heart":
-                renderer.mesh = meshes[6];
-                break;
-            case "flower":
-                renderer.mesh = meshes[7];
-                break;
-            case "bat":
-                renderer.mesh = meshes[8];
-                break;
-        }
-        setTool(shape === "circle" ? ellipseTool : shapeTool);
+        setShapeType(shape);
     }
 );
 
@@ -132,6 +106,9 @@ CursorDialog.create("#cursor-button", toolType =>{
             return setTool(panTool);
     }
 })
+
+// Set initial mesh
+setShapeType(shapeDialog.shape.val);
 
 // Set initial tool
 $(`#${toolType.val}-button`).click();

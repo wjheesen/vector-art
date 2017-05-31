@@ -34,7 +34,7 @@ export class LineTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         if(!this.line){ 
             let color = ColorFStruct.create(renderer.color);
-            this.line = new Line(renderer.lineMesh, color);
+            this.line = new Line(renderer.meshes.square, color);
             renderer.temp = this.line;
         }
         let start = this.start;

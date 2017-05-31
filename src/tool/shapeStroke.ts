@@ -1,5 +1,5 @@
 import { Mat2dBuffer } from 'gl2d/struct/mat2d';
-import { Spray } from '../drawable/spray';
+import { ShapeBatch } from '../drawable/shapeBatch';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
@@ -8,9 +8,9 @@ import { Status } from "gl2d/action/status";
 
 type Action = MouseOrTouchAction<Surface>;
 
-export class SprayTool extends MouseOrTouchTool<Surface> {
+export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
 
-    private spray: Spray;
+    private shapeStroke: ShapeBatch;
 
     onAction(action: Action): void {
         switch(action.status){
@@ -28,17 +28,17 @@ export class SprayTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         let center = this.getPrimaryPointer(action);
         let radius = renderer.lineThickness / 2;
-        let mesh = renderer.meshes[0];
+        let mesh = renderer.mesh;
         let color = ColorFStruct.create(renderer.color);
         let matrices = new Mat2dBuffer(renderer.buffer);
-        this.spray = new Spray(mesh, color, matrices);
-        this.spray.add(center, radius);
-        renderer.temp = this.spray;
+        this.shapeStroke = new ShapeBatch(mesh, color, matrices);
+        this.shapeStroke.add(center, radius);
+        renderer.temp = this.shapeStroke;
         surface.requestRender();
     }
 
     onDrag(action: MouseOrTouchAction<Surface>) {
-        let spray = this.spray;
+        let spray = this.shapeStroke;
         let position = spray.matrices.position();
         let capacity = spray.matrices.capacity();
         if (!spray || position >= capacity ) { return; }
@@ -53,15 +53,15 @@ export class SprayTool extends MouseOrTouchTool<Surface> {
     onEnd(action: Action) {
         let surface = action.target;
         let renderer = surface.renderer;
-        let buffer = this.spray.matrices;
+        let buffer = this.shapeStroke.matrices;
         let size = buffer.position();
         if(size > 0){
             buffer.moveToFirst();
-            this.spray.matrices = Mat2dBuffer.create(size);
-            this.spray.matrices.putBuffer(buffer, size);
+            this.shapeStroke.matrices = Mat2dBuffer.create(size);
+            this.shapeStroke.matrices.putBuffer(buffer, size);
             renderer.addDrawable();
         }
-        this.spray = null;
+        this.shapeStroke = null;
         renderer.temp = null;
         surface.requestRender();
     }

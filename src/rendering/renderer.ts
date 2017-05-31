@@ -1,6 +1,6 @@
 import { ShapeProgram } from '../program/shape';
 import { MeshSource } from 'gl2d';
-import { Spray } from '../drawable/spray';
+import { ShapeBatch } from '../drawable/shapeBatch';
 import { Stroke } from '../drawable/stroke';
 import { Shape } from '../drawable/shape';
 import { StrokeProgram } from '../program/stroke';
@@ -37,20 +37,19 @@ export class Renderer extends Base {
 
     // points: Ellipse[] = [];
     
-    meshes = [
-        Mesh.polygon(3),
-        Mesh.square(),
-        Mesh.diamond(),
-        Mesh.polygon(5),
-        Mesh.polygon(6),
-        Mesh.star5(),
-        Mesh.fromSource(heart()),
-        Mesh.fromSource(flower()),
-        Mesh.fromSource(bat()),
-    ]; 
+    meshes: MeshMap = {
+        "triangle": Mesh.polygon(3),
+        "square": Mesh.square(),
+        "diamind": Mesh.diamond(),
+        "pentagon": Mesh.polygon(5),
+        "hexagon": Mesh.polygon(6),
+        "star": Mesh.star5(),
+        "heart": Mesh.fromSource(heart()),
+        "flower": Mesh.fromSource(flower()),
+        "bat": Mesh.fromSource(bat()),
+    } 
 
-    lineMesh = this.meshes[1];
-    mesh = this.meshes[0];
+    mesh: Mesh;
     lineThickness = 0.01;
     maintainAspect = true;
     color = new ColorFStruct();
@@ -59,8 +58,13 @@ export class Renderer extends Base {
         let gl = this.gl;
         gl.clearColor(1, 1, 1, 1);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        // Put meshes into array
+        let meshes = <Mesh[]> [];
+        for(let key in this.meshes){
+            meshes.push(this.meshes[key])
+        }
         // Init programs
-        this.shapeProgram = ShapeProgram.create(gl, this.meshes);
+        this.shapeProgram = ShapeProgram.create(gl, meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.strokeProgram = StrokeProgram.create(gl);
         this.frameProgram = FrameProgram.create(gl);
@@ -137,7 +141,7 @@ export class Renderer extends Base {
                 size += drawable.matrix.data.buffer.byteLength;
             } else if (drawable instanceof Stroke){
                 size += drawable.vertices.data.buffer.byteLength;
-            } else if (drawable instanceof Spray){
+            } else if (drawable instanceof ShapeBatch){
                 size += drawable.matrices.data.buffer.byteLength;
             }
         }
@@ -176,3 +180,6 @@ function bat(): MeshSource {
     };
 }
 
+interface MeshMap {
+    [key: string]: Mesh;
+}
