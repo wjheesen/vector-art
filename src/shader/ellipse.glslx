@@ -1,14 +1,15 @@
 precision mediump float;
 
 uniform mat4 projection;       // Projection matrix (maps from world space to clip space)
-uniform mat3 model;            // Model matrix (maps from model space to world space)
 uniform vec4 color;            // Color of ellipse
+attribute mat2 model;            // Model matrix (maps from model space to world space)
+attribute vec2 offset;
 attribute vec2 position;       // Position of current vertex in model space: one of (-1, 1), (-1, -1), (1, -1), (1, 1)
 varying vec2 relative;         // Position of vertex relative to ellipse 
 
 export void vertex(){
-      vec3 worldPosition = model * vec3(position, 1.0);
-      gl_Position = projection * vec4(worldPosition, 1.0);
+      vec2 worldPosition = (model * position) + offset;
+      gl_Position = projection * vec4(worldPosition, 1.0, 1.0);
       relative = position; // Map to NDC space
 }
 

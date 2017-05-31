@@ -28,7 +28,7 @@ export class SprayTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         let center = this.getPrimaryPointer(action);
         let radius = renderer.lineThickness / 2;
-        let mesh = renderer.sprayProgram.mesh;
+        let mesh = renderer.meshes[0];
         let color = ColorFStruct.create(renderer.color);
         let matrices = new Mat2dBuffer(renderer.buffer);
         this.spray = new Spray(mesh, color, matrices);
@@ -38,12 +38,15 @@ export class SprayTool extends MouseOrTouchTool<Surface> {
     }
 
     onDrag(action: MouseOrTouchAction<Surface>) {
-        if (!this.spray || !this.spray.matrices.moveToNext()) { return; }
+        let spray = this.spray;
+        let position = spray.matrices.position();
+        let capacity = spray.matrices.capacity();
+        if (!spray || position >= capacity ) { return; }
         let surface = action.target;
         let renderer = surface.renderer;
         let center = this.getPrimaryPointer(action);
         let radius = renderer.lineThickness / 2;
-        this.spray.add(center, radius);
+        spray.add(center, radius);
         surface.requestRender();
     }
 

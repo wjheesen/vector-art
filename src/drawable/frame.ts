@@ -61,7 +61,7 @@ export class Frame implements Drawable<Renderer>{
     draw(renderer: Renderer){
         let gl = renderer.gl;
         let program = renderer.frameProgram;
-        renderer.useProgram(program);
+        renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
         program.setInnerRect(gl, this.innerRect);
         program.setColor(gl, this.color);

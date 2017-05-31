@@ -5,7 +5,7 @@ import { Frame } from './frame';
 import { Renderer } from "src/rendering/renderer";
 import { IVec2 } from "gl2d/struct/vec2";
 import { IMat2d } from 'gl2d/struct/mat2d';
-import { Mat3Struct } from 'gl2d/struct/mat3';
+import { Mat2dStruct } from 'gl2d/struct/mat2d';
 import { Mesh } from "gl2d/drawable/mesh";
 import { ColorFStruct } from "gl2d/struct/colorf";
 import { IPoint } from "gl2d/struct/point";
@@ -25,8 +25,8 @@ export class Selection {
 
     static create(frameColor: ColorFStruct, frameThickness: number, pointMesh: Mesh, pointColor: ColorFStruct, pointRadius: number){
         let frame = new Frame(frameColor, frameThickness);
-        let pivot = new Ellipse(pointMesh, pointColor, Mat3Struct.stretch(pointRadius));
-        let control = new Ellipse(pointMesh, pointColor, Mat3Struct.stretch(pointRadius));
+        let pivot = new Ellipse(pointMesh, pointColor, Mat2dStruct.stretch(pointRadius));
+        let control = new Ellipse(pointMesh, pointColor, Mat2dStruct.stretch(pointRadius));
         return new Selection(frame, pivot, control);
     }
 

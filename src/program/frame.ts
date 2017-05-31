@@ -1,14 +1,16 @@
+import { Renderer } from '../rendering/renderer';
+import { Program } from './program';
 import { RectStruct } from 'gl2d/struct/rect';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat4Struct } from 'gl2d/struct/mat4';
 import * as Shader from '../shader/frame';
 import * as Util from 'gl2d/rendering/util';
-import { Program } from "gl2d/rendering/program";
 
 /**
  * Program for rendering frames. 
  */
 export class FrameProgram extends Program<Shader.Uniforms, Shader.Attributes> {
+
 
     positionBuffer: WebGLBuffer;
 
@@ -24,15 +26,17 @@ export class FrameProgram extends Program<Shader.Uniforms, Shader.Attributes> {
         return program;
     }
 
-    bind (gl: WebGLRenderingContext) {
-        // Bind program
-        gl.useProgram(this.location);
+    onAttach (renderer: Renderer) {
+        let gl = renderer.gl;
         // Enable blending (for transparency)
         gl.enable(gl.BLEND);
         // Bind position buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
         gl.enableVertexAttribArray(this.attribs.basisCoord);
         gl.vertexAttribPointer(this.attribs.basisCoord, 2, gl.FLOAT, false, 0, 0);
+    }
+
+    onDetach(renderer: Renderer) {
     }
 
     /**

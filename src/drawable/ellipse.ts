@@ -73,10 +73,10 @@ export class Ellipse extends Shape {
     draw(renderer: Renderer){
         let gl = renderer.gl;
         let program = renderer.ellipseProgram;
-        renderer.useProgram(program);
+        renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
         program.setColor(gl, this.color);
-        program.setMatrix(gl, this.matrix);
-        program.draw(gl);
+        program.setMatrices(gl, this.matrix);
+        program.draw(renderer);
     }
 }

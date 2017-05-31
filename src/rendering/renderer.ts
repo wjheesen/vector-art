@@ -1,4 +1,4 @@
-import { SprayProgram } from '../program/spray';
+import { ShapeProgram } from '../program/shape';
 import { MeshSource } from 'gl2d';
 import { Spray } from '../drawable/spray';
 import { Stroke } from '../drawable/stroke';
@@ -9,7 +9,6 @@ import { Frame } from '../drawable/frame';
 import { FramedDrawable } from '../drawable/framed';
 import { FrameProgram } from '../program/frame';
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { ShapeProgram } from 'gl2d/program/shape';
 import { EllipseProgram } from '../program/ellipse';
 import { Renderer as Base } from 'gl2d/rendering/renderer'
 import { Mesh } from "gl2d/drawable/mesh";
@@ -21,13 +20,12 @@ export class Renderer extends Base {
 
     ext: ANGLEInstancedArrays;
     
-    buffer = new Float32Array(100000); // 100kb
+    buffer = new Float32Array(25000); // 100kb
 
     shapeProgram: ShapeProgram;
     ellipseProgram: EllipseProgram;
     strokeProgram: StrokeProgram;
     frameProgram: FrameProgram;
-    sprayProgram: SprayProgram;
 
     foreground: Frame;
     drawables: Drawable[] = [];
@@ -63,7 +61,6 @@ export class Renderer extends Base {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         // Init programs
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
-        this.sprayProgram = SprayProgram.create(gl);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.strokeProgram = StrokeProgram.create(gl);
         this.frameProgram = FrameProgram.create(gl);

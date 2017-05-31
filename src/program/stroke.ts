@@ -1,5 +1,6 @@
+import { Renderer } from '../rendering/renderer';
+import { Program } from './program';
 import { VertexBuffer } from 'gl2d/struct/vertex';
-import { Program } from 'gl2d/rendering/program';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat4Struct } from 'gl2d/struct/mat4';
 import * as Util from 'gl2d/rendering/util';
@@ -21,11 +22,13 @@ export class StrokeProgram extends Program<Shader.Uniforms, Shader.Attributes> {
         return program;
     }
 
-    bind(gl: WebGLRenderingContext) {
-        gl.useProgram(this.location);
+    onAttach(renderer: Renderer) {
+        let gl = renderer.gl;
         gl.enable(gl.BLEND);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-        gl.enableVertexAttribArray(this.attribs.position); 
+        gl.enableVertexAttribArray(this.attribs.position);
+    }
+    onDetach(renderer: Renderer) {
     }
 
     /**

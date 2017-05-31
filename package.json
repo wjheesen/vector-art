@@ -24,7 +24,7 @@
     "@types/tether": "^1.4.1",
     "bootstrap": "^4.0.0-alpha.6",
     "bootstrap-slider": "^9.8.0",
-    "gl2d": "^0.3.6",
+    "gl2d": "^0.3.7",
     "spectrum-colorpicker": "^1.8.0"
   },
   "devDependencies": {

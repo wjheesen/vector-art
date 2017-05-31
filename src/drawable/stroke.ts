@@ -50,7 +50,7 @@ export class Stroke implements Drawable {
         let gl = renderer.gl;
         let program = renderer.strokeProgram;
         let vertices = this.vertices;
-        renderer.useProgram(program);
+        renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
         program.setColor(gl, this.color);
         program.setVertices(gl, vertices);
