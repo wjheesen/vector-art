@@ -3,13 +3,8 @@ import { VertexBuffer } from 'gl2d/struct/vertex';
 import { ColorFStruct } from "gl2d/struct/colorf";
 import { IPoint, Point } from "gl2d/struct/point";
 import { IVec2, Vec2 } from "gl2d/struct/vec2";
+
 export class StrokeBuilder {
-
-    vertices: VertexBuffer;
-
-    constructor(maxVertices = 12500){ // 100kb
-        this.vertices = VertexBuffer.create(maxVertices);
-    }
 
     /**
      * Begins a stroke at the specified point.
@@ -17,8 +12,7 @@ export class StrokeBuilder {
      * @param point where to begin the stroke.
      * @param halfThickness the thickness of the line.
      */
-    begin(color: ColorFStruct, point: IPoint, thickness: number) {
-        let vertices = this.vertices;
+    begin(color: ColorFStruct, vertices: VertexBuffer, point: IPoint, thickness: number) {
         let halfThickness = 0.5 * thickness;
         let stroke = new Stroke(color, vertices);
         let {x, y} = point;

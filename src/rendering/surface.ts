@@ -17,6 +17,7 @@ export class Surface extends Base<Renderer> {
         let gl = drawingBuffer.getContext('webgl');
         let camera = new Camera(RectStruct.create$(-1,1,1,-1), 1.0, 1000);
         let renderer = new Renderer(gl, camera);
+        renderer.ext = gl.getExtension('ANGLE_instanced_arrays');
         return new Surface(drawingBuffer, renderer);
     }
 

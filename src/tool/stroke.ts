@@ -1,3 +1,4 @@
+import { VertexBuffer } from 'gl2d/struct/vertex';
 import { StrokeBuilder } from '../drawable/strokeBuilder';
 import { Stroke } from '../drawable/stroke';
 import { ColorFStruct } from 'gl2d/struct/colorf';
@@ -29,7 +30,8 @@ export class StrokeTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         let pointer = this.getPrimaryPointer(action);
         let color = ColorFStruct.create(renderer.color);
-        this.stroke = this.strokeBuilder.begin(color, pointer, renderer.lineThickness);
+        let vertices = new VertexBuffer(renderer.buffer);
+        this.stroke = this.strokeBuilder.begin(color, vertices, pointer, renderer.lineThickness);
         renderer.temp = this.stroke;
     }
 

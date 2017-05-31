@@ -24,7 +24,7 @@
     "@types/tether": "^1.4.1",
     "bootstrap": "^4.0.0-alpha.6",
     "bootstrap-slider": "^9.8.0",
-    "gl2d": "^0.3.4",
+    "gl2d": "^0.3.6",
     "spectrum-colorpicker": "^1.8.0"
   },
   "devDependencies": {
@@ -38,7 +38,7 @@
     "browserify": "^14.3.0",
     "gulp": "^3.9.1",
     "gulp-rename": "^1.2.2",
-    "gulp-shadify": "0.0.5",
+    "gulp-shadify": "0.0.6",
     "tsify": "^3.0.1",
     "typescript": "^2.3.2",
     "vinyl-source-stream": "^1.1.0"

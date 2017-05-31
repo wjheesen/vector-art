@@ -2,23 +2,24 @@ import {Program} from 'gl2d/rendering/program';
 import {ColorFStruct} from 'gl2d/struct/colorf';
 import {Mat4Struct} from 'gl2d/struct/mat4';
 import * as Util from 'gl2d/rendering/util';
-import * as Shader from '../shader/ellipse';
+import * as Shader from '../shader/spray';
 import { Mesh } from "gl2d/drawable/mesh";
-import { Mat3Struct } from "gl2d/struct/mat3";
 /**
  * Program for rendering ellipses.
  */
-export class EllipseProgram extends Program<Shader.Uniforms, Shader.Attributes> {
+export class SprayProgram extends Program<Shader.Uniforms, Shader.Attributes> {
 
     positionBuffer: WebGLBuffer;
-    mesh = Mesh.fromSource({vertices: [-1,1, -1,-1, 1,-1, 1,1] });
-
+    matrixBuffer: WebGLBuffer
+    mesh = new Mesh(Mesh.polygonVertices(3));
+    
     static create(gl: WebGLRenderingContext) {
-        let program = new EllipseProgram();
+        let program = new SprayProgram();
         program.location = Util.createProgramFromSources(gl, Shader.vertex, Shader.fragment);
         program.uniforms = Util.getUniformLocations(gl, program.location, Shader.UniformRenaming) as Shader.Uniforms;
         program.attribs = Util.getAttributeLocations(gl, program.location, Shader.AttributeRenaming) as Shader.Attributes;
         program.positionBuffer = Util.createArrayBuffer(gl, program.mesh.vertices.data);
+        program.matrixBuffer = gl.createBuffer();
         return program;
     }
 
@@ -27,10 +28,12 @@ export class EllipseProgram extends Program<Shader.Uniforms, Shader.Attributes> 
         gl.useProgram(this.location);
         // Enable blending (for transparency)
         gl.enable(gl.BLEND);
-        // Bind tex buffer
+        // Bind position buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
         gl.enableVertexAttribArray(this.attribs.position);
         gl.vertexAttribPointer(this.attribs.position, 2, gl.FLOAT, false, 0, 0);
+        // Bind matrix buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.matrixBuffer);
     }
 
     /**
@@ -38,13 +41,6 @@ export class EllipseProgram extends Program<Shader.Uniforms, Shader.Attributes> 
      */
     setProjection(gl: WebGLRenderingContext, projection: Mat4Struct) {
         gl.uniformMatrix4fv(this.uniforms.projection, false, projection.data);
-    }
-   /**
-    * 
-     * Sets the matrix applied to shapes this program will draw.
-     */
-    setMatrix(gl: WebGLRenderingContext, matrix: Mat3Struct) {
-        gl.uniformMatrix3fv(this.uniforms.model, false, matrix.data);
     }
 
     /**
@@ -54,10 +50,4 @@ export class EllipseProgram extends Program<Shader.Uniforms, Shader.Attributes> 
         gl.uniform4fv(this.uniforms.color, color.data);
     }
 
-    /**
-     * Draws an ellipse using the color and bounds data loaded into the program. 
-     */
-    draw(gl: WebGLRenderingContext){
-        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-    }
 }

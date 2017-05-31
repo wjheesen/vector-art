@@ -1,5 +1,6 @@
+import { SprayProgram } from '../program/spray';
 import { MeshSource } from 'gl2d';
-import { Batch } from '../drawable/batch';
+import { Spray } from '../drawable/spray';
 import { Stroke } from '../drawable/stroke';
 import { Shape } from '../drawable/shape';
 import { StrokeProgram } from '../program/stroke';
@@ -14,13 +15,19 @@ import { Renderer as Base } from 'gl2d/rendering/renderer'
 import { Mesh } from "gl2d/drawable/mesh";
 import { IPoint } from "gl2d/struct/point";
 import { Selection } from '../drawable/selection'
+import { ANGLEInstancedArrays } from "src/rendering/ANGLE_instanced_arrays";
 
 export class Renderer extends Base {
+
+    ext: ANGLEInstancedArrays;
+    
+    buffer = new Float32Array(100000); // 100kb
 
     shapeProgram: ShapeProgram;
     ellipseProgram: EllipseProgram;
     strokeProgram: StrokeProgram;
     frameProgram: FrameProgram;
+    sprayProgram: SprayProgram;
 
     foreground: Frame;
     drawables: Drawable[] = [];
@@ -47,7 +54,6 @@ export class Renderer extends Base {
     lineMesh = this.meshes[1];
     mesh = this.meshes[0];
     lineThickness = 0.01;
-    sprayRadius = 0.01;
     maintainAspect = true;
     color = new ColorFStruct();
 
@@ -57,6 +63,7 @@ export class Renderer extends Base {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         // Init programs
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
+        this.sprayProgram = SprayProgram.create(gl);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.strokeProgram = StrokeProgram.create(gl);
         this.frameProgram = FrameProgram.create(gl);
@@ -133,10 +140,8 @@ export class Renderer extends Base {
                 size += drawable.matrix.data.buffer.byteLength;
             } else if (drawable instanceof Stroke){
                 size += drawable.vertices.data.buffer.byteLength;
-            } else if (drawable instanceof Batch){
-                for(let instance of drawable.instances){
-                    size += instance.matrix.data.buffer.byteLength;
-                }
+            } else if (drawable instanceof Spray){
+                size += drawable.matrices.data.buffer.byteLength;
             }
         }
         return size;

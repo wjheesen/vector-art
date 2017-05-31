@@ -1,5 +1,6 @@
+import { SprayTool } from './tool/spray';
 import { Option } from './option/option';
-import { CursorDialog } from './dialog/cusor';
+import { CursorDialog } from './dialog/cursor';
 import { StrokeDialog } from './dialog/stroke';
 import { ShapeDialog } from './dialog/shape';
 import { StrokeTool } from './tool/stroke';
@@ -28,6 +29,7 @@ let toolType = Option.str("tool", "shape") as Option<ToolType>;
 let currentTool: _MouseOrTouchTool;
 let shapeTool = new ShapeTool();
 let lineTool = new LineTool();
+let sprayCan = new SprayTool();
 let ellipseTool = new EllipseTool();
 let brush = new StrokeTool();
 let scrollZoomTool = new ScrollZoomTool(1.5);
@@ -115,10 +117,11 @@ StrokeDialog.create("#stroke-button",
                 return setTool(brush);
             case "line":
                 return setTool(lineTool);
+            case "spray-can":
+                return setTool(sprayCan);
         }
     }
 )
-
 
 CursorDialog.create("#cursor-button", toolType =>{
     setToolType("cursor");
@@ -177,7 +180,7 @@ $(document)
     .on("keypress", e => {
         if (!key) { return; }
         switch(key){
-            case "r":
+            case "R":
                 return colorPicker.pickRandom();
         }
     })

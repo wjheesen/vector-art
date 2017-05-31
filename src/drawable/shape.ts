@@ -1,9 +1,10 @@
 import { Drawable } from './drawable';
-import { Mat2dStruct, Mat2d } from 'gl2d/struct/mat2d';
+import { Mat2d } from 'gl2d/struct/mat2d';
 import { Shape as Base } from 'gl2d/drawable/shape';
 import { Renderer } from '../rendering/renderer';
 import { Mesh } from "gl2d/drawable/mesh";
 import { ColorFStruct } from "gl2d/struct/colorf";
+import { Mat3Struct } from "gl2d/struct/mat3";
 
 export class Shape extends Base implements Drawable {
 
@@ -12,7 +13,7 @@ export class Shape extends Base implements Drawable {
      */
     color: ColorFStruct;
 
-    constructor(mesh: Mesh, color: ColorFStruct, matrix?: Mat2dStruct){
+    constructor(mesh: Mesh, color: ColorFStruct, matrix?: Mat3Struct){
         super(mesh, matrix);
         this.color = color;
     }
