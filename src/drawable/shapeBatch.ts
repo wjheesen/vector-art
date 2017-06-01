@@ -1,3 +1,4 @@
+import { Shape } from './shape';
 import { Renderer } from '../rendering/renderer';
 import { Drawable } from './drawable';
 import { ColorFStruct } from 'gl2d/struct/colorf';
@@ -30,27 +31,23 @@ export class ShapeBatch implements Drawable {
         this.matrices.moveToNext();
     }
 
+    addAcrossLine(p1: IPoint, p2: IPoint){
+        Shape.stretchAcrossLine(this.matrices, this.mesh, p1, p2);
+        this.matrices.moveToNext();
+    }
+
     measureBoundaries(): Rect {
         let bounds = <Rect> null;
         let matrices = this.matrices;
         let vertices = this.mesh.vertices;
 
         if(matrices.moveToFirst() && vertices.moveToFirst()){
-            // Enclose the first point of the first shape
-            let dst = new Point();
-            matrices.$map(vertices, dst);
-            bounds = Rect.unionOfPoints([dst]);
-            // Enclose the remaining points
-            do { 
-                while(vertices.moveToNext()){
-                    matrices.$map(vertices, dst);
-                    bounds.unionPoint(dst);
-                 }
-                 // Reset position of vertex array
-                vertices.moveToPosition(-1);
-            } 
-            // Repeat for each of the shapes in the batch
-            while (matrices.moveToNext());
+            // Enclose the first shape
+            bounds = Shape.measureBoundaries(matrices, vertices);
+            // Enclose the remaining shapes
+            while(matrices.moveToNext()){
+                bounds.union(Shape.measureBoundaries(matrices, vertices));
+            }
         }
         
         // Bounds will be null if batch is empty

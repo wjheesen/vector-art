@@ -1,4 +1,5 @@
-import { ShapeStrokeTool } from './tool/shapeStroke';
+import { ShapeLineTool } from './tool/shapeLine';
+import { ShapeLayerTool } from './tool/shapeLayer';
 import { Option } from './option/option';
 import { CursorDialog } from './dialog/cursor';
 import { StrokeDialog } from './dialog/stroke';
@@ -28,7 +29,8 @@ let toolType = Option.str("tool", "shape") as Option<ToolType>;
 let currentTool: _MouseOrTouchTool;
 let shapeTool = new ShapeTool();
 let lineTool = new LineTool();
-let sprayCan = new ShapeStrokeTool();
+let shapeLayerTool = new ShapeLayerTool();
+let shapeLineTool = new ShapeLineTool();
 let brush = new StrokeTool();
 let scrollZoomTool = new ScrollZoomTool(1.5);
 let pinchZoomTool = new PinchZoomTool();
@@ -91,8 +93,10 @@ StrokeDialog.create("#stroke-button",
                 return setTool(brush);
             case "line":
                 return setTool(lineTool);
+            case "layer":
+                return setTool(shapeLayerTool);
             case "spray-can":
-                return setTool(sprayCan);
+                return setTool(shapeLineTool);
         }
     }
 )

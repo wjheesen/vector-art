@@ -6,13 +6,23 @@ import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
 import { Status } from "gl2d/action/status";
+import { IPoint, Point } from "gl2d/struct/point";
+import { Vec2 } from "gl2d/struct/vec2";
 
 type Action = MouseOrTouchAction<Surface>;
 
-export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
+export class ShapeLineTool extends MouseOrTouchTool<Surface> {
+    
+    private start: IPoint;
+
+   onStart(action: Action) {
+        this.start = this.getPrimaryPointer(action);
+    }
 
     onAction(action: Action): void {
         switch(action.status){
+            case Status.Start:
+                return this.onStart(action);
             case Status.Drag:
                 return this.onDrag(action);
             case Status.End:
@@ -20,7 +30,8 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-    onDrag(action: MouseOrTouchAction<Surface>) {
+    onDrag(action: Action) {
+        if(!this.start) { return; }
 
         let surface = action.target;
         let renderer = surface.renderer;
@@ -39,28 +50,45 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
             renderer.temp = stroke;
         }
 
-        // Add another shape if there is room
+        // Add shapes from start to end, provided there is enough space
         let matrices = stroke.matrices;
-        if(matrices.position() < matrices.capacity()){
-            let center = this.getPrimaryPointer(action);
-            let radius = renderer.lineThickness / 2;
-            stroke.add(center, radius);
-            surface.requestRender();
+        let start = this.start;
+        let end = this.getPrimaryPointer(action);
+        let vec = Vec2.fromPointToPoint(start, end);
+        let len = vec.length();
+        let thickness = renderer.lineThickness;
+        let ratio = len / thickness;
+        let count = Math.min(ratio >> 0, matrices.capacity());
+        let p1 = Point.create(start);
+        let p2 = Point.create(start);
+        
+        vec.divScalar(ratio);   // Gives vec a length equal to thickness
+        matrices.moveToFirst(); // Allows previous shapes to be overwritten
+
+        while(count--){
+            p2.add(vec);
+            stroke.addAcrossLine(p1, p2);
+            p1.set(p2);
         }
+
+        surface.requestRender();
     }
 
     onEnd(action: Action) {
+        this.start = null;
         let surface = action.target;
         let renderer = surface.renderer;
         let stroke = renderer.temp as ShapeBatch;
         if(stroke){
             let buffer = stroke.matrices;
             let size = buffer.position();
-            buffer.moveToFirst();
-            stroke.matrices = Mat2dBuffer.create(size);
-            stroke.matrices.putBuffer(buffer, size);
-            renderer.addDrawable();
-            surface.requestRender();
+            if(size > 0){
+                buffer.moveToFirst();
+                stroke.matrices = Mat2dBuffer.create(size);
+                stroke.matrices.putBuffer(buffer, size);
+                renderer.addDrawable();
+                surface.requestRender();
+            }
         }
     }
 }

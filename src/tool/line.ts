@@ -11,7 +11,6 @@ type Action = MouseOrTouchAction<Surface>;
 export class LineTool extends MouseOrTouchTool<Surface> {
 
     private start: IPoint;
-    private line: Line;
 
     onAction(action: Action): void {
         switch(action.status){
@@ -32,20 +31,22 @@ export class LineTool extends MouseOrTouchTool<Surface> {
         if (!this.start) { return; }
         let surface = action.target;
         let renderer = surface.renderer;
-        if(!this.line){ 
+        let line = renderer.temp as Line;
+        // Init line if needed
+        if(!line){ 
             let color = ColorFStruct.create(renderer.color);
-            this.line = new Line(renderer.meshes.square, color);
-            renderer.temp = this.line;
+            line = new Line(renderer.meshes.square, color);
+            renderer.temp = line;
         }
+        // Transform line based on start and end points
         let start = this.start;
         let end = this.getPrimaryPointer(action);
-        this.line.setFromPointToPoint(start, end, renderer.lineThickness);
+        line.setFromPointToPoint(start, end, renderer.lineThickness);
         surface.requestRender();
     }
 
     onEnd(action: Action) {
         this.start = null;
-        this.line = null;
         let surface = action.target;
         let renderer = surface.renderer;
         renderer.addDrawable();

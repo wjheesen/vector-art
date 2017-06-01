@@ -52,7 +52,7 @@ function Update-Html(){
 function Update-Icons(){
     Remove-Directory $icon
     New-Item $icon -ItemType "Directory"
-    icon-font-generator.cmd "$svg\*.svg" --out $icon --prefix "icon"
+    icon-font-generator.cmd "$svg\*.svg" --out $icon --prefix "icon" --center --normalize
     Remove-Directory "$debug\icon";
     Remove-Directory "$release\icon"
     Copy-Item $icon $debug -Recurse -ErrorAction Ignore
