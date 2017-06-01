@@ -5,7 +5,7 @@ import { ColorFStruct } from 'gl2d/struct/colorf';
 import { IMat2d, Mat2d, Mat2dBuffer, ScaleToFit } from 'gl2d/struct/mat2d';
 import { IPoint } from "gl2d/struct/point";
 import { Rect } from "gl2d/struct/rect";
-import { IVec2 } from "gl2d/struct/vec2";
+import { IVec2, Vec2 } from "gl2d/struct/vec2";
 import { Mesh } from "gl2d/drawable/mesh";
 import { Point } from "gl2d/struct/point";
 
@@ -34,6 +34,31 @@ export class ShapeBatch implements Drawable {
     addAcrossLine(p1: IPoint, p2: IPoint){
         Shape.stretchAcrossLine(this.matrices, this.mesh, p1, p2);
         this.matrices.moveToNext();
+    }
+
+    addLine(start: IPoint, end: IPoint, thickness: number){
+         // Paramaterize line to a + bt, 0 <= t <= 1
+        let a = Point.create(start);
+        let b = Vec2.fromPointToPoint(start, end);
+        
+        // Determine how many shapes can be drawn on the line from end to end
+        let ratio = b.length() / thickness;
+        let count = Math.min(ratio >> 0, this.matrices.capacity() - this.matrices.position());
+        
+        // Re-parameterize line to a + bt, o <= t <= count
+        b.divScalar(ratio);
+
+        // Fill the line with shapes
+        let p1 = a;
+        let p2 = Point.create(a);
+        
+        while(count--){
+            p2.add(b);
+            this.addAcrossLine(p1, p2);
+            p1.set(p2);
+        }
+
+        return p1;
     }
 
     measureBoundaries(): Rect {

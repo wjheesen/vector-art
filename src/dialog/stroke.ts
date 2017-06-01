@@ -4,7 +4,7 @@ var Slider = require('bootstrap-slider');
 
 export type OnStrokeThicknessPick = (strokeThickness: number) => any;
 export type OnStrokePick = (id: StrokeType) => any;
-export type StrokeType = "brush" | "line" | "layer" | "spray-can";
+export type StrokeType = "brush" | "line" | "layer" | "shape-stroke" | "spray-can";
 
 export class StrokeDialog {
     

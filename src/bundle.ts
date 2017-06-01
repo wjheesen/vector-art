@@ -1,3 +1,4 @@
+import { ShapeStrokeTool } from './tool/shapeStroke';
 import { ShapeLineTool } from './tool/shapeLine';
 import { ShapeLayerTool } from './tool/shapeLayer';
 import { Option } from './option/option';
@@ -31,6 +32,7 @@ let shapeTool = new ShapeTool();
 let lineTool = new LineTool();
 let shapeLayerTool = new ShapeLayerTool();
 let shapeLineTool = new ShapeLineTool();
+let shapeStrokeTool = new ShapeStrokeTool();
 let brush = new StrokeTool();
 let scrollZoomTool = new ScrollZoomTool(1.5);
 let pinchZoomTool = new PinchZoomTool();
@@ -97,6 +99,8 @@ StrokeDialog.create("#stroke-button",
                 return setTool(shapeLayerTool);
             case "spray-can":
                 return setTool(shapeLineTool);
+            case "shape-stroke":
+                return setTool(shapeStrokeTool);
         }
     }
 )

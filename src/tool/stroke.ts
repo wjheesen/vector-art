@@ -11,7 +11,6 @@ type Action = MouseOrTouchAction<Surface>;
 
 export class StrokeTool extends MouseOrTouchTool<Surface> {
 
-    private stroke: Stroke;
     private strokeBuilder = new StrokeBuilder();
 
     onAction(action: Action): void {
@@ -31,25 +30,25 @@ export class StrokeTool extends MouseOrTouchTool<Surface> {
         let pointer = this.getPrimaryPointer(action);
         let color = ColorFStruct.create(renderer.color);
         let vertices = new VertexBuffer(renderer.buffer);
-        this.stroke = this.strokeBuilder.begin(color, vertices, pointer, renderer.lineThickness);
-        renderer.temp = this.stroke;
+        renderer.temp = this.strokeBuilder.begin(color, vertices, pointer, renderer.lineThickness);
     }
 
     onDrag(action: MouseOrTouchAction<Surface>) {
-        if (!this.stroke || !this.stroke.vertices.hasValidPosition()) { return; }
         let surface = action.target;
         let renderer = surface.renderer;
+        let stroke = renderer.temp as Stroke;
+        if (!stroke || !stroke.vertices.hasValidPosition()) { return; }
         let pointer = this.getPrimaryPointer(action);
-        this.strokeBuilder.add(this.stroke, pointer, renderer.lineThickness);
+        this.strokeBuilder.add(stroke, pointer, renderer.lineThickness);
         surface.requestRender();
     }
 
     onEnd(action: Action) {
         let surface = action.target;
         let renderer = surface.renderer;
-        renderer.temp = this.strokeBuilder.end(this.stroke);
-        this.stroke = null;
-        renderer.addDrawable();
+        let stroke = renderer.temp as Stroke;
+        renderer.temp = this.strokeBuilder.end(stroke);
+        renderer.addTempDrawable();
         surface.requestRender();
     }
 }

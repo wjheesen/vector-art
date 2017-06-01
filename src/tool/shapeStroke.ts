@@ -1,14 +1,14 @@
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
-import { IPoint } from "gl2d/struct/point";
 import { Status } from "gl2d/action/status";
+import { IPoint } from "gl2d/struct/point";
 
 type Action = MouseOrTouchAction<Surface>;
 
-export class LineTool extends MouseOrTouchTool<Surface> {
+export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
 
-    private start: IPoint;
+    private previous: IPoint;
 
     onAction(action: Action): void {
         switch(action.status){
@@ -21,27 +21,31 @@ export class LineTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-   onStart(action: Action) {
-        this.start = this.getPrimaryPointer(action);
+    onStart(action: Action) {
+        this.previous = this.getPrimaryPointer(action);
     }
 
     onDrag(action: MouseOrTouchAction<Surface>) {
-        if (!this.start) { return; }
+        if(!this.previous) { return; }
+
         let surface = action.target;
         let renderer = surface.renderer;
-        let line = renderer.getTempLine();
-        // Transform line based on start and end points
-        let start = this.start;
-        let end = this.getPrimaryPointer(action);
-        line.setFromPointToPoint(start, end, renderer.lineThickness);
-        surface.requestRender();
+        let stroke = renderer.getTempShapeBatch();
+        let thickness = renderer.lineThickness;
+        let current = this.getPrimaryPointer(action);
+        let previous = this.previous;
+
+        // Add line from current to previous shape if there is room
+        if(IPoint.distance2(current, previous) > thickness * thickness){
+            this.previous = stroke.addLine(previous, current, thickness);
+            surface.requestRender();
+        }
     }
 
     onEnd(action: Action) {
-        this.start = null;
         let surface = action.target;
         let renderer = surface.renderer;
-        renderer.addTempDrawable();
+        renderer.addTempShapeBatch();
         surface.requestRender();
     }
 }

@@ -1,7 +1,3 @@
-import { EllipseBatch } from '../drawable/ellipseBatch';
-import { Mat2dBuffer } from 'gl2d/struct/mat2d';
-import { ShapeBatch } from '../drawable/shapeBatch';
-import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
 import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
@@ -24,20 +20,7 @@ export class ShapeLayerTool extends MouseOrTouchTool<Surface> {
 
         let surface = action.target;
         let renderer = surface.renderer;
-        let mesh = renderer.mesh;
-        let stroke = renderer.temp as ShapeBatch;
-
-        // Init shape stroke if needed
-        if(!stroke){
-            let color = ColorFStruct.create(renderer.color);
-            let matrices = new Mat2dBuffer(renderer.buffer);
-            if(mesh){
-                stroke = new ShapeBatch(mesh, color, matrices);
-            } else {
-                stroke = new EllipseBatch(renderer.ellipseProgram.mesh, color, matrices);
-            }
-            renderer.temp = stroke;
-        }
+        let stroke = renderer.getTempShapeBatch();
 
         // Add another shape if there is room
         let matrices = stroke.matrices;
@@ -52,15 +35,7 @@ export class ShapeLayerTool extends MouseOrTouchTool<Surface> {
     onEnd(action: Action) {
         let surface = action.target;
         let renderer = surface.renderer;
-        let stroke = renderer.temp as ShapeBatch;
-        if(stroke){
-            let buffer = stroke.matrices;
-            let size = buffer.position();
-            buffer.moveToFirst();
-            stroke.matrices = Mat2dBuffer.create(size);
-            stroke.matrices.putBuffer(buffer, size);
-            renderer.addDrawable();
-            surface.requestRender();
-        }
+        renderer.addTempShapeBatch();
+        surface.requestRender();
     }
 }

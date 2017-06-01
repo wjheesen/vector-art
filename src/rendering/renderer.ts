@@ -1,3 +1,7 @@
+import { Line } from '../drawable/line';
+import { EllipseBatch } from '../drawable/ellipseBatch';
+import { Mat2dBuffer } from 'gl2d/struct/mat2d';
+import { Ellipse } from '../drawable/ellipse';
 import { ShapeProgram } from '../program/shape';
 import { MeshSource } from 'gl2d';
 import { ShapeBatch } from '../drawable/shapeBatch';
@@ -114,13 +118,68 @@ export class Renderer extends Base {
         return null;
     }
 
-    addDrawable(drawable?: Drawable){
-        if(!drawable){
-            drawable = this.temp;
-            this.temp = null;
+    getTempLine(){
+        let line = this.temp as Line;
+        if(!line){
+            let color = ColorFStruct.create(this.color);
+            line = new Line(this.meshes.square, color);
+            this.temp = line;
         }
+        return line;
+    }
+
+    getTempShape(){
+        let shape = this.temp as Shape;
+        if(!shape){
+            let mesh = this.mesh;
+            let color = ColorFStruct.create(this.color);
+            if(mesh){
+                shape = new Shape(mesh, color);
+            } else {
+                shape = new Ellipse(this.ellipseProgram.mesh, color);
+            }
+            this.temp = shape;
+        }
+        return shape;
+    }
+
+    getTempShapeBatch(){
+        let batch = this.temp as ShapeBatch;
+        if(!batch){
+            let mesh = this.mesh;
+            let color = ColorFStruct.create(this.color);
+            let matrices = new Mat2dBuffer(this.buffer);
+            if(mesh){
+                batch = new ShapeBatch(mesh, color, matrices);
+            } else {
+                batch = new EllipseBatch(this.ellipseProgram.mesh, color, matrices);
+            }
+            this.temp = batch;
+        }
+        return batch;
+    }
+
+    addTempDrawable(){
+        let drawable = this.temp;
         if(drawable && this.camera.target.intersects(drawable.measureBoundaries())){
-            this.drawables.push(drawable);
+           this.drawables.push(drawable);
+        }
+        this.temp = null;
+    }
+
+    addTempShapeBatch(){
+        let batch = this.temp as ShapeBatch;
+        if(batch){
+            let matrices = batch.matrices;
+            let size = matrices.position();
+            if(size > 0){
+                matrices.moveToFirst();
+                batch.matrices = Mat2dBuffer.create(size);
+                batch.matrices.putBuffer(matrices, size);
+                this.addTempDrawable();
+            } else {
+                this.temp = null;
+            }
         }
     }
 
