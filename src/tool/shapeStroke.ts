@@ -1,3 +1,4 @@
+import { EllipseBatch } from '../drawable/ellipseBatch';
 import { Mat2dBuffer } from 'gl2d/struct/mat2d';
 import { ShapeBatch } from '../drawable/shapeBatch';
 import { ColorFStruct } from 'gl2d/struct/colorf';
@@ -10,12 +11,8 @@ type Action = MouseOrTouchAction<Surface>;
 
 export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
 
-    private shapeStroke: ShapeBatch;
-
     onAction(action: Action): void {
         switch(action.status){
-            case Status.Start:
-                return this.onStart(action);
             case Status.Drag:
                 return this.onDrag(action);
             case Status.End:
@@ -23,46 +20,47 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-   onStart(action: Action) {
-        let surface = action.target;
-        let renderer = surface.renderer;
-        let center = this.getPrimaryPointer(action);
-        let radius = renderer.lineThickness / 2;
-        let mesh = renderer.mesh;
-        let color = ColorFStruct.create(renderer.color);
-        let matrices = new Mat2dBuffer(renderer.buffer);
-        this.shapeStroke = new ShapeBatch(mesh, color, matrices);
-        this.shapeStroke.add(center, radius);
-        renderer.temp = this.shapeStroke;
-        surface.requestRender();
-    }
-
     onDrag(action: MouseOrTouchAction<Surface>) {
-        let spray = this.shapeStroke;
-        let position = spray.matrices.position();
-        let capacity = spray.matrices.capacity();
-        if (!spray || position >= capacity ) { return; }
+
         let surface = action.target;
         let renderer = surface.renderer;
-        let center = this.getPrimaryPointer(action);
-        let radius = renderer.lineThickness / 2;
-        spray.add(center, radius);
-        surface.requestRender();
+        let mesh = renderer.mesh;
+        let stroke = renderer.temp as ShapeBatch;
+
+        // Init shape stroke if needed
+        if(!stroke){
+            let color = ColorFStruct.create(renderer.color);
+            let matrices = new Mat2dBuffer(renderer.buffer);
+            if(mesh){
+                stroke = new ShapeBatch(mesh, color, matrices);
+            } else {
+                stroke = new EllipseBatch(renderer.ellipseProgram.mesh, color, matrices);
+            }
+            renderer.temp = stroke;
+        }
+
+        // Add another shape if there is room
+        let matrices = stroke.matrices;
+        if(matrices.position() < matrices.capacity()){
+            let center = this.getPrimaryPointer(action);
+            let radius = renderer.lineThickness / 2;
+            stroke.add(center, radius);
+            surface.requestRender();
+        }
     }
 
     onEnd(action: Action) {
         let surface = action.target;
         let renderer = surface.renderer;
-        let buffer = this.shapeStroke.matrices;
-        let size = buffer.position();
-        if(size > 0){
+        let stroke = renderer.temp as ShapeBatch;
+        if(stroke){
+            let buffer = stroke.matrices;
+            let size = buffer.position();
             buffer.moveToFirst();
-            this.shapeStroke.matrices = Mat2dBuffer.create(size);
-            this.shapeStroke.matrices.putBuffer(buffer, size);
+            stroke.matrices = Mat2dBuffer.create(size);
+            stroke.matrices.putBuffer(buffer, size);
             renderer.addDrawable();
+            surface.requestRender();
         }
-        this.shapeStroke = null;
-        renderer.temp = null;
-        surface.requestRender();
     }
 }

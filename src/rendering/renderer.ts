@@ -40,7 +40,7 @@ export class Renderer extends Base {
     meshes: MeshMap = {
         "triangle": Mesh.polygon(3),
         "square": Mesh.square(),
-        "diamind": Mesh.diamond(),
+        "diamond": Mesh.diamond(),
         "pentagon": Mesh.polygon(5),
         "hexagon": Mesh.polygon(6),
         "star": Mesh.star5(),
