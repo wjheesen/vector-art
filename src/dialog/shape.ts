@@ -3,7 +3,7 @@ import * as $ from 'jquery';
 
 export type OnAspectPick = (maintainAspect: boolean) => any;
 export type OnShapePick = (id: ShapeType) => any;
-export type ShapeType = "triangle" | "square" | "diamond" | "pentagon" | "hexagon" | "circle" | "star" | "heart" | "flower" | "bat";
+export type ShapeType = "triangle" | "square" | "diamond" | "pentagon" | "hexagon" | "circle" | "star" | "star6" | "star8" | "star16" | "heart" | "flower" | "bat" | "spray";
 
 export class ShapeDialog {
     

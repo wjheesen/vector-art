@@ -99,18 +99,22 @@ export class ShapeBatch implements Drawable {
      * Returns true if any shape in this batch contains the specified point.
      */
     contains(pt: IPoint): boolean {
+        let mesh = this.mesh;
         let matrices = this.matrices;
-        let vertices = this.mesh.vertices;
         let inverse = new Mat2d();
         let modelPt = new Point();
         matrices.moveToPosition(-1);
         while(matrices.moveToNext()){
             inverse.setInverse(matrices);
             inverse.map(pt, modelPt);
-            if(vertices.contains(modelPt)){
-                return matrices.moveToLast(); 
+            if(mesh.contains(modelPt)){
+                matrices.moveToLast();
+                matrices.moveToNext();
+                return true;
+                // return matrices.moveToLast(); 
             }
         }
+        
         return false;
     }
 

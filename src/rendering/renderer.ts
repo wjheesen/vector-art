@@ -1,3 +1,4 @@
+import { SprayMesh } from '../mesh/spray';
 import { Line } from '../drawable/line';
 import { EllipseBatch } from '../drawable/ellipseBatch';
 import { Mat2dBuffer } from 'gl2d/struct/mat2d';
@@ -18,7 +19,7 @@ import { Renderer as Base } from 'gl2d/rendering/renderer'
 import { Mesh } from "gl2d/drawable/mesh";
 import { IPoint } from "gl2d/struct/point";
 import { Selection } from '../drawable/selection'
-import { ANGLEInstancedArrays } from "src/rendering/ANGLE_instanced_arrays";
+import { ANGLEInstancedArrays } from "./ANGLE_instanced_arrays";
 
 export class Renderer extends Base {
 
@@ -48,6 +49,9 @@ export class Renderer extends Base {
         "pentagon": Mesh.polygon(5),
         "hexagon": Mesh.polygon(6),
         "star": Mesh.star5(),
+        "star6": Mesh.star(6, .5, 1),
+        "star8": Mesh.star(8, .5, 1),
+        "star16": Mesh.star(16, .1, 1),
         "heart": Mesh.fromSource(heart()),
         "flower": Mesh.fromSource(flower()),
         "bat": Mesh.fromSource(bat()),
@@ -62,7 +66,9 @@ export class Renderer extends Base {
         let gl = this.gl;
         gl.clearColor(1, 1, 1, 1);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        
         // Put meshes into array
+        this.meshes.spray = SprayMesh.create(this.meshes.triangle, 3, 3);
         let meshes = <Mesh[]> [];
         for(let key in this.meshes){
             meshes.push(this.meshes[key])
@@ -146,7 +152,7 @@ export class Renderer extends Base {
     getTempShapeBatch(){
         let batch = this.temp as ShapeBatch;
         if(!batch){
-            let mesh = this.mesh;
+            let mesh = this.mesh; //this.mesh;
             let color = ColorFStruct.create(this.color);
             let matrices = new Mat2dBuffer(this.buffer);
             if(mesh){
