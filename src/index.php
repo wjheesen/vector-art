@@ -5,14 +5,11 @@ $major = $version[0];
 $minor = $version[1];
 $title = "$package->displayName v$major.$minor";
 $shapes = ["triangle", "square", "diamond", "pentagon", "hexagon", "circle", "star", "star6", "star8", "star16", "heart", "flower", "bat", "spray"];
-$strokes = ["brush", "line", "layer", "shape-stroke", "spray-can"];
-$tools = ["select", "pan"];
+$tools = ["shape", "shape-stroke", "shape-line", "shape-spray", "stroke","line", "pan", "select"];
 $actions = ["undo", "redo"];
 $btn = "btn btn-sm";
-$toggle = "dropdown-toggle dropdown-toggle-split";
-$btn_toggle = "$btn $toggle";
+$btn_toggle = "$btn dropdown-toggle";
 $md = "md";
-$md_inactive = "$md md-inactive";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,19 +25,13 @@ $md_inactive = "$md md-inactive";
 </head>
 <body>
     <div id="toolbar">
-        <input id="color-picker" type="text" style="display: none" />
+        <input id="color-settings" type="text" style="display: none" />
         <div class="btn-group"> 
             <div class="btn-group">
-                <button id="shape-button" type="button" class="<?=$btn?>">
-                    <i class="<?=$md_inactive?>"></i>
+                <button id="shape-button" type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="<?=$md?>"></i><span class="sr-only">Toggle Dropdown</span>
                 </button>
-                <button type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                </button>
-                <div id="shape-settings" class="dropdown-menu">
-                    <label for="maintain-aspect">Maintain aspect:</label>
-                    <input name="maintain-aspect" type="checkbox" checked />
-                    <div class="dropdown-divider"></div>
+                <div id="shape-settings" class="dropdown-menu" aria-labelledby="shape-button">
                     <?php foreach($shapes as $key=>$value): ?>
                         <a id="<?= $value?>" role="button">
                             <i class="icon-<?= $value?> <?=$md?>"></i>
@@ -49,17 +40,11 @@ $md_inactive = "$md md-inactive";
                 </div>
             </div>
             <div class="btn-group">
-                <button id="stroke-button" type="button" class="<?=$btn?>">
-                    <i class="<?=$md_inactive?>"></i>
+                <button id="tool-button" type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="<?=$md?>"></i><span class="sr-only">Toggle Dropdown</span>
                 </button>
-                <button type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                </button>
-                <div id="stroke-settings" class="dropdown-menu">
-                    <label for="stroke-thickness">Thickness:</label>
-                    <input name="stroke-thickness" type="number" />
-                    <div class="dropdown-divider"></div>
-                    <?php foreach($strokes as $key=>$value): ?>
+                <div id="tool-settings" class="dropdown-menu" aria-labelledby="tool-button">
+                    <?php foreach($tools as $key=>$value): ?>
                         <a id="<?= $value?>" role="button">
                             <i class="icon-<?= $value?> <?=$md?>"></i>
                         </a>
@@ -67,18 +52,13 @@ $md_inactive = "$md md-inactive";
                 </div>
             </div>
             <div class="btn-group">
-                <button id="cursor-button" type="button" class="<?=$btn?>">
-                    <i class="<?=$md_inactive?>"></i>
-                </button>
-                <button type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button id="other-button" type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="icon-cog <?=$md?>"></i>
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
-                <div id="cursor-settings" class="dropdown-menu">
-                    <?php foreach($tools as $key=>$value): ?>
-                        <a id="<?= $value?>" role="button">
-                            <i class="icon-<?= $value?> <?=$md?>"></i>
-                        </a>
-                    <?php endforeach; ?>
+                <div id="other-settings" class="dropdown-menu dropdown-menu-right" aria-labelledby="settings-button">
+                    <label for="stroke-thickness">Stroke Thickness:</label>
+                    <input name="stroke-thickness" type="number" />
                 </div>
             </div>
         </div>

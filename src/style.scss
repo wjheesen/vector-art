@@ -2,8 +2,6 @@
 @import "../node_modules/bootstrap-slider/src/sass/bootstrap-slider";
 @import "../node_modules/spectrum-colorpicker/spectrum";
 
-$background-color: #999999;
-
 /* to remove the top and left whitespace */
 html, 
 body {
@@ -27,7 +25,7 @@ body {
     height: 100%;
     cursor: default;
     display: inline-flex;
-    background-color: $background-color;
+    background-color: white;
 }
 
 .slider{

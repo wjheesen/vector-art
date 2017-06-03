@@ -64,7 +64,7 @@ export class Renderer extends Base {
 
     onSurfaceCreated(): void {
         let gl = this.gl;
-        gl.clearColor(1, 1, 1, 1);
+        gl.clearColor(0,0,0,0);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         
         // Put meshes into array

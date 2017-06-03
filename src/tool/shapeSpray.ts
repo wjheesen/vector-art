@@ -5,7 +5,7 @@ import { Status } from "gl2d/action/status";
 
 type Action = MouseOrTouchAction<Surface>;
 
-export class ShapeLayerTool extends MouseOrTouchTool<Surface> {
+export class ShapeSprayTool extends MouseOrTouchTool<Surface> {
 
     onAction(action: Action): void {
         switch(action.status){

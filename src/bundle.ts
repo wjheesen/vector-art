@@ -1,10 +1,9 @@
 import { ShapeStrokeTool } from './tool/shapeStroke';
 import { ShapeLineTool } from './tool/shapeLine';
-import { ShapeLayerTool } from './tool/shapeLayer';
-import { Option } from './option/option';
-import { CursorDialog } from './dialog/cursor';
-import { StrokeDialog } from './dialog/stroke';
-import { ShapeDialog, ShapeType } from './dialog/shape';
+import { ShapeSprayTool } from './tool/shapeSpray';
+import { OtherSettings } from './settings/other';
+import { ToolSettings} from './settings/tool';
+import { ShapeSettings } from './settings/shape';
 import { StrokeTool } from './tool/stroke';
 import { SelectTool } from './tool/select';
 import { LineTool } from './tool/line';
@@ -14,7 +13,7 @@ import { PinchZoomTool } from 'gl2d/tool/pinchZoom';
 import { PanTool } from 'gl2d/tool/pan';
 import { Surface } from './rendering/surface'
 import { _MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { ColorPicker } from "./component/colorPicker";
+import { ColorSettings } from "./settings/color";
 import { Status } from "gl2d/action/status";
 import * as $ from 'jquery';
 (<any> window).jQuery = $;
@@ -24,16 +23,13 @@ import 'bootstrap';
 
 let surface = Surface.create("canvas");
 
-type ToolType = "shape" | "stroke" | "cursor";
-let toolType = Option.str("tool", "shape") as Option<ToolType>;
-
 let currentTool: _MouseOrTouchTool;
 let shapeTool = new ShapeTool();
 let lineTool = new LineTool();
-let shapeLayerTool = new ShapeLayerTool();
+let shapeSprayTool = new ShapeSprayTool();
 let shapeLineTool = new ShapeLineTool();
 let shapeStrokeTool = new ShapeStrokeTool();
-let brush = new StrokeTool();
+let strokeTool = new StrokeTool();
 let scrollZoomTool = new ScrollZoomTool(1.5);
 let pinchZoomTool = new PinchZoomTool();
 let panTool = new PanTool();
@@ -48,19 +44,7 @@ function setTool(tool: _MouseOrTouchTool){
     }
 }
 
-function setToolType(type: ToolType){
-    $(`#${toolType.val}-button`).children("i").addClass("md-inactive")
-    $(`#${type}-button`).children("i").removeClass("md-inactive");
-    toolType.val = type;
-}
-
-function setShapeType(type: ShapeType){
-    let renderer = surface.renderer;
-    let meshes = renderer.meshes;
-    renderer.mesh = meshes[type];
-}
-
-let colorPicker = ColorPicker.create("#color-picker", color => {
+let colorPicker = ColorSettings.create(color => {
     let renderer = surface.renderer;
     let drawColor = renderer.color;
     let selection = renderer.selection.target;
@@ -73,53 +57,36 @@ let colorPicker = ColorPicker.create("#color-picker", color => {
     }
 });
 
-let shapeDialog = ShapeDialog.create("#shape-button", 
-    aspect => { 
-        surface.renderer.maintainAspect = aspect 
-    },
-    shape => {
-        setTool(shapeTool);
-        setToolType("shape");
-        setShapeType(shape);
-    }
-);
+ShapeSettings.create(type => {
+    let renderer = surface.renderer;
+    let meshes = renderer.meshes;
+    renderer.mesh = meshes[type];
+});
 
-StrokeDialog.create("#stroke-button", 
-    thickness => {
-        surface.renderer.lineThickness = thickness/1000;
-    }, 
-    strokeType => {
-        setToolType("stroke");
-        switch(strokeType){
-            case "brush":
-                return setTool(brush);
-            case "line":
-                return setTool(lineTool);
-            case "layer":
-                return setTool(shapeLayerTool);
-            case "spray-can":
-                return setTool(shapeLineTool);
-            case "shape-stroke":
-                return setTool(shapeStrokeTool);
-        }
-    }
-)
-
-CursorDialog.create("#cursor-button", toolType =>{
-    setToolType("cursor");
-    switch(toolType){
-        case "select":
-            return setTool(selectTool);
+ToolSettings.create(type => {
+    switch(type){
+        case "shape":
+            return setTool(shapeTool);
+        case "stroke":
+            return setTool(strokeTool);
+        case "shape-stroke":
+            return setTool(shapeStrokeTool);
+        case "line":
+            return setTool(lineTool);
+        case "shape-line":
+            return setTool(shapeLineTool);
+        case "shape-spray":
+            return setTool(shapeSprayTool);
         case "pan":
             return setTool(panTool);
+        case "select":
+            return setTool(selectTool);
     }
-})
+});
 
-// Set initial mesh
-setShapeType(shapeDialog.shape.val);
-
-// Set initial tool
-$(`#${toolType.val}-button`).click();
+OtherSettings.create(thickness => {
+    surface.renderer.lineThickness = thickness/1000;
+});
 
 $("#undo").click(function(){
     let renderer = surface.renderer;

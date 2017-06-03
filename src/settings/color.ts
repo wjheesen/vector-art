@@ -5,7 +5,7 @@ import 'spectrum-colorpicker';
 
 export type OnColorPick = (color: Color) => any;
 
-export class ColorPicker{
+export class ColorSettings {
     
     alpha: number;
     color: ColorOption;
@@ -21,10 +21,10 @@ export class ColorPicker{
         this.callback(this.color.val);
     }
 
-    static create(id: string, onColorPick: OnColorPick){
+    static create(onColorPick: OnColorPick){
 
-        let picker = new ColorPicker();
-        picker.input = $(id);
+        let picker = new ColorSettings();
+        picker.input = $("#color-settings");
         picker.color = ColorOption.create("drawColor", Color.create$(39, 78, 19, 255));
         picker.alpha = picker.color.val.a / 0xff;
         picker.callback = onColorPick;
