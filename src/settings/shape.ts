@@ -2,12 +2,11 @@ import { Option } from '../option/option';
 import * as $ from 'jquery';
 
 export type OnAspectPick = (maintainAspect: boolean) => any;
-export type OnShapePick = (id: ShapeType) => any;
-export type ShapeType = "triangle" | "square" | "diamond" | "pentagon" | "hexagon" | "circle" | "star" | "star6" | "star8" | "star16" | "heart" | "flower" | "bat" | "spray";
+export type OnShapePick = (shape: string) => any;
 
 export class ShapeSettings {
     
-    shape: Option<ShapeType>;
+    shape: Option<string>;
     onShapePick: OnShapePick;
 
     private constructor(){}
@@ -15,7 +14,7 @@ export class ShapeSettings {
     static create(onShapePick: OnShapePick){
 
         let settings = new ShapeSettings();
-        settings.shape = Option.str("shape", "triangle") as Option<ShapeType>;
+        settings.shape = Option.str("shape", "triangle");
         settings.onShapePick = onShapePick;
 
         $("#shape-button")
@@ -29,7 +28,7 @@ export class ShapeSettings {
         onShapePick(settings.shape.val);
 
         $("#shape-settings > a").click(function(){
-            let shape = $(this).attr("id") as ShapeType;
+            let shape = $(this).attr("id");
             // Set shape as button icon
             $("#shape-button").children("i")
                 .removeClass("icon-" + settings.shape.val)

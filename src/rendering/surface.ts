@@ -14,7 +14,7 @@ export class Surface extends Base<Renderer> {
             // Assume string is id of canvas
             drawingBuffer = document.getElementById(canvas) as HTMLCanvasElement;
         }
-        let gl = drawingBuffer.getContext('webgl');
+        let gl = drawingBuffer.getContext('webgl', {premultipliedAlpha: false, alpha: false});
         let camera = new Camera(RectStruct.create$(-1,1,1,-1), 1.0, 1000);
         let renderer = new Renderer(gl, camera);
         renderer.ext = gl.getExtension('ANGLE_instanced_arrays');

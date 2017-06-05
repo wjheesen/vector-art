@@ -4,7 +4,9 @@ $version = explode(".", $package->version);
 $major = $version[0];
 $minor = $version[1];
 $title = "$package->displayName v$major.$minor";
-$shapes = ["triangle", "square", "diamond", "pentagon", "hexagon", "circle", "star", "star6", "star8", "star16", "heart", "flower", "bat", "spray"];
+$shapes = ["triangle", "square", "pentagon", "hexagon", "octagon", "circle", "spray", 
+           "diamond", "star3", "star4", "star5", "star6", "star8",  "star16",
+           "sun","heart", "flower", "bat"];
 $tools = ["shape-aspect", "shape", "shape-stroke", "stroke", "shape-line", "line", "shape-spray", "pan", "select"];
 $actions = ["undo", "redo"];
 $btn = "btn btn-sm";

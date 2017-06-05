@@ -45,13 +45,17 @@ export class Renderer extends Base {
     meshes: MeshMap = {
         "triangle": Mesh.polygon(3),
         "square": Mesh.square(),
-        "diamond": Mesh.diamond(),
         "pentagon": Mesh.polygon(5),
         "hexagon": Mesh.polygon(6),
-        "star": Mesh.star5(),
+        "octagon": Mesh.polygon(8),
+        "diamond": Mesh.diamond(),
+        "star3": Mesh.star(3, .25, 1),
+        "star4": Mesh.star(4, .25, 1),
+        "star5": Mesh.star5(),
         "star6": Mesh.star(6, .5, 1),
         "star8": Mesh.star(8, .5, 1),
         "star16": Mesh.star(16, .1, 1),
+        "sun": Mesh.star(16, .8, 1),
         "heart": Mesh.fromSource(heart()),
         "flower": Mesh.fromSource(flower()),
         "bat": Mesh.fromSource(bat()),
@@ -59,13 +63,16 @@ export class Renderer extends Base {
 
     mesh: Mesh;
     lineThickness = 0.01;
-    maintainAspect = true;
     color = new ColorFStruct();
 
     onSurfaceCreated(): void {
         let gl = this.gl;
-        gl.clearColor(0,0,0,0);
+        gl.clearColor(1,1,1,0);  // Transparent white
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+        // ["octagon", "star3", "star4", "sun"].forEach(shape => {
+        //     console.log(toSvg(this.meshes[shape]));
+        // })
         
         // Put meshes into array
         this.meshes.spray = SprayMesh.create(this.meshes.triangle, 3, 3);
