@@ -63,9 +63,14 @@ ShapeSettings.create(type => {
     renderer.mesh = meshes[type];
 });
 
+// TODO: add shape-aspect tool with ellipse-rectangle vs circle-square icon
 ToolSettings.create(type => {
     switch(type){
+        case "shape-aspect":
+            shapeTool.maintainAspect.val = true;
+            return setTool(shapeTool);
         case "shape":
+            shapeTool.maintainAspect.val = false;
             return setTool(shapeTool);
         case "stroke":
             return setTool(strokeTool);
