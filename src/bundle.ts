@@ -95,25 +95,16 @@ OtherSettings.create(thickness => {
 
 $("#undo").click(function(){
     let renderer = surface.renderer;
-    let selection = renderer.selection.target;
-    if(renderer.drawables.length > 0){ 
-        if(selection){
-            renderer.removeDrawable(selection);
-            selectTool.onDetach(surface);
-        } else {
-            renderer.removeDrawable();
-            surface.requestRender();
-        }
-    } 
+    if(renderer.undoLastAction()){
+        selectTool.onDetach(surface);
+    }
 })
 
 $("#redo").click(function(){
     let renderer = surface.renderer;
-    let removed = renderer.removed;
-    if(removed.length > 0){
-        renderer.drawables.push(removed.pop());
-        surface.requestRender();
-    }  
+    if(renderer.redoLastUndo()){
+        selectTool.onDetach(surface);
+    }
 })
 
 let key: string;

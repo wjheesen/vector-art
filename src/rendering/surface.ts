@@ -1,8 +1,8 @@
-import { Renderer } from './renderer'
-import { Surface as Base } from 'gl2d/rendering/surface'
-import { Camera } from "gl2d/rendering/camera";
+import { Renderer } from './renderer';
+import { Camera } from 'gl2d/rendering/camera';
+import { Surface as Base } from 'gl2d/rendering/surface';
+import { IPoint } from 'gl2d/struct/point';
 import { RectStruct } from 'gl2d/struct/rect';
-import { IPoint } from "gl2d/struct/point";
 
 export class Surface extends Base<Renderer> {
 

@@ -1,30 +1,37 @@
-import { SprayMesh } from '../mesh/spray';
-import { Line } from '../drawable/line';
-import { EllipseBatch } from '../drawable/ellipseBatch';
-import { Mat2dBuffer } from 'gl2d/struct/mat2d';
-import { Ellipse } from '../drawable/ellipse';
-import { ShapeProgram } from '../program/shape';
-import { MeshSource } from 'gl2d';
-import { ShapeBatch } from '../drawable/shapeBatch';
-import { Stroke } from '../drawable/stroke';
-import { Shape } from '../drawable/shape';
-import { StrokeProgram } from '../program/stroke';
+import { TransformDrawable } from '../action/transformDrawable';
+import { Action } from '../action/action';
+import { AddDrawable } from '../action/addDrawable';
+import { RemoveDrawable } from '../action/removeDrawable';
 import { Drawable } from '../drawable/drawable';
+import { Ellipse } from '../drawable/ellipse';
+import { EllipseBatch } from '../drawable/ellipseBatch';
 import { Frame } from '../drawable/frame';
 import { FramedDrawable } from '../drawable/framed';
-import { FrameProgram } from '../program/frame';
-import { ColorFStruct } from 'gl2d/struct/colorf';
+import { Line } from '../drawable/line';
+import { Selection } from '../drawable/selection';
+import { Shape } from '../drawable/shape';
+import { ShapeBatch } from '../drawable/shapeBatch';
+import { Stroke } from '../drawable/stroke';
+import { SprayMesh } from '../mesh/spray';
 import { EllipseProgram } from '../program/ellipse';
-import { Renderer as Base } from 'gl2d/rendering/renderer'
-import { Mesh } from "gl2d/drawable/mesh";
-import { IPoint } from "gl2d/struct/point";
-import { Selection } from '../drawable/selection'
-import { ANGLEInstancedArrays } from "./ANGLE_instanced_arrays";
+import { FrameProgram } from '../program/frame';
+import { ShapeProgram } from '../program/shape';
+import { StrokeProgram } from '../program/stroke';
+import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
+import { Mesh, MeshSource } from 'gl2d/drawable/mesh';
+import { Renderer as Base } from 'gl2d/rendering/renderer';
+import { ColorFStruct } from 'gl2d/struct/colorf';
+import { Mat2d, Mat2dBuffer } from 'gl2d/struct/mat2d';
+import { IPoint } from 'gl2d/struct/point';
+import lastIndexOf = require('lodash.lastindexof');
 
 export class Renderer extends Base {
 
     ext: ANGLEInstancedArrays;
     
+    undoStack: Action[] = [];
+    redoStack: Action[] = [];
+
     buffer = new Float32Array(25000); // 100kb
 
     shapeProgram: ShapeProgram;
@@ -34,7 +41,6 @@ export class Renderer extends Base {
 
     foreground: Frame;
     drawables: Drawable[] = [];
-    removed: Drawable[] = [];
     temp: Drawable;
 
     selection: Selection;
@@ -173,9 +179,12 @@ export class Renderer extends Base {
     }
 
     addTempDrawable(){
-        let drawable = this.temp;
-        if(drawable && this.camera.target.intersects(drawable.measureBoundaries())){
-           this.drawables.push(drawable);
+        let { temp, drawables, camera, undoStack, redoStack } = this;
+        if(temp && camera.target.intersects(temp.measureBoundaries())){
+            let index = drawables.length;
+            drawables.push(temp);
+            undoStack.push(new AddDrawable(temp, index));
+            redoStack.length = 0;
         }
         this.temp = null;
     }
@@ -196,13 +205,62 @@ export class Renderer extends Base {
         }
     }
 
-    removeDrawable(drawable?: Drawable){
-        if(drawable){
-            this.drawables = this.drawables.filter(d => d !== drawable);
-        } else {
-            drawable = this.drawables.pop();
+    addTransform(drawable?: Drawable, matrix?: Mat2d){
+        if(drawable && matrix){
+            this.undoStack.push(new TransformDrawable(drawable, matrix));
+            this.redoStack.length = 0;
         }
-        this.removed.push(drawable);
+    }
+
+    removeDrawable(drawable?: Drawable){
+        let { drawables, undoStack } = this;
+
+        let action: Action;
+        if(drawable){
+            let index = lastIndexOf(drawables, drawable);
+            action = new RemoveDrawable(drawable, index);
+            action.redo(this);
+        } else if(drawables.length > 0){
+           drawable = drawables.pop();
+           action = new RemoveDrawable(drawable, drawables.length);
+        } else {
+            return false;
+        }
+      
+        undoStack.push(action);
+        return true;
+    }
+
+    undoLastAction(){
+        let { drawables, undoStack, redoStack } = this;
+
+        let action: Action;
+        if(undoStack.length > 0){
+            action = undoStack.pop();
+        } else if(drawables.length > 0){
+            action = new AddDrawable(drawables.pop(), drawables.length)
+        } else {
+            return false;
+        }
+
+        action.undo(this);
+        redoStack.push(action);
+        return true;
+    }
+
+    redoLastUndo(){
+        let { undoStack, redoStack } = this;
+
+        let action: Action;
+        if(redoStack.length > 0){
+            action = redoStack.pop();
+        } else {
+            return false;
+        }
+
+        action.redo(this);
+        undoStack.push(action);
+        return true;
     }
 
     measureStackSize(){

@@ -1,3 +1,4 @@
+import { TransformDrawable } from '../action/transformDrawable';
 import { Ellipse } from '../drawable/ellipse';
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
@@ -25,6 +26,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     dragCount = 0;
     reselected = false;
     transform: Transformation;
+    matrix: Mat2d;
 
     onAction(action: Action): void {
         let pointer = this.getPrimaryPointer(action);
@@ -90,6 +92,10 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
             this.transform = selected.target ? Transformation.Translate : Transformation.None;
         }
 
+        if(this.transform !== Transformation.None){
+            this.matrix = Mat2d.identity();
+        }
+
         surface.requestRender();
     }
 
@@ -122,22 +128,29 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     }
 
     onDrag(action: Action, pointer: IPoint) {
+        if(!this.matrix) { return; }
+
         let surface = action.target;
         let renderer = surface.renderer;
         let selection = renderer.selection;
+        let matrix = this.matrix;
 
         switch(this.transform){
-                case Transformation.Translate:
-                    selection.offset(Vec2.fromPointToPoint(this.previous, pointer));
-                    break;
-                case Transformation.Scale:
-                    selection.scale(Mat2d.scaleToPoint(this.previous, pointer, this.pivot));
-                    break;
-                case Transformation.Rotate:
-                    selection.transform(Mat2d.stretchRotateToPoint(this.control.measureCenter(), pointer, this.pivot));
-                    break;
-                case Transformation.None:
-                    return; // Skip render
+            case Transformation.Translate:
+                let vector = Vec2.fromPointToPoint(this.previous, pointer);
+                selection.offset(vector);
+                matrix.postTranslate(vector);
+                break;
+            case Transformation.Scale:
+                let scaleMatrix = Mat2d.scaleToPoint(this.previous, pointer, this.pivot);
+                selection.scale(scaleMatrix);
+                matrix.postConcat(scaleMatrix);
+                break;
+            case Transformation.Rotate:
+                let rotationMatrix = Mat2d.stretchRotateToPoint(this.control.measureCenter(), pointer, this.pivot);
+                selection.transform(rotationMatrix);
+                matrix.postConcat(rotationMatrix);
+                break;
         }
 
         surface.requestRender();
@@ -147,6 +160,12 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let surface = action.target;
         let renderer = surface.renderer;
         let selection = renderer.selection;
+        let target = selection.target;
+        let matrix = this.matrix;
+        // Save transform if defined and not identity
+        if(matrix && target && !matrix.equals(Mat2d.identity())){
+            renderer.undoStack.push(new TransformDrawable(target, matrix))
+        }
         // End transform if user tapped the selected shape
         if(this.reselected && this.dragCount <5 && selection.contains(pointer)){
             this.onDetach(surface);
@@ -165,6 +184,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         this.previous = null;
         this.control = null;
         this.pivot = null;
+        this.matrix = null;
         surface.requestRender();
     }
 
