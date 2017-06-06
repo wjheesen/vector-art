@@ -206,7 +206,7 @@ export class Renderer extends Base {
     }
 
     addTransform(drawable?: Drawable, matrix?: Mat2d){
-        if(drawable && matrix){
+        if(drawable && matrix && !matrix.equals(Mat2d.identity())){
             this.undoStack.push(new TransformDrawable(drawable, matrix));
             this.redoStack.length = 0;
         }

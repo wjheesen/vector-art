@@ -1,4 +1,3 @@
-import { TransformDrawable } from '../action/transformDrawable';
 import { Ellipse } from '../drawable/ellipse';
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
@@ -160,12 +159,9 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let surface = action.target;
         let renderer = surface.renderer;
         let selection = renderer.selection;
-        let target = selection.target;
-        let matrix = this.matrix;
-        // Save transform if defined and not identity
-        if(matrix && target && !matrix.equals(Mat2d.identity())){
-            renderer.undoStack.push(new TransformDrawable(target, matrix))
-        }
+        // Save transform 
+        renderer.addTransform(selection.target, this.matrix);
+        this.matrix = null;
         // End transform if user tapped the selected shape
         if(this.reselected && this.dragCount <5 && selection.contains(pointer)){
             this.onDetach(surface);
@@ -175,16 +171,20 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     onDetach(surface: Surface){
         let renderer = surface.renderer;
         let selection = renderer.selection;
+        // Save transform
+        renderer.addTransform(selection.target, this.matrix);
+        this.matrix = null;
+        // Remove selections
         let hover = renderer.hover;
         selection.setTarget(null);
         hover.setTarget(null);
+        // Reset helper variables
         this.transform = Transformation.None;
         this.reselected = false;
         this.dragCount = 0;
         this.previous = null;
         this.control = null;
         this.pivot = null;
-        this.matrix = null;
         surface.requestRender();
     }
 
