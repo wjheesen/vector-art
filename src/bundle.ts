@@ -11,7 +11,6 @@ import { ShapeLineTool } from './tool/shapeLine';
 import { ShapeSprayTool } from './tool/shapeSpray';
 import { ShapeStrokeTool } from './tool/shapeStroke';
 import { StrokeTool } from './tool/stroke';
-import { Status } from 'gl2d/action/status';
 import { _MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
 import { PanTool } from 'gl2d/tool/pan';
 import { PinchZoomTool } from 'gl2d/tool/pinchZoom';
@@ -52,7 +51,7 @@ let colorPicker = ColorSettings.create(color => {
     drawColor.setFromColor(color);
     // Update color of selection (if any)
     if(selection){
-        selection.color.set(drawColor);
+        renderer.setDrawableColor(selection, drawColor);
         surface.requestRender();
     }
 });
@@ -64,7 +63,7 @@ ShapeSettings.create(type => {
 });
 
 // TODO: add shape-aspect tool with ellipse-rectangle vs circle-square icon
-ToolSettings.create(type => {
+let toolSettings = ToolSettings.create(type => {
     switch(type){
         case "shape-aspect":
             shapeTool.maintainAspect.val = true;
@@ -98,19 +97,23 @@ OtherSettings.create(
     }
 );
 
-$("#undo").click(function(){
+function undo(){
     let renderer = surface.renderer;
     if(renderer.undoLastAction()){
         selectTool.onDetach(surface);
     }
-})
+}
 
-$("#redo").click(function(){
+function redo(){
     let renderer = surface.renderer;
     if(renderer.redoLastUndo()){
         selectTool.onDetach(surface);
     }
-})
+}
+
+$("#undo").click(undo)
+
+$("#redo").click(redo)
 
 let key: string;
 
@@ -119,7 +122,23 @@ $(document)
         key = String.fromCharCode(e.which);
     })
     .on("keyup", e => {
-        key = null;
+        if (key) {
+            if(e.metaKey || e.ctrlKey){
+                // Ctrl + key
+                switch(key){
+                    case "Z": undo(); break;
+                    case "Y": redo(); break;
+                }
+            } else {
+                switch(key){
+                    case "R": colorPicker.pickRandom(); break;
+                    case "S": toolSettings.pickToolType("select"); break;
+                    case "P": toolSettings.pickToolType("pan"); break;
+                }
+            }
+            key = null;
+        }
+
         if(e.which === 46 /* Delete */){
             let renderer = surface.renderer;
             let selection = renderer.selection.target;
@@ -130,13 +149,9 @@ $(document)
             }
         }
     })
-    .on("keypress", e => {
-        if (!key) { return; }
-        switch(key){
-            case "R":
-                return colorPicker.pickRandom();
-        }
-    })
+    // .on("keypress", e => {
+
+    // })
 
 
 surface.onScrollAction(action => {
@@ -144,40 +159,12 @@ surface.onScrollAction(action => {
     // TODO: interrupt other tools?
 })
 
-let isCtrlHeld = false;
-
 surface.onMouseAction(action =>{
     let event = action.src;
     switch(event.button){
         case 0: /*Left*/
-
-            if(isCtrlHeld){
-                // Ctrl previously held
-                isCtrlHeld = event.metaKey || event.ctrlKey;
-                if(isCtrlHeld){
-                    // Ctrl still held
-                    selectTool.onAction(action);
-                } else {
-                    // Ctrl no longer held
-                    selectTool.onDetach(action.target);
-                }
-            } else {
-                // Ctrl not previously held
-                switch(action.status){
-                    case Status.Start:
-                    case Status.Move:
-                        isCtrlHeld = event.metaKey || event.ctrlKey;
-                        break;
-                }
-
-                if(isCtrlHeld){
-                    // Ctrl held for first time
-                    selectTool.onAction(action);
-                } else {
-                    // Ctrl not held
-                    currentTool.onAction(action);
-                }
-            }
+            // Ctrl not held
+            currentTool.onAction(action);
             break;
         case 1: /*Wheel*/
             return panTool.onAction(action);

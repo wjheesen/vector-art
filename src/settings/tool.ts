@@ -28,18 +28,21 @@ export class ToolSettings {
         // Set initial tool
         onToolPick(settings.tool.val);
 
-
         $("#tool-settings > a").click(function(){
             let toolType = $(this).attr("id") as ToolType;
-            // Set stroke as button icon
-            $("#tool-button").children("i")
-                .removeClass("icon-" + settings.tool.val)
-                .addClass("icon-" + toolType);
-            // Update setting and send callback
-            settings.tool.val = toolType;
-            settings.onToolPick(toolType);
+            settings.pickToolType(toolType)
         })
 
         return settings;
+    }
+
+    pickToolType(toolType: ToolType){
+        // Set stroke as button icon
+        $("#tool-button").children("i")
+            .removeClass("icon-" + this.tool.val)
+            .addClass("icon-" + toolType);
+        // Update setting and send callback
+        this.tool.val = toolType;
+        this.onToolPick(toolType);
     }
 }

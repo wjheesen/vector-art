@@ -1,3 +1,5 @@
+import { ColorStruct } from 'gl2d';
+import { SetColorOfDrawable } from '../action/setColorOfDrawable';
 import { TransformDrawable } from '../action/transformDrawable';
 import { Action } from '../action/action';
 import { AddDrawable } from '../action/addDrawable';
@@ -210,6 +212,14 @@ export class Renderer extends Base {
             this.undoStack.push(new TransformDrawable(drawable, matrix));
             this.redoStack.length = 0;
         }
+    }
+    
+    setDrawableColor(drawable: Drawable, color: ColorFStruct){
+        let oldColor = ColorStruct.fromColorF(drawable.color);
+        let newColor = ColorStruct.fromColorF(color);
+        let action = new SetColorOfDrawable(drawable, oldColor, newColor);
+        this.undoStack.push(action)
+        drawable.color.set(color);
     }
 
     removeDrawable(drawable?: Drawable){
