@@ -73,22 +73,22 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         let selected = renderer.selection;
         let hovered = renderer.hover;
+        this.reselected = selected.contains(pointer);
 
-        if(selected.contains(pointer)){
+        if(this.reselected){
             // Reclicked a drawable that has already been selected
-            this.reselected = true;
-            this.transform = this.getTransformType(pointer, selected);
-        } else if(hovered.contains(pointer)){
-            // Selected a drawable that has already been indicated by the hover graphic
-            selected.setTarget(hovered.target);
-            hovered.setTarget(null);
-            this.reselected = false;
             this.transform = this.getTransformType(pointer, selected);
         } else {
-            // Selected a new drawable, or clicked on nothing
-            selected.setTarget(renderer.getShapeContaining(pointer));
-            this.reselected = false;
-            this.transform = selected.target ? Transformation.Translate : Transformation.None;
+            if(hovered.contains(pointer)){
+                // Selected a drawable that has already been indicated by the hover graphic
+                selected.setTarget(hovered.target);
+                hovered.setTarget(null);
+                this.transform = Transformation.Translate;
+            } else {
+                // Selected a new drawable, or clicked on nothing
+                selected.setTarget(renderer.getShapeContaining(pointer));
+                this.transform = selected.target ? Transformation.Translate : Transformation.None;
+            }
         }
 
         if(this.transform !== Transformation.None){
