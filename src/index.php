@@ -61,6 +61,8 @@ $md = "md";
                 <div id="other-settings" class="dropdown-menu dropdown-menu-right" aria-labelledby="settings-button">
                     <label for="stroke-thickness">Stroke Thickness:</label>
                     <input name="stroke-thickness" type="number" />
+                    <label for="zoom-speed">Zoom Speed:</label>
+                    <input name="zoom-speed" type="number" />
                 </div>
             </div>
         </div>

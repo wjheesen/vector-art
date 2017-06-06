@@ -26,7 +26,7 @@
     "@types/tether": "^1.4.1",
     "bootstrap": "^4.0.0-alpha.6",
     "bootstrap-slider": "^9.8.0",
-    "gl2d": "^0.3.9",
+    "gl2d": "^0.4.0",
     "lodash.lastindexof": "^4.0.5",
     "lodash.pullat": "^4.6.0",
     "spectrum-colorpicker": "^1.8.0"

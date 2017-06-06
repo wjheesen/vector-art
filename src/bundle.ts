@@ -1,23 +1,23 @@
-import { ShapeStrokeTool } from './tool/shapeStroke';
+import { Surface } from './rendering/surface';
+import { ColorSettings } from './settings/color';
+import { OtherSettings } from './settings/other';
+import { ShapeSettings } from './settings/shape';
+import { ToolSettings } from './settings/tool';
+import { LineTool } from './tool/line';
+import { ScrollZoomTool } from 'gl2d/tool/scrollZoom';
+import { SelectTool } from './tool/select';
+import { ShapeTool } from './tool/shape';
 import { ShapeLineTool } from './tool/shapeLine';
 import { ShapeSprayTool } from './tool/shapeSpray';
-import { OtherSettings } from './settings/other';
-import { ToolSettings} from './settings/tool';
-import { ShapeSettings } from './settings/shape';
+import { ShapeStrokeTool } from './tool/shapeStroke';
 import { StrokeTool } from './tool/stroke';
-import { SelectTool } from './tool/select';
-import { LineTool } from './tool/line';
-import { ShapeTool } from './tool/shape';
-import { ScrollZoomTool } from 'gl2d/tool/scrollZoom';
-import { PinchZoomTool } from 'gl2d/tool/pinchZoom';
+import { Status } from 'gl2d/action/status';
+import { _MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
 import { PanTool } from 'gl2d/tool/pan';
-import { Surface } from './rendering/surface'
-import { _MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { ColorSettings } from "./settings/color";
-import { Status } from "gl2d/action/status";
+import { PinchZoomTool } from 'gl2d/tool/pinchZoom';
 import * as $ from 'jquery';
-(<any> window).jQuery = $;
 import * as tether from 'tether';
+(<any> window).jQuery = $;
 (<any> window).Tether = tether;
 import 'bootstrap';
 
@@ -30,7 +30,7 @@ let shapeSprayTool = new ShapeSprayTool();
 let shapeLineTool = new ShapeLineTool();
 let shapeStrokeTool = new ShapeStrokeTool();
 let strokeTool = new StrokeTool();
-let scrollZoomTool = new ScrollZoomTool(1.5);
+let scrollZoomTool = new ScrollZoomTool(1.5, 5);
 let pinchZoomTool = new PinchZoomTool();
 let panTool = new PanTool();
 let selectTool = new SelectTool();
@@ -89,9 +89,14 @@ ToolSettings.create(type => {
     }
 });
 
-OtherSettings.create(thickness => {
-    surface.renderer.lineThickness = thickness/1000;
-});
+OtherSettings.create(
+    thickness => {
+        surface.renderer.lineThickness = thickness/1000;
+    },
+    zoomSpeed => {
+        scrollZoomTool.scaleFactor = 1 + zoomSpeed/100;
+    }
+);
 
 $("#undo").click(function(){
     let renderer = surface.renderer;
