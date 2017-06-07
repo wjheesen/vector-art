@@ -2,7 +2,7 @@ import { Drawable } from './drawable';
 import { Shape } from './shape';
 import { Ellipse } from './ellipse';
 import { Frame } from './frame';
-import { Renderer } from "src/rendering/renderer";
+import { Renderer } from "../rendering/renderer";
 import { IVec2 } from "gl2d/struct/vec2";
 import { IMat2d } from 'gl2d/struct/mat2d';
 import { Mat2dStruct } from 'gl2d/struct/mat2d';

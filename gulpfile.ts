@@ -7,7 +7,7 @@ let tsify = require('tsify');
 
 gulp.task("update:bundle", function(){
      return browserify()
-        .add("./src/bundle.ts")
+        .add("./src/ts/main.ts")
         .plugin(tsify, { target: 'ES5' })
         .bundle()
         .pipe(source("bundle.js"))
@@ -18,7 +18,7 @@ gulp.task("update:shaders", function(){
     return gulp.src("./src/shader/*.glslx")
         .pipe(shadify())
         .pipe(rename({extname: ".ts"}))
-        .pipe(gulp.dest("./src/shader/"));
+        .pipe(gulp.dest("./src/ts/shader/"));
 })
 
 

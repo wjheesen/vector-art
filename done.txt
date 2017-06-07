@@ -10,3 +10,5 @@ x 2017-06-01 2017-05-19 (C) Add redo button +redo @feature
 x 2017-06-01 2017-05-19 (C) Add deleted drawables to a redo stack +redo @feature
 x 2017-06-01 2017-05-19 (C) Pop redo stack and add to drawable stack on redo button click +redo @feature
 x 2017-06-01 2017-06-01 Add tool for filling a line with shapes
+x 2017-06-07 2017-06-01 Replace maintain aspect checkbox with tool that maintains aspect and tool that does not maintain aspect @tool
+x 2017-06-07 2017-06-05 Restrict scroll zoom by time

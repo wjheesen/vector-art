@@ -1,7 +1,6 @@
 ﻿2017-05-19 (C) Allow user to select multiple shapes, expanding the frame to encompass each of the shapes +multi-select @select-tool @idea
-2017-05-23 (B) Implement an onInterrupt method for each tool
+2017-05-23 (B) Implement an onInterrupt method for each tool @idea
 2017-05-23 (C) Add move forward, move backward, move to front, and move to back options @feature @idea
-2017-06-01 Replace maintain aspect checkbox with tool that maintains aspect and tool that does not maintain aspect @tool
-2017-06-05 Add zoom to rect tool @tool
-2017-06-05 Restrict scroll zoom by time
-2017-06-05 Add paint bucket tool
+2017-06-05 Add zoom to rect tool @tool @idea
+2017-06-05 Add paint bucket tool @tool @idea
+2017-06-07 (A) Save shapes on canvas to IndexedDB using Dexie.js

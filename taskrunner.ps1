@@ -15,12 +15,10 @@ $build = "$PSScriptRoot\build"
 $src = "$PSScriptRoot\src"
     $php = "$src\index.php"
     $scss = "$src\style.scss"
-    $ts = "$src\bundle.ts"
     $svg = "$src\svg"
     $icon = "$src\icon"
 
 $gulpfile = "$PSScriptRoot\gulpfile.js"
-$taskrunner = "$PSScriptRoot\taskrunner.ps1"
 $tsconfig = "$PSScriptRoot\tsconfig.json"
 
 function Initialize-Repository(){
