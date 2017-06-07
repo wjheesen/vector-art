@@ -7,7 +7,7 @@ $title = "$package->displayName v$major.$minor";
 $shapes = ["triangle", "square", "pentagon", "hexagon", "octagon", "circle", "spray", 
            "diamond", "star3", "star4", "star5", "star6", "star8",  "star16",
            "sun","heart", "flower", "bat"];
-$tools = ["shape-aspect", "shape", "shape-stroke", "stroke", "shape-line", "line", "shape-spray", "pan", "select"];
+$tools = ["shape-aspect", "shape", "shape-stroke", "stroke", "shape-line", "line", "shape-spray", "color-sampler", "pan", "select"];
 $actions = ["undo", "redo"];
 $btn = "btn btn-sm";
 $btn_toggle = "$btn dropdown-toggle";

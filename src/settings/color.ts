@@ -1,3 +1,4 @@
+import { ColorFStruct } from 'gl2d';
 import { Color } from "gl2d/struct/color";
 import { ColorOption } from '../option/color';
 import * as $ from 'jquery';
@@ -16,9 +17,19 @@ export class ColorSettings {
 
     pickRandom(){
         this.color.val.setRandom();
-        this.color.unparsed.val = this.color.val.toArgbString();
-        this.input.spectrum("set", this.color.unparsed.val);
-        this.callback(this.color.val);
+        this.updateColorSetting();
+    }
+
+    pickColorF(color: ColorFStruct){
+        this.color.val.setFromColorF(color);
+        this.updateColorSetting();
+    }
+
+    private updateColorSetting(){
+        let { color, input, callback } = this;
+        color.unparsed.val = color.val.toArgbString();
+        input.spectrum("set", color.unparsed.val);
+        callback(color.val);
     }
 
     static create(onColorPick: OnColorPick){

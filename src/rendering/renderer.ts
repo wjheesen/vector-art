@@ -1,4 +1,4 @@
-import { ColorStruct } from 'gl2d';
+import { ColorStruct } from 'gl2d/struct/color';
 import { SetColorOfDrawable } from '../action/setColorOfDrawable';
 import { TransformDrawable } from '../action/transformDrawable';
 import { Action } from '../action/action';
@@ -128,7 +128,7 @@ export class Renderer extends Base {
         // console.log("stack size", this.measureStackSize())
     }
 
-    getShapeContaining(point: IPoint){
+    getDrawableContaining(point: IPoint){
         let shapes = this.drawables;
         for(let i = shapes.length - 1; i>=0; i--){
             let drawable = shapes[i];
@@ -208,7 +208,7 @@ export class Renderer extends Base {
     }
 
     addTransform(drawable?: Drawable, matrix?: Mat2d){
-        if(drawable && matrix && !matrix.equals(Mat2d.identity())){
+        if(drawable && matrix && !matrix.isIdentity()){
             this.undoStack.push(new TransformDrawable(drawable, matrix));
             this.redoStack.length = 0;
         }

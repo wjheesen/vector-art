@@ -1,3 +1,5 @@
+import { ColorSampler } from './tool/colorSampler';
+import { IColor } from 'gl2d/struct/color';
 import { Surface } from './rendering/surface';
 import { ColorSettings } from './settings/color';
 import { OtherSettings } from './settings/other';
@@ -23,16 +25,7 @@ import 'bootstrap';
 let surface = Surface.create("canvas");
 
 let currentTool: _MouseOrTouchTool;
-let shapeTool = new ShapeTool();
-let lineTool = new LineTool();
-let shapeSprayTool = new ShapeSprayTool();
-let shapeLineTool = new ShapeLineTool();
-let shapeStrokeTool = new ShapeStrokeTool();
-let strokeTool = new StrokeTool();
-let scrollZoomTool = new ScrollZoomTool(1.5, 5);
-let pinchZoomTool = new PinchZoomTool();
-let panTool = new PanTool();
-let selectTool = new SelectTool();
+
 
 function setTool(tool: _MouseOrTouchTool){
     if(currentTool !== tool){
@@ -43,7 +36,7 @@ function setTool(tool: _MouseOrTouchTool){
     }
 }
 
-let colorPicker = ColorSettings.create(color => {
+function setDrawColor(color: IColor){
     let renderer = surface.renderer;
     let drawColor = renderer.color;
     let selection = renderer.selection.target;
@@ -54,7 +47,23 @@ let colorPicker = ColorSettings.create(color => {
         renderer.setDrawableColor(selection, drawColor);
         surface.requestRender();
     }
-});
+}
+
+function undo(){
+    let renderer = surface.renderer;
+    if(renderer.undoLastAction()){
+        selectTool.onDetach(surface);
+    }
+}
+
+function redo(){
+    let renderer = surface.renderer;
+    if(renderer.redoLastUndo()){
+        selectTool.onDetach(surface);
+    }
+}
+
+let colorPicker = ColorSettings.create(setDrawColor);
 
 ShapeSettings.create(type => {
     let renderer = surface.renderer;
@@ -62,8 +71,21 @@ ShapeSettings.create(type => {
     renderer.mesh = meshes[type];
 });
 
+let shapeTool = new ShapeTool();
+let lineTool = new LineTool();
+let shapeSprayTool = new ShapeSprayTool();
+let shapeLineTool = new ShapeLineTool();
+let shapeStrokeTool = new ShapeStrokeTool();
+let strokeTool = new StrokeTool();
+let scrollZoomTool = new ScrollZoomTool(1.5, 5);
+let pinchZoomTool = new PinchZoomTool();
+let colorSampler = new ColorSampler(color => colorPicker.pickColorF(color));
+let panTool = new PanTool();
+let selectTool = new SelectTool();
+
 // TODO: add shape-aspect tool with ellipse-rectangle vs circle-square icon
 let toolSettings = ToolSettings.create(type => {
+    // TODO: change to map<string,tool>
     switch(type){
         case "shape-aspect":
             shapeTool.maintainAspect.val = true;
@@ -81,6 +103,8 @@ let toolSettings = ToolSettings.create(type => {
             return setTool(shapeLineTool);
         case "shape-spray":
             return setTool(shapeSprayTool);
+        case "color-sampler":
+            return setTool(colorSampler);
         case "pan":
             return setTool(panTool);
         case "select":
@@ -96,20 +120,6 @@ OtherSettings.create(
         scrollZoomTool.scaleFactor = 1 + zoomSpeed/100;
     }
 );
-
-function undo(){
-    let renderer = surface.renderer;
-    if(renderer.undoLastAction()){
-        selectTool.onDetach(surface);
-    }
-}
-
-function redo(){
-    let renderer = surface.renderer;
-    if(renderer.redoLastUndo()){
-        selectTool.onDetach(surface);
-    }
-}
 
 $("#undo").click(undo)
 
@@ -149,9 +159,6 @@ $(document)
             }
         }
     })
-    // .on("keypress", e => {
-
-    // })
 
 
 surface.onScrollAction(action => {

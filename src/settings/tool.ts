@@ -2,7 +2,7 @@ import { Option } from '../option/option';
 import * as $ from 'jquery';
 
 export type OnToolPick = (id: ToolType) => any;
-export type ToolType = "shape-aspect" | "shape" | "shape-stroke" | "shape-line" | "shape-spray"| "stroke"  | "line"  | "pan" | "select" ;
+export type ToolType = "shape-aspect" | "shape" | "shape-stroke" | "shape-line" | "shape-spray"| "stroke"  | "line"  | "color-sampler" | "pan" | "select" ;
 
 export class ToolSettings {
     

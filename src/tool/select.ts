@@ -61,7 +61,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
             // And if the hovered target is not the same as the previous
             if(!hovered.target || !hovered.target.contains(pointer)){
                 // Search for newly hovered drawable and select it if it exists
-                hovered.setTarget(renderer.getShapeContaining(pointer));
+                hovered.setTarget(renderer.getDrawableContaining(pointer));
                 // Render to show changes
                 surface.requestRender();
             }
@@ -86,7 +86,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
                 this.transform = Transformation.Translate;
             } else {
                 // Selected a new drawable, or clicked on nothing
-                selected.setTarget(renderer.getShapeContaining(pointer));
+                selected.setTarget(renderer.getDrawableContaining(pointer));
                 this.transform = selected.target ? Transformation.Translate : Transformation.None;
             }
         }
@@ -171,9 +171,6 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     onDetach(surface: Surface){
         let renderer = surface.renderer;
         let selection = renderer.selection;
-        // Save transform
-        renderer.addTransform(selection.target, this.matrix);
-        this.matrix = null;
         // Remove selections
         let hover = renderer.hover;
         selection.setTarget(null);
@@ -185,6 +182,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         this.previous = null;
         this.control = null;
         this.pivot = null;
+        this.matrix = null;
         surface.requestRender();
     }
 
