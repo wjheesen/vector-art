@@ -19,9 +19,8 @@ export class ColorSampler extends MouseOrTouchTool<Surface> {
             case Status.Start:
             case Status.Drag:
                 let surface = action.target;
-                let renderer = surface.renderer;
                 let pointer = this.getPrimaryPointer(action);
-                let drawable = renderer.getDrawableContaining(pointer);
+                let drawable = surface.getDrawableContaining(pointer);
                 if(drawable){
                     let color = drawable.color;
                     this.onColorSample(color);

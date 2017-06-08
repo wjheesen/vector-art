@@ -30,8 +30,8 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
 
         let surface = action.target;
         let renderer = surface.renderer;
-        let stroke = renderer.getTempShapeBatch();
-        let thickness = renderer.lineThickness;
+        let stroke = surface.getTempShapeBatch();
+        let thickness = surface.lineWidth;
         let current = this.getPrimaryPointer(action);
         let previous = this.previous;
 
@@ -45,7 +45,7 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
     onEnd(action: Action) {
         let surface = action.target;
         let renderer = surface.renderer;
-        renderer.addTempShapeBatch();
+        surface.addTempShapeBatch();
         surface.requestRender();
     }
 }

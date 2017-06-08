@@ -28,20 +28,18 @@ export class LineTool extends MouseOrTouchTool<Surface> {
     onDrag(action: MouseOrTouchAction<Surface>) {
         if (!this.start) { return; }
         let surface = action.target;
-        let renderer = surface.renderer;
-        let line = renderer.getTempLine();
+        let line = surface.getTempLine();
         // Transform line based on start and end points
         let start = this.start;
         let end = this.getPrimaryPointer(action);
-        line.setFromPointToPoint(start, end, renderer.lineThickness);
+        line.setFromPointToPoint(start, end, surface.lineWidth);
         surface.requestRender();
     }
 
     onEnd(action: Action) {
         this.start = null;
         let surface = action.target;
-        let renderer = surface.renderer;
-        renderer.addTempDrawable();
+        surface.addTempDrawable();
         surface.requestRender();
     }
 }

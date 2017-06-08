@@ -1,3 +1,4 @@
+import { ColorFStruct } from 'gl2d/struct/colorF';
 import { Ellipse } from '../drawable/ellipse';
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
@@ -52,16 +53,14 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
 
     onMove(action: Action, pointer: IPoint){
         let surface = action.target;
-        let renderer = surface.renderer;
-        let selection = renderer.selection;
-        let hovered = renderer.hover;
+        let { selection, hover } = surface.renderer;
 
         // If the point is outside of the selection 
         if(!selection.contains(pointer)){
             // And if the hovered target is not the same as the previous
-            if(!hovered.target || !hovered.target.contains(pointer)){
+            if(!hover.target || !hover.target.contains(pointer)){
                 // Search for newly hovered drawable and select it if it exists
-                hovered.setTarget(renderer.getDrawableContaining(pointer));
+                hover.setTarget(surface.getDrawableContaining(pointer));
                 // Render to show changes
                 surface.requestRender();
             }
@@ -70,24 +69,22 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
 
     onStart(action: Action, pointer: IPoint) {
         let surface = action.target;
-        let renderer = surface.renderer;
-        let selected = renderer.selection;
-        let hovered = renderer.hover;
-        this.reselected = selected.contains(pointer);
+        let { selection, hover } = surface.renderer;
+        this.reselected = selection.contains(pointer);
 
         if(this.reselected){
             // Reclicked a drawable that has already been selected
-            this.transform = this.getTransformType(pointer, selected);
+            this.transform = this.getTransformType(pointer, selection);
         } else {
-            if(hovered.contains(pointer)){
+            if(hover.contains(pointer)){
                 // Selected a drawable that has already been indicated by the hover graphic
-                selected.setTarget(hovered.target);
-                hovered.setTarget(null);
+                selection.setTarget(hover.target);
+                hover.setTarget(null);
                 this.transform = Transformation.Translate;
             } else {
                 // Selected a new drawable, or clicked on nothing
-                selected.setTarget(renderer.getDrawableContaining(pointer));
-                this.transform = selected.target ? Transformation.Translate : Transformation.None;
+                selection.setTarget(surface.getDrawableContaining(pointer));
+                this.transform = selection.target ? Transformation.Translate : Transformation.None;
             }
         }
 
@@ -96,34 +93,6 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         }
 
         surface.requestRender();
-    }
-
-    getTransformType(pointer: IPoint, selected?: Selection){
-        let {pivot, control, frame} = selected;
-        // Choose transformation based on position of pointer
-         if(selected.target && selected.contains(pointer)) {
-            if(pivot.contains(pointer)){
-                // Pointer on pivot
-                this.control = pivot;
-                this.pivot = control.measureCenter();
-                return Transformation.Rotate;
-            } else if(control.contains(pointer)){
-                // Pointer on control
-                this.control = control;
-                this.pivot = pivot.measureCenter();
-                return Transformation.Rotate;
-            } else if (frame.innerRect.contains(pointer)){
-                // Pointer in frame
-                this.pivot = null;
-                return Transformation.Translate;
-            } else {
-                // Pointer on frame
-                this.pivot = frame.getVertexOpposite(pointer);
-                return Transformation.Scale;
-            }
-        }
-        // Pointer outside frame
-        return Transformation.None;
     }
 
     onDrag(action: Action, pointer: IPoint) {
@@ -160,7 +129,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         let selection = renderer.selection;
         // Save transform 
-        renderer.addTransform(selection.target, this.matrix);
+        surface.recordTransformation(selection.target, this.matrix);
         this.matrix = null;
         // End transform if user tapped the selected shape
         if(this.reselected && this.dragCount <5 && selection.contains(pointer)){
@@ -184,6 +153,34 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         this.pivot = null;
         this.matrix = null;
         surface.requestRender();
+    }
+
+    getTransformType(pointer: IPoint, selected?: Selection){
+        let {pivot, control, frame} = selected;
+        // Choose transformation based on position of pointer
+         if(selected.target && selected.contains(pointer)) {
+            if(pivot.contains(pointer)){
+                // Pointer on pivot
+                this.control = pivot;
+                this.pivot = control.measureCenter();
+                return Transformation.Rotate;
+            } else if(control.contains(pointer)){
+                // Pointer on control
+                this.control = control;
+                this.pivot = pivot.measureCenter();
+                return Transformation.Rotate;
+            } else if (frame.innerRect.contains(pointer)){
+                // Pointer in frame
+                this.pivot = null;
+                return Transformation.Translate;
+            } else {
+                // Pointer on frame
+                this.pivot = frame.getVertexOpposite(pointer);
+                return Transformation.Scale;
+            }
+        }
+        // Pointer outside frame
+        return Transformation.None;
     }
 
 }

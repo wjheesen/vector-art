@@ -5,8 +5,13 @@ import { Rect } from "gl2d/struct/rect";
 import { IVec2 } from "gl2d/struct/vec2";
 import { IMat2d } from "gl2d/struct/mat2d";
 import { IPoint } from "gl2d/struct/point";
+import { Database } from '../database/database';
 
 export interface Drawable extends Base<Renderer>{
+    /**
+     * The key for this drawable's database entry.
+     */
+    id: number;
     /**
      * The color of this drawable. 
      */
@@ -31,4 +36,9 @@ export interface Drawable extends Base<Renderer>{
      * @param matrix the transformation matrix.
      */
     transform(matrix: IMat2d): void;
+
+    /**
+     * Saves this drawable to the specified database.
+     */
+    save(db: Database, canvasId: number): void;
 }

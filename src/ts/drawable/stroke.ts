@@ -1,14 +1,17 @@
+import { Database } from '../database/database';
 import { Drawable } from './drawable';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { VertexBuffer } from 'gl2d/struct/vertex';
 import { Renderer } from '../rendering/renderer';
 import { Rect } from "gl2d/struct/rect";
 import { Mat2d, IMat2d } from 'gl2d/struct/mat2d';
-import { IPoint } from "gl2d/struct/point";
-import { IVec2 } from "gl2d/struct/vec2";
+import { IPoint, Point } from "gl2d/struct/point";
+import { IVec2, Vec2} from "gl2d/struct/vec2";
 
 export class Stroke implements Drawable {
 
+
+    id = -1;
     color: ColorFStruct;
     vertices: VertexBuffer;
 
@@ -38,12 +41,117 @@ export class Stroke implements Drawable {
         return false;
     }
 
-    public offset(vec: IVec2): void {
+    offset(vec: IVec2): void {
         this.vertices.offset(vec);
     }
 
-    public transform(matrix: IMat2d): void {
+    transform(matrix: IMat2d): void {
         this.vertices.transform(matrix);
+    }
+
+    /**
+     * Begins this stroke at the specified point.
+     * @param point where to begin the stroke.
+     * @param lineWidth the width of the initial line.
+     */
+    begin(point: IPoint, lineWidth: number) {
+        let { x, y } = point;
+        let vertices = this.vertices;
+        let halfThickness = 0.5 * lineWidth;
+        if(vertices.moveToFirst()){
+            vertices.put$(x, y + halfThickness);
+            vertices.put$(x, y - halfThickness);
+        }
+    }
+
+   /**
+     * Adds a line to this stroke.
+     * @param point the point at the end of the line.
+     * @param lineWidth the width of the line.
+     */
+    add(point: IPoint, lineWidth: number){
+
+        let vertices = this.vertices;
+        let position = vertices.position();
+        let halfThickness = 0.5 * lineWidth
+        let halfThickness2 = halfThickness * halfThickness;
+
+        // Assume the stroke already has at least one line
+        // TODO: throw error if not
+        let prevTop = <Vec2> vertices.get(position - 2);
+        let prevBot = <Vec2> vertices.get(position - 1);
+        let prevCen = Point.midpoint(prevTop, prevBot);
+        let line = Vec2.fromPointToPoint(prevCen, point);
+        let prevLine: Vec2;
+        let miter: Vec2;
+        let ortho: Vec2;
+
+        // If previous line exists
+        if(position >= 4){
+
+            // Compute previous line
+            let prevPrevTop = <Vec2> vertices.get(position - 4);
+            let prevPrevBot = <Vec2> vertices.get(position - 3);
+            let prevPrevCen = Point.midpoint(prevPrevTop, prevPrevBot);
+            prevLine = Vec2.fromPointToPoint(prevPrevCen, prevCen);
+
+            // If lines are too short
+            if(line.length2() < halfThickness2 && prevLine.length2() < halfThickness2){
+
+                // Merge them into a single line
+                position -= 2;
+                prevTop = prevPrevTop;
+                prevBot = prevPrevBot;
+                prevCen = prevPrevCen;
+                line = Vec2.fromPointToPoint(prevCen, point);
+                prevLine = null;
+
+                // Compute the (previous) previous line if it exists
+                if(position >= 4){
+                    prevPrevTop = <Vec2> vertices.get(position - 4);
+                    prevPrevBot = <Vec2> vertices.get(position - 3);
+                    prevPrevCen = Point.midpoint(prevPrevTop, prevPrevBot);
+                    prevLine = Vec2.fromPointToPoint(prevPrevCen, prevCen);
+                }
+            }
+        } 
+        
+        // Compute the ortho vector needed to compute the top and bottom right vertices of the line segment.
+        ortho = Vec2.create(line);
+        ortho.normalize();
+        ortho.rotateLeft();
+        ortho.mulScalar(halfThickness);
+
+        // If there are more than two line segments (with non-zero length), use a miter vector join them. 
+        // Otherwise use the ortho vector to compute the top and bottom left vertices of the line segment.
+        if(prevLine && !prevLine.epsilonEqualsScalar(0, halfThickness/8)){
+            miter =  miterVector(prevLine, line, halfThickness, halfThickness*3);
+        } else {
+            miter = ortho;
+        }
+
+        // Update vertices
+        vertices.moveToPosition(position - 2);
+
+        // Top left:
+        vertices.$set(prevCen);
+        vertices.$add(miter);
+        vertices.moveToNext();
+
+        // Bottom left:
+        vertices.$set(prevCen);
+        vertices.$subtract(miter);
+        vertices.moveToNext();
+
+        // Top right:
+        vertices.$set(point);
+        vertices.$add(ortho);
+        vertices.moveToNext();
+
+        // Bottom right:
+        vertices.$set(point);
+        vertices.$subtract(ortho);
+        vertices.moveToNext();
     }
 
     draw(renderer: Renderer): void {
@@ -56,5 +164,46 @@ export class Stroke implements Drawable {
         program.setVertices(gl, vertices);
         program.draw(gl, vertices.position()); 
     }
+    
+    save(db: Database, canvasId: number): void {
+        throw new Error("Method not implemented.");
+    }
 }
 
+/**
+ * Measures the miter vector for the joining of two lines.
+ * @param prevLine the nonzero vector from the start of the previous line to the end of the previous line.
+ * @param line the nonzero vector from the start of the previous line to the end of the previous line.
+ * @param halfThickness half the thickness of the second line.
+ * @param miterLimit the maximum allowable miter length before a bevel is applied.
+ * @returns the miter vector.
+ */
+function miterVector(prevLine: IVec2, line: IVec2, halfThickness: number, miterLimit: number) {
+
+    // Measure the ortho norm of the previous vector and the next vector.
+    let n1 = Vec2.create(prevLine);
+    n1.normalize();
+    n1.rotateLeft();
+    
+    let n2 = Vec2.create(line);
+    n2.normalize();
+    n2.rotateLeft();
+
+    // Average the ortho norms to get the miter vector.
+    let miter = Vec2.create(n1);
+    miter.add(n2);
+    miter.normalize(); 
+
+    // Measure the length of the miter by projecting it onto one of the ortho norms and inverting it.
+    let length = halfThickness / miter.dot(n2);
+
+    // Ensure length does not exceed miter limit
+    if(length > miterLimit){
+        length = miterLimit;
+    }
+
+    // Scale vector to the measured length
+    miter.mulScalar(length);
+
+    return miter;
+}

@@ -19,14 +19,13 @@ export class ShapeSprayTool extends MouseOrTouchTool<Surface> {
     onDrag(action: MouseOrTouchAction<Surface>) {
 
         let surface = action.target;
-        let renderer = surface.renderer;
-        let stroke = renderer.getTempShapeBatch();
+        let stroke = surface.getTempShapeBatch();
 
         // Add another shape if there is room
         let matrices = stroke.matrices;
         if(matrices.position() < matrices.capacity()){
             let center = this.getPrimaryPointer(action);
-            let radius = renderer.lineThickness / 2;
+            let radius = surface.lineWidth / 2;
             stroke.add(center, radius);
             surface.requestRender();
         }
@@ -34,8 +33,7 @@ export class ShapeSprayTool extends MouseOrTouchTool<Surface> {
 
     onEnd(action: Action) {
         let surface = action.target;
-        let renderer = surface.renderer;
-        renderer.addTempShapeBatch();
+        surface.addTempShapeBatch();
         surface.requestRender();
     }
 }

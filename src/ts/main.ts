@@ -22,7 +22,7 @@ import * as tether from 'tether';
 (<any> window).Tether = tether;
 import 'bootstrap';
 
-let surface = Surface.create("canvas");
+let surface = Surface.create();
 
 let currentTool: _MouseOrTouchTool;
 
@@ -37,28 +37,26 @@ function setTool(tool: _MouseOrTouchTool){
 }
 
 function setDrawColor(color: IColor){
-    let renderer = surface.renderer;
-    let drawColor = renderer.color;
-    let selection = renderer.selection.target;
-    // Update draw color
+    let { drawColor, renderer } = surface;
+    let { target } = renderer.selection;
+    // Modify draw color
     drawColor.setFromColor(color);
-    // Update color of selection (if any)
-    if(selection){
-        renderer.setDrawableColor(selection, drawColor);
+    // Modify color of selected drawable (if any)
+    if(target){
+        target.color.set(drawColor);
+        surface.recordColorChange(target, drawColor);
         surface.requestRender();
     }
 }
 
 function undo(){
-    let renderer = surface.renderer;
-    if(renderer.undoLastAction()){
+    if(surface.undoLastAction()){
         selectTool.onDetach(surface);
     }
 }
 
 function redo(){
-    let renderer = surface.renderer;
-    if(renderer.redoLastUndo()){
+    if(surface.redoLastUndo()){
         selectTool.onDetach(surface);
     }
 }
@@ -66,9 +64,8 @@ function redo(){
 let colorPicker = ColorSettings.create(setDrawColor);
 
 ShapeSettings.create(type => {
-    let renderer = surface.renderer;
-    let meshes = renderer.meshes;
-    renderer.mesh = meshes[type];
+    let meshes = surface.renderer.meshes;
+    surface.mesh = meshes[type];
 });
 
 let shapeTool = new ShapeTool();
@@ -114,7 +111,7 @@ let toolSettings = ToolSettings.create(type => {
 
 OtherSettings.create(
     thickness => {
-        surface.renderer.lineThickness = thickness/1000;
+        surface.lineWidth = thickness/1000;
     },
     zoomSpeed => {
         scrollZoomTool.scaleFactor = 1 + zoomSpeed/100;
@@ -153,7 +150,7 @@ $(document)
             let renderer = surface.renderer;
             let selection = renderer.selection.target;
             if(selection){
-                renderer.removeDrawable(selection);
+                surface.removeDrawable(selection);
                 selectTool.onDetach(surface);
                 surface.requestRender();
             }

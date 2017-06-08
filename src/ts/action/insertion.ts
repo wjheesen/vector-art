@@ -1,25 +1,25 @@
 import { Drawable } from '../drawable/drawable';
-import { Renderer } from '../rendering/renderer';
+import { Surface } from '../rendering/surface';
 import { Action } from './action';
 import pullAt = require('lodash.pullat');
 
 
-export class AddDrawable implements Action {
+export class Insertion implements Action {
 
     constructor(
         public drawable: Drawable,
         public index: number){
     }
 
-    redo(renderer: Renderer) {
+    redo(surface: Surface) {
         let { drawable, index } = this;
-        let stack = renderer.drawables;
+        let stack = surface.renderer.drawables;
         stack.splice(index, 0, drawable); // "insert(stack, index, drawable)"
     }
 
-    undo(renderer: Renderer) {
+    undo(surface: Surface) {
         let { index } = this;
-        let stack = renderer.drawables;
+        let stack = surface.renderer.drawables;
         pullAt(stack, index);
     }
 }

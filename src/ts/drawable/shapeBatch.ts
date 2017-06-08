@@ -1,3 +1,4 @@
+import { Database } from '../database/database';
 import { Shape } from './shape';
 import { Renderer } from '../rendering/renderer';
 import { Drawable } from './drawable';
@@ -10,6 +11,8 @@ import { Mesh } from "gl2d/drawable/mesh";
 import { Point } from "gl2d/struct/point";
 
 export class ShapeBatch implements Drawable {
+
+    id = -1;
 
     mesh: Mesh;
 
@@ -130,6 +133,9 @@ export class ShapeBatch implements Drawable {
         program.setColor(gl, this.color);
         program.draw(renderer, instanceCount);
     }
-    
+
+    save(db: Database, canvasId: number): void {
+        throw new Error("Method not implemented.");
+    }
 }
 

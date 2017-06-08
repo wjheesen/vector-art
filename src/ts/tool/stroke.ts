@@ -1,5 +1,4 @@
 import { VertexBuffer } from 'gl2d/struct/vertex';
-import { StrokeBuilder } from '../drawable/strokeBuilder';
 import { Stroke } from '../drawable/stroke';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Surface } from '../rendering/surface';
@@ -10,8 +9,6 @@ import { Status } from "gl2d/action/status";
 type Action = MouseOrTouchAction<Surface>;
 
 export class StrokeTool extends MouseOrTouchTool<Surface> {
-
-    private strokeBuilder = new StrokeBuilder();
 
     onAction(action: Action): void {
         switch(action.status){
@@ -26,29 +23,27 @@ export class StrokeTool extends MouseOrTouchTool<Surface> {
 
    onStart(action: Action) {
         let surface = action.target;
-        let renderer = surface.renderer;
+        let { lineWidth } = surface;
         let pointer = this.getPrimaryPointer(action);
-        let color = ColorFStruct.create(renderer.color);
-        let vertices = new VertexBuffer(renderer.buffer);
-        renderer.temp = this.strokeBuilder.begin(color, vertices, pointer, renderer.lineThickness);
+        let stroke = surface.getTempStroke();
+        stroke.begin(pointer, lineWidth)
+        surface.requestRender();
     }
 
     onDrag(action: MouseOrTouchAction<Surface>) {
         let surface = action.target;
-        let renderer = surface.renderer;
-        let stroke = renderer.temp as Stroke;
-        if (!stroke || !stroke.vertices.hasValidPosition()) { return; }
+        let { lineWidth } = surface;
         let pointer = this.getPrimaryPointer(action);
-        this.strokeBuilder.add(stroke, pointer, renderer.lineThickness);
-        surface.requestRender();
+        let stroke = surface.getTempStroke();
+        if(stroke.vertices.hasValidPosition()){ 
+            stroke.add(pointer, lineWidth);
+            surface.requestRender();
+        }
     }
 
     onEnd(action: Action) {
         let surface = action.target;
-        let renderer = surface.renderer;
-        let stroke = renderer.temp as Stroke;
-        renderer.temp = this.strokeBuilder.end(stroke);
-        renderer.addTempDrawable();
+        surface.addTempDrawable();
         surface.requestRender();
     }
 }

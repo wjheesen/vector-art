@@ -1,19 +1,7 @@
-import { ColorStruct } from 'gl2d/struct/color';
-import { SetColorOfDrawable } from '../action/setColorOfDrawable';
-import { TransformDrawable } from '../action/transformDrawable';
-import { Action } from '../action/action';
-import { AddDrawable } from '../action/addDrawable';
-import { RemoveDrawable } from '../action/removeDrawable';
 import { Drawable } from '../drawable/drawable';
-import { Ellipse } from '../drawable/ellipse';
-import { EllipseBatch } from '../drawable/ellipseBatch';
 import { Frame } from '../drawable/frame';
 import { FramedDrawable } from '../drawable/framed';
-import { Line } from '../drawable/line';
 import { Selection } from '../drawable/selection';
-import { Shape } from '../drawable/shape';
-import { ShapeBatch } from '../drawable/shapeBatch';
-import { Stroke } from '../drawable/stroke';
 import { SprayMesh } from '../mesh/spray';
 import { EllipseProgram } from '../program/ellipse';
 import { FrameProgram } from '../program/frame';
@@ -23,19 +11,11 @@ import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
 import { Mesh, MeshSource } from 'gl2d/drawable/mesh';
 import { Renderer as Base } from 'gl2d/rendering/renderer';
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { Mat2d, Mat2dBuffer } from 'gl2d/struct/mat2d';
-import { IPoint } from 'gl2d/struct/point';
-import lastIndexOf = require('lodash.lastindexof');
 
 export class Renderer extends Base {
 
     ext: ANGLEInstancedArrays;
     
-    undoStack: Action[] = [];
-    redoStack: Action[] = [];
-
-    buffer = new Float32Array(25000); // 100kb
-
     shapeProgram: ShapeProgram;
     ellipseProgram: EllipseProgram;
     strokeProgram: StrokeProgram;
@@ -48,8 +28,6 @@ export class Renderer extends Base {
     selection: Selection;
     hover: FramedDrawable;
 
-    // points: Ellipse[] = [];
-    
     meshes: MeshMap = {
         "triangle": Mesh.polygon(3),
         "square": Mesh.square(),
@@ -68,10 +46,6 @@ export class Renderer extends Base {
         "flower": Mesh.fromSource(flower()),
         "bat": Mesh.fromSource(bat()),
     } 
-
-    mesh: Mesh;
-    lineThickness = 0.01;
-    color = new ColorFStruct();
 
     onSurfaceCreated(): void {
         let gl = this.gl;
@@ -116,9 +90,6 @@ export class Renderer extends Base {
             this.temp.draw(this);
         }
         this.foreground.draw(this);
-        // for(let point of this.points){
-        //     point.draw(this);
-        // }
         if(this.selection.target){
             this.selection.draw(this);
         }
@@ -127,175 +98,6 @@ export class Renderer extends Base {
         }
         // console.log("stack size", this.measureStackSize())
     }
-
-    getDrawableContaining(point: IPoint){
-        let shapes = this.drawables;
-        for(let i = shapes.length - 1; i>=0; i--){
-            let drawable = shapes[i];
-            if(drawable.contains(point)){
-                return drawable;
-            }
-        }
-        return null;
-    }
-
-    getTempLine(){
-        let line = this.temp as Line;
-        if(!line){
-            let color = ColorFStruct.create(this.color);
-            line = new Line(this.meshes.square, color);
-            this.temp = line;
-        }
-        return line;
-    }
-
-    getTempShape(){
-        let shape = this.temp as Shape;
-        if(!shape){
-            let mesh = this.mesh;
-            let color = ColorFStruct.create(this.color);
-            if(mesh){
-                shape = new Shape(mesh, color);
-            } else {
-                shape = new Ellipse(this.ellipseProgram.mesh, color);
-            }
-            this.temp = shape;
-        }
-        return shape;
-    }
-
-    getTempShapeBatch(){
-        let batch = this.temp as ShapeBatch;
-        if(!batch){
-            let mesh = this.mesh; //this.mesh;
-            let color = ColorFStruct.create(this.color);
-            let matrices = new Mat2dBuffer(this.buffer);
-            if(mesh){
-                batch = new ShapeBatch(mesh, color, matrices);
-            } else {
-                batch = new EllipseBatch(this.ellipseProgram.mesh, color, matrices);
-            }
-            this.temp = batch;
-        }
-        return batch;
-    }
-
-    addTempDrawable(){
-        let { temp, drawables, camera, undoStack, redoStack } = this;
-        if(temp && camera.target.intersects(temp.measureBoundaries())){
-            let index = drawables.length;
-            drawables.push(temp);
-            undoStack.push(new AddDrawable(temp, index));
-            redoStack.length = 0;
-        }
-        this.temp = null;
-    }
-
-    addTempShapeBatch(){
-        let batch = this.temp as ShapeBatch;
-        if(batch){
-            let matrices = batch.matrices;
-            let size = matrices.position();
-            if(size > 0){
-                matrices.moveToFirst();
-                batch.matrices = Mat2dBuffer.create(size);
-                batch.matrices.putBuffer(matrices, size);
-                this.addTempDrawable();
-            } else {
-                this.temp = null;
-            }
-        }
-    }
-
-    addTransform(drawable?: Drawable, matrix?: Mat2d){
-        if(drawable && matrix && !matrix.isIdentity()){
-            this.undoStack.push(new TransformDrawable(drawable, matrix));
-            this.redoStack.length = 0;
-        }
-    }
-    
-    setDrawableColor(drawable: Drawable, color: ColorFStruct){
-        let oldColor = ColorStruct.fromColorF(drawable.color);
-        let newColor = ColorStruct.fromColorF(color);
-        let action = new SetColorOfDrawable(drawable, oldColor, newColor);
-        this.undoStack.push(action)
-        drawable.color.set(color);
-    }
-
-    removeDrawable(drawable?: Drawable){
-        let { drawables, undoStack } = this;
-
-        let action: Action;
-        if(drawable){
-            let index = lastIndexOf(drawables, drawable);
-            action = new RemoveDrawable(drawable, index);
-            action.redo(this);
-        } else if(drawables.length > 0){
-           drawable = drawables.pop();
-           action = new RemoveDrawable(drawable, drawables.length);
-        } else {
-            return false;
-        }
-      
-        undoStack.push(action);
-        return true;
-    }
-
-    undoLastAction(){
-        let { drawables, undoStack, redoStack } = this;
-
-        let action: Action;
-        if(undoStack.length > 0){
-            action = undoStack.pop();
-        } else if(drawables.length > 0){
-            action = new AddDrawable(drawables.pop(), drawables.length)
-        } else {
-            return false;
-        }
-
-        action.undo(this);
-        redoStack.push(action);
-        return true;
-    }
-
-    redoLastUndo(){
-        let { undoStack, redoStack } = this;
-
-        let action: Action;
-        if(redoStack.length > 0){
-            action = redoStack.pop();
-        } else {
-            return false;
-        }
-
-        action.redo(this);
-        undoStack.push(action);
-        return true;
-    }
-
-    measureStackSize(){
-        let size = 0;
-        for(let drawable of this.drawables){
-            size += drawable.color.data.buffer.byteLength;
-            if(drawable instanceof Shape){
-                size += drawable.matrix.data.buffer.byteLength;
-            } else if (drawable instanceof Stroke){
-                size += drawable.vertices.data.buffer.byteLength;
-            } else if (drawable instanceof ShapeBatch){
-                size += drawable.matrices.data.buffer.byteLength;
-            }
-        }
-        return size;
-    }
-
-
-    // plotPoint(p: IPoint, radius = 0.001, color = ColorFStruct.create$(1,0,0,1)){
-    //     let left = Point.create$(p.x - radius, p.y);
-    //     let right = Point.create$(p.x + radius, p.y);
-    //     let drawable = new Ellipse(this.ellipseProgram.mesh, color);
-    //     drawable.stretchAcrossLine(left, right);
-    //     this.points.push(drawable);
-    // }
 
 }
 

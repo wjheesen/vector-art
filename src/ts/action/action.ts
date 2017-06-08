@@ -1,6 +1,6 @@
-import { Renderer } from '../rendering/renderer';
+import { Surface } from '../rendering/surface';
 
 export interface Action {
-    redo(renderer: Renderer): any;
-    undo(renderer: Renderer): any;
+    redo(surface: Surface): any;
+    undo(surface: Surface): any;
 }

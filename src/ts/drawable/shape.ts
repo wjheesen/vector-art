@@ -1,3 +1,4 @@
+import { Database } from '../database/database';
 import { Drawable } from './drawable';
 import { Mat2dStruct } from 'gl2d/struct/mat2d';
 import { Shape as Base } from 'gl2d/drawable/shape';
@@ -6,6 +7,8 @@ import { Mesh } from "gl2d/drawable/mesh";
 import { ColorFStruct } from "gl2d/struct/colorf";
 
 export class Shape extends Base implements Drawable {
+
+    id = -1;
 
     /**
      * The color of this shape. 
@@ -26,5 +29,20 @@ export class Shape extends Base implements Drawable {
         program.setMesh(gl, this.mesh);
         program.setMatrices(gl, this.matrix);
         program.draw(renderer);
+    }
+
+    save(db: Database, canvasId: number){
+        let id = this.id;
+        let color = this.color.data.buffer;
+        let matrix = this.matrix.data.buffer;
+        let type = "star5"; // TODO get from mesh
+
+        // Not yet in database
+        db.shapes.add({
+            canvasId: canvasId,
+            type: type,
+            color: color,
+            matrix: matrix
+        }).then(id => this.id = id)
     }
 }

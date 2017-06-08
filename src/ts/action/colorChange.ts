@@ -1,9 +1,9 @@
 import { ColorStruct } from 'gl2d/struct/color';
 import { Drawable } from '../drawable/drawable';
-import { Renderer } from '../rendering/renderer';
+import { Surface } from '../rendering/surface';
 import { Action } from './action';
 
-export class SetColorOfDrawable implements Action {
+export class ColorChange implements Action {
 
     constructor(
         public drawable: Drawable,
@@ -11,12 +11,12 @@ export class SetColorOfDrawable implements Action {
         public newColor: ColorStruct
     ){}
 
-    redo(renderer: Renderer) {
+    redo(surface: Surface) {
         let { drawable, newColor } = this;
         drawable.color.setFromColor(newColor);
     }
 
-    undo(renderer: Renderer) {
+    undo(surface: Surface) {
         let { drawable, oldColor } = this;
         drawable.color.setFromColor(oldColor);
     }

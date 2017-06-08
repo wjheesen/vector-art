@@ -29,17 +29,16 @@ export class ShapeLineTool extends MouseOrTouchTool<Surface> {
         if(!this.start) { return; }
 
         let surface = action.target;
-        let renderer = surface.renderer;
         let start = this.start;
         let end = this.getPrimaryPointer(action);
-        let stroke = renderer.getTempShapeBatch();
+        let stroke = surface.getTempShapeBatch();
 
         // Clear previous line
         let matrices = stroke.matrices;
         matrices.moveToFirst(); 
 
         // Add new line
-        stroke.addLine(start, end, renderer.lineThickness);
+        stroke.addLine(start, end, surface.lineWidth);
 
         surface.requestRender();
     }
@@ -47,8 +46,7 @@ export class ShapeLineTool extends MouseOrTouchTool<Surface> {
     onEnd(action: Action) {
         this.start = null;
         let surface = action.target;
-        let renderer = surface.renderer;
-        renderer.addTempShapeBatch();
+        surface.addTempShapeBatch();
         surface.requestRender();
     }
 }

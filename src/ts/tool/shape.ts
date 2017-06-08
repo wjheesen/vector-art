@@ -32,8 +32,7 @@ export class ShapeTool extends MouseOrTouchTool<Surface> {
     onDrag(action: MouseOrTouchAction<Surface>) {
         if (!this.start) { return; }
         let surface = action.target;
-        let renderer = surface.renderer;
-        let shape = renderer.getTempShape();
+        let shape = surface.getTempShape();
         //Transform shape based on start and end points
         let start = this.start;
         let end = this.getPrimaryPointer(action);
@@ -49,7 +48,7 @@ export class ShapeTool extends MouseOrTouchTool<Surface> {
         this.start = null;
         let surface = action.target;
         let renderer = surface.renderer;
-        renderer.addTempDrawable();
+        surface.addTempDrawable();
         surface.requestRender();
     }
 }

@@ -8,7 +8,7 @@ let tsify = require('tsify');
 gulp.task("update:bundle", function(){
      return browserify()
         .add("./src/ts/main.ts")
-        .plugin(tsify, { target: 'ES5' })
+        .plugin(tsify)
         .bundle()
         .pipe(source("bundle.js"))
         .pipe(gulp.dest("./build/debug/"));
