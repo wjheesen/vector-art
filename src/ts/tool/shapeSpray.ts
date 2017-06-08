@@ -7,7 +7,7 @@ type SurfaceEvent = SurfaceMouseOrTouchEvent<Surface>;
 
 export class ShapeSprayTool extends MouseOrTouchTool<Surface> {
 
-    onAction(event: SurfaceEvent): void {
+    onSurfaceEvent(event: SurfaceEvent): void {
         switch(event.status){
             case Status.Drag:
                 return this.onDrag(event);

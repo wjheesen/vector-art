@@ -10,7 +10,7 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
 
     private previous: IPoint;
 
-    onAction(event: SurfaceEvent): void {
+    onSurfaceEvent(event: SurfaceEvent): void {
         switch(event.status){
             case Status.Start:
                 return this.onStart(event);
@@ -22,7 +22,7 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
     }
 
     onStart(event: SurfaceEvent) {
-        this.previous = this.getPrimaryPointer(event.);
+        this.previous = this.getPrimaryPointer(event);
     }
 
     onDrag(event: SurfaceMouseOrTouchEvent<Surface>) {
@@ -31,7 +31,7 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
         let surface = event.target;
         let stroke = surface.getTempShapeBatch();
         let thickness = surface.lineWidth;
-        let current = this.getPrimaryPointer(event.);
+        let current = this.getPrimaryPointer(event);
         let previous = this.previous;
 
         // Add line from current to previous shape if there is room

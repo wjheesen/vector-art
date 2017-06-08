@@ -11,6 +11,7 @@ import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
 import { Mesh, MeshSource } from 'gl2d/drawable/mesh';
 import { Renderer as Base } from 'gl2d/rendering/renderer';
 import { ColorFStruct } from 'gl2d/struct/colorf';
+import { Rect } from "gl2d/struct/rect";
 
 export class Renderer extends Base {
 
@@ -30,18 +31,18 @@ export class Renderer extends Base {
 
     meshes: MeshMap = {
         "triangle": Mesh.polygon(3),
-        "square": Mesh.square(),
+        "square": Mesh.rectangle(Rect.lbwh(0,0,1,1)),
         "pentagon": Mesh.polygon(5),
         "hexagon": Mesh.polygon(6),
         "octagon": Mesh.polygon(8),
-        "diamond": Mesh.diamond(),
-        "star3": Mesh.star(3, .25, 1),
-        "star4": Mesh.star(4, .25, 1),
-        "star5": Mesh.star5(),
-        "star6": Mesh.star(6, .5, 1),
-        "star8": Mesh.star(8, .5, 1),
-        "star16": Mesh.star(16, .1, 1),
-        "sun": Mesh.star(16, .8, 1),
+        "diamond": Mesh.star(2, .5),
+        "star3": Mesh.star(3, .25),
+        "star4": Mesh.star(4, .25),
+        "star5": Mesh.star(5, .4),
+        "star6": Mesh.star(6, .5),
+        "star8": Mesh.star(8, .5),
+        "star16": Mesh.star(16, .1),
+        "sun": Mesh.star(16, .8),
         "heart": Mesh.fromSource(heart()),
         "flower": Mesh.fromSource(flower()),
         "bat": Mesh.fromSource(bat()),

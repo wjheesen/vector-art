@@ -10,14 +10,14 @@ export class LineTool extends MouseOrTouchTool<Surface> {
 
     private start: IPoint;
 
-    onAction(event: SurfaceEvent): void {
+    onSurfaceEvent(event: SurfaceEvent): void {
         switch(event.status){
             case Status.Start:
-                return this.onStart(event.);
+                return this.onStart(event);
             case Status.Drag:
-                return this.onDrag(event.);
+                return this.onDrag(event);
             case Status.End:
-                return this.onEnd(event.);
+                return this.onEnd(event);
         }
     }
 

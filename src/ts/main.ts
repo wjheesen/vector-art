@@ -6,7 +6,7 @@ import { OtherSettings } from './settings/other';
 import { ShapeSettings } from './settings/shape';
 import { ToolSettings } from './settings/tool';
 import { LineTool } from './tool/line';
-import { ScrollZoomTool } from 'gl2d/tool/scrollZoom';
+import { WheelZoomTool } from 'gl2d/tool/wheelZoom';
 import { SelectTool } from './tool/select';
 import { ShapeTool } from './tool/shape';
 import { ShapeLineTool } from './tool/shapeLine';
@@ -74,7 +74,7 @@ let shapeSprayTool = new ShapeSprayTool();
 let shapeLineTool = new ShapeLineTool();
 let shapeStrokeTool = new ShapeStrokeTool();
 let strokeTool = new StrokeTool();
-let scrollZoomTool = new ScrollZoomTool(1.5, 5);
+let scrollZoomTool = new WheelZoomTool(1.5, 5);
 let pinchZoomTool = new PinchZoomTool();
 let colorSampler = new ColorSampler(color => colorPicker.pickColorF(color));
 let panTool = new PanTool();
@@ -158,8 +158,8 @@ $(document)
     })
 
 
-surface.onScrollAction(action => {
-    scrollZoomTool.onAction(action);
+surface.onWheelEvent(event => {
+    scrollZoomTool.onSurfaceEvent(event);
     // TODO: interrupt other tools?
 })
 
@@ -167,10 +167,10 @@ surface.onMouseEvent(event =>{
     switch(event.src.button){
         case 0: /*Left*/
             // Ctrl not held
-            currentTool.onAction(event);
+            currentTool.onSurfaceEvent(event);
             break;
         case 1: /*Wheel*/
-            return panTool.onAction(event);
+            return panTool.onSurfaceEvent(event);
             // TODO: interrupt other tools
         case 2: /*Right*/
             return;
@@ -179,9 +179,9 @@ surface.onMouseEvent(event =>{
 
 surface.onTouchEvent(event => {
     if(event.pointers.length < 2){
-        currentTool.onAction(event);
+        currentTool.onSurfaceEvent(event);
     } else {
-        pinchZoomTool.onAction(event);
+        pinchZoomTool.onSurfaceEvent(event);
         // TODO: interrupt other tools
     }
 })

@@ -27,7 +27,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     transform: Transformation;
     matrix: Mat2d;
 
-    onAction(event: SurfaceEvent): void {
+    onSurfaceEvent(event: SurfaceEvent): void {
         let pointer = this.getPrimaryPointer(event);
         
         switch(event.status){

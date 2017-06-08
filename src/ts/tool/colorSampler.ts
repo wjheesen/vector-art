@@ -14,7 +14,7 @@ export class ColorSampler extends MouseOrTouchTool<Surface> {
         super();
     }
 
-    onAction(event: SurfaceEvent): void {
+    onSurfaceEvent(event: SurfaceEvent): void {
         switch(event.status){
             case Status.Start:
             case Status.Drag:

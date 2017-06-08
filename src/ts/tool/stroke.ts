@@ -7,7 +7,7 @@ type Action = SurfaceMouseOrTouchEvent<Surface>;
 
 export class StrokeTool extends MouseOrTouchTool<Surface> {
 
-    onAction(action: Action): void {
+    onSurfaceEvent(action: Action): void {
         switch(action.status){
             case Status.Start:
                 return this.onStart(action);

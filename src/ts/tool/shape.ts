@@ -14,7 +14,7 @@ export class ShapeTool extends MouseOrTouchTool<Surface> {
     private start: IPoint;
     public maintainAspect = Option.bool("maintain-aspect", true);
 
-    onAction(event: SurfaceEvent): void {
+    onSurfaceEvent(event: SurfaceEvent): void {
         switch(event.status){
             case Status.Start:
                 return this.onStart(event);

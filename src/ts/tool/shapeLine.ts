@@ -10,7 +10,7 @@ export class ShapeLineTool extends MouseOrTouchTool<Surface> {
     
     private start: IPoint;
 
-    onAction(event: SurfaceEvent): void {
+    onSurfaceEvent(event: SurfaceEvent): void {
         switch(event.status){
             case Status.Start:
                 return this.onStart(event);
