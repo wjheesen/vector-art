@@ -1,38 +1,37 @@
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
-import { Status } from "gl2d/action/status";
+import { SurfaceMouseOrTouchEvent } from "gl2d/event/mouseOrTouch";
+import { Status } from "gl2d/event/status";
 import { IPoint } from "gl2d/struct/point";
 
-type Action = MouseOrTouchAction<Surface>;
+type SurfaceEvent = SurfaceMouseOrTouchEvent<Surface>;
 
 export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
 
     private previous: IPoint;
 
-    onAction(action: Action): void {
-        switch(action.status){
+    onAction(event: SurfaceEvent): void {
+        switch(event.status){
             case Status.Start:
-                return this.onStart(action);
+                return this.onStart(event);
             case Status.Drag:
-                return this.onDrag(action);
+                return this.onDrag(event);
             case Status.End:
-                return this.onEnd(action);
+                return this.onEnd(event);
         }
     }
 
-    onStart(action: Action) {
-        this.previous = this.getPrimaryPointer(action);
+    onStart(event: SurfaceEvent) {
+        this.previous = this.getPrimaryPointer(event.);
     }
 
-    onDrag(action: MouseOrTouchAction<Surface>) {
+    onDrag(event: SurfaceMouseOrTouchEvent<Surface>) {
         if(!this.previous) { return; }
 
-        let surface = action.target;
-        let renderer = surface.renderer;
+        let surface = event.target;
         let stroke = surface.getTempShapeBatch();
         let thickness = surface.lineWidth;
-        let current = this.getPrimaryPointer(action);
+        let current = this.getPrimaryPointer(event.);
         let previous = this.previous;
 
         // Add line from current to previous shape if there is room
@@ -42,9 +41,8 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-    onEnd(action: Action) {
-        let surface = action.target;
-        let renderer = surface.renderer;
+    onEnd(event: SurfaceEvent) {
+        let surface = event.target;
         surface.addTempShapeBatch();
         surface.requestRender();
     }

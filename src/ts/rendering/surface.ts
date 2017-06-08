@@ -1,27 +1,27 @@
-import { VertexBuffer } from 'gl2d/struct/vertex';
-import { Stroke } from '../drawable/stroke';
-import { Removal } from '../action/removal';
-import { ColorChange } from '../action/colorChange';
-import { ColorStruct } from 'gl2d/struct/color';
-import { Insertion } from '../action/insertion';
-import { Shape } from '../drawable/shape';
-import { Line } from '../drawable/line';
-import { EllipseBatch } from '../drawable/ellipseBatch';
 import { Action } from '../action/action';
+import { ColorChange } from '../action/colorChange';
+import { Insertion } from '../action/insertion';
+import { ActionRecord } from '../action/record';
+import { Removal } from '../action/removal';
+import { Transformation } from '../action/transformation';
+import { Drawable } from '../drawable/drawable';
+import { Ellipse } from '../drawable/ellipse';
+import { EllipseBatch } from '../drawable/ellipseBatch';
+import { Line } from '../drawable/line';
+import { Shape } from '../drawable/shape';
 import { ShapeBatch } from '../drawable/shapeBatch';
+import { Stroke } from '../drawable/stroke';
 import { Renderer } from './renderer';
 import { Mesh } from 'gl2d/drawable/mesh';
 import { Camera } from 'gl2d/rendering/camera';
 import { Surface as Base } from 'gl2d/rendering/surface';
+import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { Mat2dBuffer, Mat2d } from 'gl2d/struct/mat2d';
+import { Mat2d, Mat2dBuffer } from 'gl2d/struct/mat2d';
 import { IPoint } from 'gl2d/struct/point';
 import { RectStruct } from 'gl2d/struct/rect';
-import { Ellipse } from "../drawable/ellipse";
-import { ActionRecord } from '../action/record';
-import { Drawable } from "../drawable/drawable";
+import { VertexBuffer } from 'gl2d/struct/vertex';
 import lastIndexOf = require('lodash.lastindexof');
-import { Transformation } from "../action/transformation";
 
 
 export class Surface extends Base<Renderer> {

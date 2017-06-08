@@ -163,26 +163,25 @@ surface.onScrollAction(action => {
     // TODO: interrupt other tools?
 })
 
-surface.onMouseAction(action =>{
-    let event = action.src;
-    switch(event.button){
+surface.onMouseEvent(event =>{
+    switch(event.src.button){
         case 0: /*Left*/
             // Ctrl not held
-            currentTool.onAction(action);
+            currentTool.onAction(event);
             break;
         case 1: /*Wheel*/
-            return panTool.onAction(action);
+            return panTool.onAction(event);
             // TODO: interrupt other tools
         case 2: /*Right*/
             return;
     }
 })
 
-surface.onTouchAction(action => {
-    if(action.pointers.length < 2){
-        currentTool.onAction(action);
+surface.onTouchEvent(event => {
+    if(event.pointers.length < 2){
+        currentTool.onAction(event);
     } else {
-        pinchZoomTool.onAction(action);
+        pinchZoomTool.onAction(event);
         // TODO: interrupt other tools
     }
 })

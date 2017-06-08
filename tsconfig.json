@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "module": "commonjs",
     "moduleResolution": "node",
     "noEmitOnError": true,
@@ -8,7 +7,11 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "target": "es5"
+    "target": "es5",
+    "lib": ["es2016", "dom"]
   },
-  "include": ["./*"]
+  "include": [
+    "./*", 
+    "./src/ts/**/*"
+  ]
 }

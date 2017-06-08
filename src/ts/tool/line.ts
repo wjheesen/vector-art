@@ -1,44 +1,44 @@
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
+import { SurfaceMouseOrTouchEvent } from "gl2d/event/mouseOrTouch";
 import { IPoint } from "gl2d/struct/point";
-import { Status } from "gl2d/action/status";
+import { Status } from "gl2d/event/status";
 
-type Action = MouseOrTouchAction<Surface>;
+type SurfaceEvent = SurfaceMouseOrTouchEvent<Surface>;
 
 export class LineTool extends MouseOrTouchTool<Surface> {
 
     private start: IPoint;
 
-    onAction(action: Action): void {
-        switch(action.status){
+    onAction(event: SurfaceEvent): void {
+        switch(event.status){
             case Status.Start:
-                return this.onStart(action);
+                return this.onStart(event.);
             case Status.Drag:
-                return this.onDrag(action);
+                return this.onDrag(event.);
             case Status.End:
-                return this.onEnd(action);
+                return this.onEnd(event.);
         }
     }
 
-   onStart(action: Action) {
-        this.start = this.getPrimaryPointer(action);
+   onStart(event: SurfaceEvent) {
+        this.start = this.getPrimaryPointer(event);
     }
 
-    onDrag(action: MouseOrTouchAction<Surface>) {
+    onDrag(event: SurfaceMouseOrTouchEvent<Surface>) {
         if (!this.start) { return; }
-        let surface = action.target;
+        let surface = event.target;
         let line = surface.getTempLine();
         // Transform line based on start and end points
         let start = this.start;
-        let end = this.getPrimaryPointer(action);
+        let end = this.getPrimaryPointer(event);
         line.setFromPointToPoint(start, end, surface.lineWidth);
         surface.requestRender();
     }
 
-    onEnd(action: Action) {
+    onEnd(event: SurfaceEvent) {
         this.start = null;
-        let surface = action.target;
+        let surface = event.target;
         surface.addTempDrawable();
         surface.requestRender();
     }

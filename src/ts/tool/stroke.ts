@@ -1,12 +1,9 @@
-import { VertexBuffer } from 'gl2d/struct/vertex';
-import { Stroke } from '../drawable/stroke';
-import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Surface } from '../rendering/surface';
-import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
-import { Status } from "gl2d/action/status";
+import { SurfaceMouseOrTouchEvent } from 'gl2d/event/mouseOrTouch';
+import { Status } from 'gl2d/event/status';
+import { MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
 
-type Action = MouseOrTouchAction<Surface>;
+type Action = SurfaceMouseOrTouchEvent<Surface>;
 
 export class StrokeTool extends MouseOrTouchTool<Surface> {
 
@@ -30,7 +27,7 @@ export class StrokeTool extends MouseOrTouchTool<Surface> {
         surface.requestRender();
     }
 
-    onDrag(action: MouseOrTouchAction<Surface>) {
+    onDrag(action: SurfaceMouseOrTouchEvent<Surface>) {
         let surface = action.target;
         let { lineWidth } = surface;
         let pointer = this.getPrimaryPointer(action);

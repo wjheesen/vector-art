@@ -18,8 +18,8 @@ $src = "$PSScriptRoot\src"
     $svg = "$src\svg"
     $icon = "$src\icon"
 
-$gulpfile = "$PSScriptRoot\gulpfile.js"
-$tsconfig = "$PSScriptRoot\tsconfig.json"
+$gulpfileJs = "$PSScriptRoot\gulpfile.js"
+$gulpfileTs = "$PSScriptRoot\gulpfile.ts"
 
 function Initialize-Repository(){
     Set-Location $PSScriptRoot
@@ -28,7 +28,7 @@ function Initialize-Repository(){
 }
 
 function Update-Gulpfile(){
-    tsc.cmd --project $tsconfig
+    tsc.cmd $gulpfileTs
 }
 
 function Update-Shaders(){
@@ -36,7 +36,7 @@ function Update-Shaders(){
 }
 
 function Update-Js(){
-    gulp.cmd update:bundle --gulpfile $gulpfile
+    gulp.cmd update:bundle --gulpfile $gulpfileJs
 }
 
 function Update-Css(){

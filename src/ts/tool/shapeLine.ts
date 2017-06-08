@@ -1,36 +1,36 @@
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
-import { Status } from "gl2d/action/status";
+import { SurfaceMouseOrTouchEvent } from "gl2d/event/mouseOrTouch";
+import { Status } from "gl2d/event/status";
 import { IPoint } from "gl2d/struct/point";
 
-type Action = MouseOrTouchAction<Surface>;
+type SurfaceEvent = SurfaceMouseOrTouchEvent<Surface>;
 
 export class ShapeLineTool extends MouseOrTouchTool<Surface> {
     
     private start: IPoint;
 
-    onAction(action: Action): void {
-        switch(action.status){
+    onAction(event: SurfaceEvent): void {
+        switch(event.status){
             case Status.Start:
-                return this.onStart(action);
+                return this.onStart(event);
             case Status.Drag:
-                return this.onDrag(action);
+                return this.onDrag(event);
             case Status.End:
-                return this.onEnd(action);
+                return this.onEnd(event);
         }
     }
 
-    onStart(action: Action) {
-        this.start = this.getPrimaryPointer(action);
+    onStart(event: SurfaceEvent) {
+        this.start = this.getPrimaryPointer(event);
     }
 
-    onDrag(action: Action) {
+    onDrag(event: SurfaceEvent) {
         if(!this.start) { return; }
 
-        let surface = action.target;
+        let surface = event.target;
         let start = this.start;
-        let end = this.getPrimaryPointer(action);
+        let end = this.getPrimaryPointer(event);
         let stroke = surface.getTempShapeBatch();
 
         // Clear previous line
@@ -43,9 +43,9 @@ export class ShapeLineTool extends MouseOrTouchTool<Surface> {
         surface.requestRender();
     }
 
-    onEnd(action: Action) {
+    onEnd(event: SurfaceEvent) {
         this.start = null;
-        let surface = action.target;
+        let surface = event.target;
         surface.addTempShapeBatch();
         surface.requestRender();
     }

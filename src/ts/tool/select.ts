@@ -1,15 +1,14 @@
-import { ColorFStruct } from 'gl2d/struct/colorF';
 import { Ellipse } from '../drawable/ellipse';
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { MouseOrTouchAction } from "gl2d/action/mouseOrTouch";
-import { Status } from "gl2d/action/status";
+import { SurfaceMouseOrTouchEvent } from "gl2d/event/mouseOrTouch";
+import { Status } from "gl2d/event/status";
 import { IPoint } from "gl2d/struct/point";
 import { Vec2 } from "gl2d/struct/vec2";
 import { Mat2d } from "gl2d/struct/mat2d";
 import { Selection } from "../drawable/selection"
 
-type Action = MouseOrTouchAction<Surface>;
+type SurfaceEvent = SurfaceMouseOrTouchEvent<Surface>;
 
 const enum Transformation{
     None,
@@ -28,31 +27,31 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
     transform: Transformation;
     matrix: Mat2d;
 
-    onAction(action: Action): void {
-        let pointer = this.getPrimaryPointer(action);
+    onAction(event: SurfaceEvent): void {
+        let pointer = this.getPrimaryPointer(event);
         
-        switch(action.status){
+        switch(event.status){
             case Status.Move:
-                this.onMove(action, pointer);
+                this.onMove(event, pointer);
                 return;
             case Status.Start:
                 this.dragCount = 0;
-                this.onStart(action, pointer);
+                this.onStart(event, pointer);
                 break;
             case Status.Drag:
                 this.dragCount++;
-                this.onDrag(action, pointer);
+                this.onDrag(event, pointer);
                 break;
             case Status.End:
-                this.onEnd(action, pointer);
+                this.onEnd(event, pointer);
                 break;
         }
         
         this.previous = pointer;
     }
 
-    onMove(action: Action, pointer: IPoint){
-        let surface = action.target;
+    onMove(event: SurfaceEvent, pointer: IPoint){
+        let surface = event.target;
         let { selection, hover } = surface.renderer;
 
         // If the point is outside of the selection 
@@ -67,8 +66,8 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-    onStart(action: Action, pointer: IPoint) {
-        let surface = action.target;
+    onStart(event: SurfaceEvent, pointer: IPoint) {
+        let surface = event.target;
         let { selection, hover } = surface.renderer;
         this.reselected = selection.contains(pointer);
 
@@ -95,10 +94,10 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         surface.requestRender();
     }
 
-    onDrag(action: Action, pointer: IPoint) {
+    onDrag(event: SurfaceEvent, pointer: IPoint) {
         if(!this.matrix) { return; }
 
-        let surface = action.target;
+        let surface = event.target;
         let renderer = surface.renderer;
         let selection = renderer.selection;
         let matrix = this.matrix;
@@ -124,8 +123,8 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         surface.requestRender();
     }
 
-    onEnd(action: Action, pointer: IPoint) {
-        let surface = action.target;
+    onEnd(event: SurfaceEvent, pointer: IPoint) {
+        let surface = event.target;
         let renderer = surface.renderer;
         let selection = renderer.selection;
         // Save transform 
