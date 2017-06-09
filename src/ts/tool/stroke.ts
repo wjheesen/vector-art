@@ -40,7 +40,7 @@ export class StrokeTool extends MouseOrTouchTool<Surface> {
 
     onEnd(action: Action) {
         let surface = action.target;
-        surface.addTempDrawable();
+        surface.addTempStroke();
         surface.requestRender();
     }
 }

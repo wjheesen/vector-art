@@ -1,16 +1,14 @@
+import { MouseOrTouchEvent } from '../event/mouseOrTouch';
 import { Surface } from '../rendering/surface';
-import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { SurfaceMouseOrTouchEvent } from "gl2d/event/mouseOrTouch";
-import { Status } from "gl2d/event/status";
-import { IPoint } from "gl2d/struct/point";
-
-type SurfaceEvent = SurfaceMouseOrTouchEvent<Surface>;
+import { Status } from 'gl2d/event/status';
+import { IPoint } from 'gl2d/struct/point';
+import { MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
 
 export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
 
     private previous: IPoint;
 
-    onSurfaceEvent(event: SurfaceEvent): void {
+    onSurfaceEvent(event: MouseOrTouchEvent): void {
         switch(event.status){
             case Status.Start:
                 return this.onStart(event);
@@ -21,11 +19,11 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-    onStart(event: SurfaceEvent) {
+    onStart(event: MouseOrTouchEvent) {
         this.previous = this.getPrimaryPointer(event);
     }
 
-    onDrag(event: SurfaceMouseOrTouchEvent<Surface>) {
+    onDrag(event: MouseOrTouchEvent) {
         if(!this.previous) { return; }
 
         let surface = event.target;
@@ -41,7 +39,7 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-    onEnd(event: SurfaceEvent) {
+    onEnd(event: MouseOrTouchEvent) {
         let surface = event.target;
         surface.addTempShapeBatch();
         surface.requestRender();

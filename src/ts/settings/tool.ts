@@ -1,12 +1,11 @@
 import { Option } from '../option/option';
 import * as $ from 'jquery';
 
-export type OnToolPick = (id: ToolType) => any;
-export type ToolType = "shape-aspect" | "shape" | "shape-stroke" | "shape-line" | "shape-spray"| "stroke"  | "line"  | "color-sampler" | "pan" | "select" ;
+export type OnToolPick = (id: string) => void;
 
 export class ToolSettings {
     
-    tool: Option<ToolType>;
+    tool: Option<string>;
     onToolPick: OnToolPick;
 
     private constructor(){}
@@ -14,7 +13,7 @@ export class ToolSettings {
     static create(onToolPick: OnToolPick){
 
         let settings = new ToolSettings();
-        settings.tool = Option.str("tool", "shape") as Option<ToolType>;
+        settings.tool = Option.str("tool", "shape");
         settings.onToolPick = onToolPick;
 
         $("#tool-button")
@@ -29,14 +28,14 @@ export class ToolSettings {
         onToolPick(settings.tool.val);
 
         $("#tool-settings > a").click(function(){
-            let toolType = $(this).attr("id") as ToolType;
+            let toolType = $(this).attr("id");
             settings.pickToolType(toolType)
         })
 
         return settings;
     }
 
-    pickToolType(toolType: ToolType){
+    pickToolType(toolType: string){
         // Set stroke as button icon
         $("#tool-button").children("i")
             .removeClass("icon-" + this.tool.val)

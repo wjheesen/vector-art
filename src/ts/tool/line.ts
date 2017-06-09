@@ -1,16 +1,15 @@
+import { MouseOrTouchEvent } from '../event/mouseOrTouch';
 import { Surface } from '../rendering/surface';
-import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { SurfaceMouseOrTouchEvent } from "gl2d/event/mouseOrTouch";
-import { IPoint } from "gl2d/struct/point";
-import { Status } from "gl2d/event/status";
-
-type SurfaceEvent = SurfaceMouseOrTouchEvent<Surface>;
+import { SurfaceMouseOrTouchEvent } from 'gl2d/event/mouseOrTouch';
+import { Status } from 'gl2d/event/status';
+import { IPoint } from 'gl2d/struct/point';
+import { MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
 
 export class LineTool extends MouseOrTouchTool<Surface> {
 
     private start: IPoint;
 
-    onSurfaceEvent(event: SurfaceEvent): void {
+    onSurfaceEvent(event: MouseOrTouchEvent): void {
         switch(event.status){
             case Status.Start:
                 return this.onStart(event);
@@ -21,7 +20,7 @@ export class LineTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-   onStart(event: SurfaceEvent) {
+   onStart(event: MouseOrTouchEvent) {
         this.start = this.getPrimaryPointer(event);
     }
 
@@ -36,7 +35,7 @@ export class LineTool extends MouseOrTouchTool<Surface> {
         surface.requestRender();
     }
 
-    onEnd(event: SurfaceEvent) {
+    onEnd(event: MouseOrTouchEvent) {
         this.start = null;
         let surface = event.target;
         surface.addTempDrawable();

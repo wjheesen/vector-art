@@ -1,13 +1,11 @@
+import { MouseOrTouchEvent } from '../event/mouseOrTouch';
 import { Surface } from '../rendering/surface';
-import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { SurfaceMouseOrTouchEvent } from "gl2d/event/mouseOrTouch";
-import { Status } from "gl2d/event/status";
-
-type SurfaceEvent = SurfaceMouseOrTouchEvent<Surface>;
+import { Status } from 'gl2d/event/status';
+import { MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
 
 export class ShapeSprayTool extends MouseOrTouchTool<Surface> {
 
-    onSurfaceEvent(event: SurfaceEvent): void {
+    onSurfaceEvent(event: MouseOrTouchEvent): void {
         switch(event.status){
             case Status.Drag:
                 return this.onDrag(event);
@@ -16,7 +14,7 @@ export class ShapeSprayTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-    onDrag(event: SurfaceMouseOrTouchEvent<Surface>) {
+    onDrag(event: MouseOrTouchEvent) {
 
         let surface = event.target;
         let stroke = surface.getTempShapeBatch();
@@ -31,7 +29,7 @@ export class ShapeSprayTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-    onEnd(event: SurfaceEvent) {
+    onEnd(event: MouseOrTouchEvent) {
         let surface = event.target;
         surface.addTempShapeBatch();
         surface.requestRender();

@@ -7,7 +7,7 @@ $title = "$package->displayName v$major.$minor";
 $shapes = ["triangle", "square", "pentagon", "hexagon", "octagon", "circle", "spray", 
            "diamond", "star3", "star4", "star5", "star6", "star8",  "star16",
            "sun","heart", "flower", "bat"];
-$tools = ["shape-aspect", "shape", "shape-stroke", "stroke", "shape-line", "line", "shape-spray", "color-sampler", "pan", "select"];
+$tools = ["shapeAspect", "shape", "shapeStroke", "stroke", "shapeLine", "line", "shapeSpray", "colorSampler", "pan", "select"];
 $actions = ["undo", "redo"];
 $btn = "btn btn-sm";
 $btn_toggle = "$btn dropdown-toggle";
@@ -59,8 +59,8 @@ $md = "md";
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
                 <div id="other-settings" class="dropdown-menu dropdown-menu-right" aria-labelledby="settings-button">
-                    <label for="stroke-thickness">Stroke Thickness:</label>
-                    <input name="stroke-thickness" type="number" />
+                    <label for="line-width">Line Width:</label>
+                    <input name="line-width" type="number" />
                     <label for="zoom-speed">Zoom Speed:</label>
                     <input name="zoom-speed" type="number" />
                 </div>

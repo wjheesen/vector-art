@@ -34,7 +34,7 @@ export class Shape extends Base implements Drawable {
     save(db: Database, canvasId: number){
         let color = this.color.data.buffer;
         let matrix = this.matrix.data.buffer;
-        let type = this.mesh.id; // TODO get from mesh
+        let type = this.mesh.id; 
 
         // Not yet in database
         db.shapes.add({

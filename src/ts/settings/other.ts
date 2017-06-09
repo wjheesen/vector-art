@@ -2,25 +2,25 @@ import { Option } from '../option/option';
 // import * as $ from 'jquery';
 var Slider = require('bootstrap-slider');
 
-export type OnStrokeThicknessPick = (strokeThickness: number) => any;
+export type onLineWidthPick = (strokeThickness: number) => any;
 export type OnZoomSpeedPick = (zoomSpeed: number) => any;
 
 
 export class OtherSettings {
     
     strokeThickness: Option<number>;
-    onStrokeThicknessPick: OnStrokeThicknessPick;
+    onLineWidthPick: onLineWidthPick;
 
     zoomSpeed: Option<number>;
     onZoomSpeedPick: OnZoomSpeedPick;
 
     private constructor(){}
 
-    static create(onStrokeThicknessPick: OnStrokeThicknessPick, onZoomSpeedPick: OnZoomSpeedPick){
+    static create(onStrokeThicknessPick: onLineWidthPick, onZoomSpeedPick: OnZoomSpeedPick){
 
         let settings = new OtherSettings();
-        settings.strokeThickness = Option.num("stroke-thickness", 50, 1, 100);
-        settings.onStrokeThicknessPick = onStrokeThicknessPick;
+        settings.strokeThickness = Option.num("line-width", 50, 1, 100);
+        settings.onLineWidthPick = onStrokeThicknessPick;
         settings.zoomSpeed = Option.num("zoom-speed", 50, 1, 100);
         settings.onZoomSpeedPick = onZoomSpeedPick;
 
@@ -29,7 +29,7 @@ export class OtherSettings {
         onZoomSpeedPick(settings.zoomSpeed.val);
 
         // Init stroke thickness slider
-        let strokeSlider = new Slider("input[name=stroke-thickness]", {
+        let strokeSlider = new Slider("input[name=line-width]", {
             min: 1,
             max: 100,
             step: 1,
@@ -40,7 +40,7 @@ export class OtherSettings {
         strokeSlider.on('slideStop', function () {
             let val = strokeSlider.getValue();
             settings.strokeThickness.val = val;
-            settings.onStrokeThicknessPick(val);
+            settings.onLineWidthPick(val);
         });
 
         // Init zoom speed slider

@@ -1,10 +1,8 @@
+import { MouseOrTouchEvent } from '../event/mouseOrTouch';
 import { Surface } from '../rendering/surface';
-import { SurfaceMouseOrTouchEvent } from 'gl2d/event/mouseOrTouch';
 import { Status } from 'gl2d/event/status';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
-
-type SurfaceEvent = SurfaceMouseOrTouchEvent<Surface>;
 
 export type OnColorSample = (color: ColorFStruct) => any; 
 
@@ -14,7 +12,7 @@ export class ColorSampler extends MouseOrTouchTool<Surface> {
         super();
     }
 
-    onSurfaceEvent(event: SurfaceEvent): void {
+    onSurfaceEvent(event: MouseOrTouchEvent): void {
         switch(event.status){
             case Status.Start:
             case Status.Drag:

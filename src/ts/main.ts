@@ -1,3 +1,5 @@
+import { ShapeAspectTool } from './tool/shapeAspect';
+import { ToolGroup } from './tool/group';
 import { ColorSampler } from './tool/colorSampler';
 import { IColor } from 'gl2d/struct/color';
 import { Surface } from './rendering/surface';
@@ -25,7 +27,6 @@ import 'bootstrap';
 let surface = Surface.create();
 
 let currentTool: _MouseOrTouchTool;
-
 
 function setTool(tool: _MouseOrTouchTool){
     if(currentTool !== tool){
@@ -72,45 +73,26 @@ ShapeSettings.create(type => {
     }
 });
 
-let shapeTool = new ShapeTool();
-let lineTool = new LineTool();
-let shapeSprayTool = new ShapeSprayTool();
-let shapeLineTool = new ShapeLineTool();
-let shapeStrokeTool = new ShapeStrokeTool();
-let strokeTool = new StrokeTool();
-let scrollZoomTool = new WheelZoomTool(1.5, 5);
-let pinchZoomTool = new PinchZoomTool();
-let colorSampler = new ColorSampler(color => colorPicker.pickColorF(color));
-let panTool = new PanTool();
 let selectTool = new SelectTool();
+let wheelZoomTool = new WheelZoomTool(1.5, 5);
+let pinchZoomTool = new PinchZoomTool();
+
+let tools: ToolGroup = {
+    shape: new ShapeTool(),
+    shapeAspect: new ShapeAspectTool(), 
+    line: new LineTool(),
+    shapeSpray: new ShapeSprayTool(),
+    shapeLine: new ShapeLineTool(),
+    shapeStroke: new ShapeStrokeTool(),
+    stroke: new StrokeTool(),
+    colorSampler: new ColorSampler(color => colorPicker.pickColorF(color)),
+    pan: new PanTool(),
+    select: selectTool,
+}
 
 // TODO: add shape-aspect tool with ellipse-rectangle vs circle-square icon
 let toolSettings = ToolSettings.create(type => {
-    // TODO: change to map<string,tool>
-    switch(type){
-        case "shape-aspect":
-            shapeTool.maintainAspect.val = true;
-            return setTool(shapeTool);
-        case "shape":
-            shapeTool.maintainAspect.val = false;
-            return setTool(shapeTool);
-        case "stroke":
-            return setTool(strokeTool);
-        case "shape-stroke":
-            return setTool(shapeStrokeTool);
-        case "line":
-            return setTool(lineTool);
-        case "shape-line":
-            return setTool(shapeLineTool);
-        case "shape-spray":
-            return setTool(shapeSprayTool);
-        case "color-sampler":
-            return setTool(colorSampler);
-        case "pan":
-            return setTool(panTool);
-        case "select":
-            return setTool(selectTool);
-    }
+    setTool(tools[type]);
 });
 
 OtherSettings.create(
@@ -118,7 +100,7 @@ OtherSettings.create(
         surface.lineWidth = thickness/1000;
     },
     zoomSpeed => {
-        scrollZoomTool.scaleFactor = 1 + zoomSpeed/100;
+        wheelZoomTool.scaleFactor = 1 + zoomSpeed/100;
     }
 );
 
@@ -163,7 +145,7 @@ $(document)
 
 
 surface.onWheelEvent(event => {
-    scrollZoomTool.onSurfaceEvent(event);
+    wheelZoomTool.onSurfaceEvent(event);
     // TODO: interrupt other tools?
 })
 
@@ -174,7 +156,7 @@ surface.onMouseEvent(event =>{
             currentTool.onSurfaceEvent(event);
             break;
         case 1: /*Wheel*/
-            return panTool.onSurfaceEvent(event);
+            return tools.pan.onSurfaceEvent(event);
             // TODO: interrupt other tools
         case 2: /*Right*/
             return;
