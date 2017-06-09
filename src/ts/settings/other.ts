@@ -2,45 +2,45 @@ import { Option } from '../option/option';
 // import * as $ from 'jquery';
 var Slider = require('bootstrap-slider');
 
-export type onLineWidthPick = (strokeThickness: number) => any;
+export type OnStrokeWidthPick = (strokeWidth: number) => any;
 export type OnZoomSpeedPick = (zoomSpeed: number) => any;
 
 
 export class OtherSettings {
     
-    strokeThickness: Option<number>;
-    onLineWidthPick: onLineWidthPick;
+    strokeWidth: Option<number>;
+    onStrokeWidthPick: OnStrokeWidthPick;
 
     zoomSpeed: Option<number>;
     onZoomSpeedPick: OnZoomSpeedPick;
 
     private constructor(){}
 
-    static create(onStrokeThicknessPick: onLineWidthPick, onZoomSpeedPick: OnZoomSpeedPick){
+    static create(onStrokeThicknessPick: OnStrokeWidthPick, onZoomSpeedPick: OnZoomSpeedPick){
 
         let settings = new OtherSettings();
-        settings.strokeThickness = Option.num("line-width", 50, 1, 100);
-        settings.onLineWidthPick = onStrokeThicknessPick;
+        settings.strokeWidth = Option.num("stroke-width", 50, 1, 100);
+        settings.onStrokeWidthPick = onStrokeThicknessPick;
         settings.zoomSpeed = Option.num("zoom-speed", 50, 1, 100);
         settings.onZoomSpeedPick = onZoomSpeedPick;
 
         // Set initial values
-        onStrokeThicknessPick(settings.strokeThickness.val);
+        onStrokeThicknessPick(settings.strokeWidth.val);
         onZoomSpeedPick(settings.zoomSpeed.val);
 
         // Init stroke thickness slider
-        let strokeSlider = new Slider("input[name=line-width]", {
+        let strokeSlider = new Slider("input[name=stroke-width]", {
             min: 1,
             max: 100,
             step: 1,
-            value: settings.strokeThickness.val,
+            value: settings.strokeWidth.val,
             tooltip: 'show'
         });
 
         strokeSlider.on('slideStop', function () {
             let val = strokeSlider.getValue();
-            settings.strokeThickness.val = val;
-            settings.onLineWidthPick(val);
+            settings.strokeWidth.val = val;
+            settings.onStrokeWidthPick(val);
         });
 
         // Init zoom speed slider
