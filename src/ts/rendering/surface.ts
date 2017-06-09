@@ -59,7 +59,7 @@ export class Surface extends Base<Renderer> {
         let line = renderer.temp as Line;
         if(!line){
             let color = this.copyDrawColor();
-            line = new Line(renderer.meshes.square, color);
+            line = new Line(renderer.meshes[1], color);
             renderer.temp = line;
         }
         return line;

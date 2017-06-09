@@ -64,8 +64,12 @@ function redo(){
 let colorPicker = ColorSettings.create(setDrawColor);
 
 ShapeSettings.create(type => {
-    let meshes = surface.renderer.meshes;
-    surface.mesh = meshes[type];
+    let renderer = surface.renderer;
+    if(type === "ellipse"){
+        surface.mesh = renderer.ellipseProgram.mesh;
+    } else {
+        surface.mesh = renderer.meshes.find(mesh => mesh.id === type);
+    }
 });
 
 let shapeTool = new ShapeTool();

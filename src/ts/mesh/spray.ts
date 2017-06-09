@@ -9,7 +9,7 @@ export class SprayMesh extends Mesh {
 
     shapeMesh: Mesh;
 
-    static create(shapeMesh: Mesh, shapesInInnerRing: number, rings: number){
+    static create(shapeMesh: Mesh, shapesInInnerRing: number, rings: number, id?: string){
         // Create vertex buffer big enough to hold all the shapes in the spray
         let vertices = shapeMesh.vertices;
         let vertexCount = vertices.capacity();
@@ -60,7 +60,7 @@ export class SprayMesh extends Mesh {
             }
         }
 
-        let mesh = new SprayMesh(vertexBuffer, indexBuffer);
+        let mesh = new SprayMesh(vertexBuffer, indexBuffer, id);
         mesh.shapeMesh = shapeMesh;
         return mesh;
     }
