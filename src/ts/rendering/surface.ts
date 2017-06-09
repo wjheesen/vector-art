@@ -36,7 +36,8 @@ export class Surface extends Base<Renderer> {
 
     static create(){
         let canvas = document.getElementById("canvas") as HTMLCanvasElement;
-        let gl = canvas.getContext('webgl', { premultipliedAlpha: false, alpha: false });
+        // Note: alpha option not supported before iOS 10
+        let gl = canvas.getContext('webgl', { alpha: false });
         let camera = new Camera(RectStruct.create$(-1,1,1,-1), 1.0, 1000);
         let renderer = new Renderer(gl, camera);
         renderer.ext = gl.getExtension('ANGLE_instanced_arrays');

@@ -91,7 +91,10 @@ export class Renderer extends Base {
         if(this.hover.target){
             this.hover.draw(this);
         }
-        // console.log("stack size", this.measureStackSize())
+        // Clear backbuffer alpha
+        gl.colorMask(false, false, false, true);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.colorMask(true, true, true, true);
     }
 
 }
