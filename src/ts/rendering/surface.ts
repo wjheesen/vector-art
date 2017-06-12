@@ -1,3 +1,4 @@
+import { Database } from '../database/database';
 import { Action } from '../action/action';
 import { ColorChange } from '../action/colorChange';
 import { Insertion } from '../action/insertion';
@@ -18,7 +19,7 @@ import { Surface as Base } from 'gl2d/rendering/surface';
 import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat2d, Mat2dBuffer } from 'gl2d/struct/mat2d';
-import { IPoint } from 'gl2d/struct/point';
+import { PointLike } from 'gl2d/struct/point';
 import { RectStruct } from 'gl2d/struct/rect';
 import { VertexBuffer } from 'gl2d/struct/vertex';
 import lastIndexOf = require('lodash.lastindexof');
@@ -32,6 +33,10 @@ export class Surface extends Base<Renderer> {
 
     record = new ActionRecord();
 
+    database = new Database();
+    canvasId: number;
+    zIndex: number;
+
     buffer = new Float32Array(25000); // 100kb
 
     static create(){
@@ -44,7 +49,16 @@ export class Surface extends Base<Renderer> {
         return new Surface(canvas, renderer);
     }
 
-    getDrawableContaining(point: IPoint){
+    importDrawables(canvasId: number){
+        // let db = this.database;
+        // let cursor = db.shapes.where("canvasId").equals(canvasId).each(shape => {
+        //     let mesh = this.getMesh(shape.type);
+        //     let color = ColorFStruct.fromColor()
+        //     shape.
+        // })
+    }
+
+    getDrawableContaining(point: PointLike){
         let drawables = this.renderer.drawables;
         for(let i = drawables.length - 1; i>=0; i--){
             let drawable = drawables[i];
@@ -109,6 +123,10 @@ export class Surface extends Base<Renderer> {
             renderer.temp = stroke;
         }
         return stroke;
+    }
+
+    getMesh(id: string){
+        return this.renderer.meshes.find(mesh => mesh.id === id);
     }
 
     copyDrawColor(){
@@ -250,7 +268,7 @@ export class Surface extends Base<Renderer> {
         return result;
     }
 
-    zoomToPoint(desiredScaleFactor: number, focus: IPoint){
+    zoomToPoint(desiredScaleFactor: number, focus: PointLike){
         let result = super.zoomToPoint(desiredScaleFactor, focus);
         this.scaleFramesAndControlPoints(1/result.scaleFactor);
         return result;

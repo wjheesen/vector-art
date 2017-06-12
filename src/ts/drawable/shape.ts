@@ -1,14 +1,15 @@
-import { Database } from '../database/database';
-import { Drawable } from './drawable';
-import { Mat2dStruct } from 'gl2d/struct/mat2d';
-import { Shape as Base } from 'gl2d/drawable/shape';
 import { Renderer } from '../rendering/renderer';
-import { Mesh } from "gl2d/drawable/mesh";
-import { ColorFStruct } from "gl2d/struct/colorf";
+import { Surface } from '../rendering/surface';
+import { Drawable } from './drawable';
+import { Mesh } from 'gl2d/drawable/mesh';
+import { Shape as Base } from 'gl2d/drawable/shape';
+import { ColorStruct } from 'gl2d/struct/color';
+import { ColorFStruct } from 'gl2d/struct/colorf';
+import { Mat2dStruct } from 'gl2d/struct/mat2d';
 
 export class Shape extends Base implements Drawable {
 
-    id = -1;
+    zIndex = -1;
 
     /**
      * The color of this shape. 
@@ -31,17 +32,18 @@ export class Shape extends Base implements Drawable {
         program.draw(renderer);
     }
 
-    save(db: Database, canvasId: number){
-        let color = this.color.data.buffer;
+    save(surface: Surface){
+        let { database, canvasId, zIndex } = surface;
+        let color = ColorStruct.fromColorF(this.color).data.buffer;
         let matrix = this.matrix.data.buffer;
         let type = this.mesh.id; 
 
-        // Not yet in database
-        db.shapes.add({
+        database.shapes.add({
+            zIndex: zIndex,
             canvasId: canvasId,
             type: type,
             color: color,
             matrix: matrix
-        }).then(id => this.id = id)
+        }).then(zIndex => this.zIndex = zIndex);
     }
 }

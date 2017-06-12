@@ -1,7 +1,7 @@
 import { Drawable } from './drawable';
 import { Renderer } from '../rendering/renderer';
 import { Frame } from './frame';
-import { IPoint } from "gl2d/struct/point";
+import { PointLike } from "gl2d/struct/point";
 
 export class FramedDrawable{
 
@@ -22,7 +22,7 @@ export class FramedDrawable{
         }
     }
 
-    contains(point: IPoint){
+    contains(point: PointLike){
         return this.target && this.frame.contains(point);
     }
 

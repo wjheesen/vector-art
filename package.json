@@ -28,7 +28,7 @@
     "bootstrap": "^4.0.0-alpha.6",
     "bootstrap-slider": "^9.8.0",
     "dexie": "^2.0.0-beta.11",
-    "gl2d": "^0.4.6",
+    "gl2d": "^0.5.1",
     "lodash.lastindexof": "^4.0.5",
     "lodash.pullat": "^4.6.0",
     "spectrum-colorpicker": "^1.8.0"

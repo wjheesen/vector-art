@@ -1,17 +1,18 @@
-import { Database } from '../database/database';
-import { Drawable } from './drawable';
-import { ColorFStruct } from 'gl2d/struct/colorf';
-import { VertexBuffer } from 'gl2d/struct/vertex';
 import { Renderer } from '../rendering/renderer';
-import { Rect } from "gl2d/struct/rect";
-import { Mat2d, IMat2d } from 'gl2d/struct/mat2d';
-import { IPoint, Point } from "gl2d/struct/point";
-import { IVec2, Vec2} from "gl2d/struct/vec2";
+import { Surface } from '../rendering/surface';
+import { Drawable } from './drawable';
+import { ColorStruct } from 'gl2d/struct/color';
+import { ColorFStruct } from 'gl2d/struct/colorf';
+import { Mat2d } from 'gl2d/struct/mat2d';
+import { PointLike, Point } from 'gl2d/struct/point';
+import { Rect } from 'gl2d/struct/rect';
+import { Vec2Like, Vec2 } from 'gl2d/struct/vec2';
+import { VertexBuffer } from 'gl2d/struct/vertex';
 
 export class Stroke implements Drawable {
 
 
-    id = -1;
+    zIndex = -1;
     color: ColorFStruct;
     vertices: VertexBuffer;
 
@@ -24,7 +25,7 @@ export class Stroke implements Drawable {
         return this.vertices.measureBoundaries();
     }
 
-    contains(pt: IPoint, inverse?: Mat2d): boolean {
+    contains(pt: PointLike, inverse?: Mat2d): boolean {
         let vertices = this.vertices;
         let count = vertices.capacity();
         // If the stroke has at least one segment
@@ -41,11 +42,11 @@ export class Stroke implements Drawable {
         return false;
     }
 
-    offset(vec: IVec2): void {
+    offset(vec: Vec2Like): void {
         this.vertices.offset(vec);
     }
 
-    transform(matrix: IMat2d): void {
+    transform(matrix: Mat2d): void {
         this.vertices.transform(matrix);
     }
 
@@ -54,13 +55,13 @@ export class Stroke implements Drawable {
      * @param point where to begin the stroke.
      * @param lineWidth the width of the initial line.
      */
-    begin(point: IPoint, lineWidth: number) {
+    begin(point: PointLike, lineWidth: number) {
         let { x, y } = point;
         let vertices = this.vertices;
         let halfThickness = 0.5 * lineWidth;
         if(vertices.moveToFirst()){
-            vertices.put$(x, y + halfThickness);
-            vertices.put$(x, y - halfThickness);
+            vertices.rset$(x, y + halfThickness);
+            vertices.rset$(x, y - halfThickness);
         }
     }
 
@@ -69,7 +70,7 @@ export class Stroke implements Drawable {
      * @param point the point at the end of the line.
      * @param lineWidth the width of the line.
      */
-    add(point: IPoint, lineWidth: number){
+    add(point: PointLike, lineWidth: number){
 
         let vertices = this.vertices;
         let position = vertices.position();
@@ -78,8 +79,8 @@ export class Stroke implements Drawable {
 
         // Assume the stroke already has at least one line
         // TODO: throw error if not
-        let prevTop = <Vec2> vertices.get(position - 2);
-        let prevBot = <Vec2> vertices.get(position - 1);
+        let prevTop = <Vec2> vertices.aget(position - 2);
+        let prevBot = <Vec2> vertices.aget(position - 1);
         let prevCen = Point.midpoint(prevTop, prevBot);
         let line = Vec2.fromPointToPoint(prevCen, point);
         let prevLine: Vec2;
@@ -90,8 +91,8 @@ export class Stroke implements Drawable {
         if(position >= 4){
 
             // Compute previous line
-            let prevPrevTop = <Vec2> vertices.get(position - 4);
-            let prevPrevBot = <Vec2> vertices.get(position - 3);
+            let prevPrevTop = <Vec2> vertices.aget(position - 4);
+            let prevPrevBot = <Vec2> vertices.aget(position - 3);
             let prevPrevCen = Point.midpoint(prevPrevTop, prevPrevBot);
             prevLine = Vec2.fromPointToPoint(prevPrevCen, prevCen);
 
@@ -108,8 +109,8 @@ export class Stroke implements Drawable {
 
                 // Compute the (previous) previous line if it exists
                 if(position >= 4){
-                    prevPrevTop = <Vec2> vertices.get(position - 4);
-                    prevPrevBot = <Vec2> vertices.get(position - 3);
+                    prevPrevTop = <Vec2> vertices.aget(position - 4);
+                    prevPrevBot = <Vec2> vertices.aget(position - 3);
                     prevPrevCen = Point.midpoint(prevPrevTop, prevPrevBot);
                     prevLine = Vec2.fromPointToPoint(prevPrevCen, prevCen);
                 }
@@ -134,23 +135,23 @@ export class Stroke implements Drawable {
         vertices.moveToPosition(position - 2);
 
         // Top left:
-        vertices.$set(prevCen);
-        vertices.$add(miter);
+        vertices.set(prevCen);
+        vertices.add(miter);
         vertices.moveToNext();
 
         // Bottom left:
-        vertices.$set(prevCen);
-        vertices.$subtract(miter);
+        vertices.set(prevCen);
+        vertices.subtract(miter);
         vertices.moveToNext();
 
         // Top right:
-        vertices.$set(point);
-        vertices.$add(ortho);
+        vertices.set(point);
+        vertices.add(ortho);
         vertices.moveToNext();
 
         // Bottom right:
-        vertices.$set(point);
-        vertices.$subtract(ortho);
+        vertices.set(point);
+        vertices.subtract(ortho);
         vertices.moveToNext();
     }
 
@@ -165,8 +166,17 @@ export class Stroke implements Drawable {
         program.draw(gl, vertices.position()); 
     }
     
-    save(db: Database, canvasId: number): void {
-        throw new Error("Method not implemented.");
+   save(surface: Surface){
+        let { database, canvasId, zIndex } = surface;
+        let color = ColorStruct.fromColorF(this.color).data.buffer;
+        let vertices = this.vertices.data.buffer;
+
+        database.strokes.add({
+            zIndex: zIndex,
+            canvasId: canvasId,
+            color: color,
+            vertices: vertices
+        }).then(zIndex => this.zIndex = zIndex);
     }
 }
 
@@ -178,7 +188,7 @@ export class Stroke implements Drawable {
  * @param miterLimit the maximum allowable miter length before a bevel is applied.
  * @returns the miter vector.
  */
-function miterVector(prevLine: IVec2, line: IVec2, halfThickness: number, miterLimit: number) {
+function miterVector(prevLine: Vec2Like, line: Vec2Like, halfThickness: number, miterLimit: number) {
 
     // Measure the ortho norm of the previous vector and the next vector.
     let n1 = Vec2.create(prevLine);

@@ -2,12 +2,12 @@ import { MouseOrTouchEvent } from '../event/mouseOrTouch';
 import { Surface } from '../rendering/surface';
 import { SurfaceMouseOrTouchEvent } from 'gl2d/event/mouseOrTouch';
 import { Status } from 'gl2d/event/status';
-import { IPoint } from 'gl2d/struct/point';
+import { Point } from 'gl2d/struct/point';
 import { MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
 
 export class LineTool extends MouseOrTouchTool<Surface> {
 
-    private start: IPoint;
+    private start: Point;
 
     onSurfaceEvent(event: MouseOrTouchEvent): void {
         switch(event.status){

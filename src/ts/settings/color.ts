@@ -36,7 +36,7 @@ export class ColorSettings {
 
         let picker = new ColorSettings();
         picker.input = $("#color-settings");
-        picker.color = ColorOption.create("drawColor", Color.create$(39, 78, 19, 255));
+        picker.color = ColorOption.create("drawColor", new Color(39, 78, 19, 255));
         picker.alpha = picker.color.val.a / 0xff;
         picker.callback = onColorPick;
 

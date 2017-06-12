@@ -1,18 +1,19 @@
-import { Database } from '../database/database';
-import { Shape } from './shape';
 import { Renderer } from '../rendering/renderer';
+import { Surface } from '../rendering/surface';
 import { Drawable } from './drawable';
+import { Shape } from './shape';
+import { Mesh } from 'gl2d/drawable/mesh';
+import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { IMat2d, Mat2d, Mat2dBuffer, ScaleToFit } from 'gl2d/struct/mat2d';
-import { IPoint } from "gl2d/struct/point";
-import { Rect } from "gl2d/struct/rect";
-import { IVec2, Vec2 } from "gl2d/struct/vec2";
-import { Mesh } from "gl2d/drawable/mesh";
-import { Point } from "gl2d/struct/point";
+import { Mat2d, Mat2dBuffer, ScaleToFit } from 'gl2d/struct/mat2d';
+import { PointLike } from 'gl2d/struct/point';
+import { Point } from 'gl2d/struct/point';
+import { Rect } from 'gl2d/struct/rect';
+import { Vec2Like, Vec2 } from 'gl2d/struct/vec2';
 
 export class ShapeBatch implements Drawable {
 
-    id = -1;
+    zIndex = -1;
 
     mesh: Mesh;
 
@@ -26,20 +27,20 @@ export class ShapeBatch implements Drawable {
         this.matrices = matrices;
     }
 
-    add(center: IPoint, radius: number){
+    add(center: PointLike, radius: number){
         let src = this.mesh.bounds;
         let dst = Rect.unionOfPoints([center]);
         dst.inset$(-radius, -radius);
-        this.matrices.$setRectToRect(src, dst, ScaleToFit.Center);
+        this.matrices.setRectToRect(src, dst, ScaleToFit.Center);
         this.matrices.moveToNext();
     }
 
-    addAcrossLine(p1: IPoint, p2: IPoint){
+    addAcrossLine(p1: PointLike, p2: PointLike){
         Shape.stretchAcrossLine(this.matrices, this.mesh, p1, p2);
         this.matrices.moveToNext();
     }
 
-    addLine(start: IPoint, end: IPoint, thickness: number){
+    addLine(start: PointLike, end: PointLike, thickness: number){
          // Paramaterize line to a + bt, 0 <= t <= 1
         let a = Point.create(start);
         let b = Vec2.fromPointToPoint(start, end);
@@ -82,26 +83,26 @@ export class ShapeBatch implements Drawable {
         return bounds;
     }
 
-    offset(vec: IVec2): void {
+    offset(vec: Vec2Like): void {
         let matrices = this.matrices;
         matrices.moveToPosition(-1);
         while(matrices.moveToNext()){
-            matrices.$postTranslate(vec);
+            matrices.postTranslate(vec);
         }
     }
 
-    transform(matrix: IMat2d): void {
+    transform(matrix: Mat2d): void {
         let matrices = this.matrices;
         matrices.moveToPosition(-1);
         while(matrices.moveToNext()){
-            matrices.$postConcat(matrix);
+            matrices.postConcat(matrix);
         }
     }
 
     /**
      * Returns true if any shape in this batch contains the specified point.
      */
-    contains(pt: IPoint): boolean {
+    contains(pt: PointLike): boolean {
         let mesh = this.mesh;
         let matrices = this.matrices;
         let inverse = new Mat2d();
@@ -134,8 +135,19 @@ export class ShapeBatch implements Drawable {
         program.draw(renderer, instanceCount);
     }
 
-    save(db: Database, canvasId: number): void {
-        throw new Error("Method not implemented.");
+   save(surface: Surface){
+        let { database, canvasId, zIndex } = surface;
+        let color = ColorStruct.fromColorF(this.color).data.buffer;
+        let matrices = this.matrices.data.buffer;
+        let type = this.mesh.id; 
+
+        database.shapeBatches.add({
+            zIndex: zIndex,
+            canvasId: canvasId,
+            type: type,
+            color: color,
+            matrices: matrices
+        }).then(zIndex => this.zIndex = zIndex);
     }
 }
 

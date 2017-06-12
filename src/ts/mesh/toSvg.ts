@@ -32,7 +32,7 @@ export function getPath(mesh: Mesh){
     while(vertices.hasValidPosition()){
         path += "M";
         for(let i = 0; i<vertexCount; i++){
-            vertices.next(pt);
+            vertices.rget(pt);
             matrix.map(pt, pt);
             path += `${pt.x},${pt.y} `;
         }

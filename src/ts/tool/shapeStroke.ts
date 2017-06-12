@@ -1,12 +1,12 @@
 import { MouseOrTouchEvent } from '../event/mouseOrTouch';
 import { Surface } from '../rendering/surface';
 import { Status } from 'gl2d/event/status';
-import { IPoint } from 'gl2d/struct/point';
+import { Point } from 'gl2d/struct/point';
 import { MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
 
 export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
 
-    private previous: IPoint;
+    private previous: Point;
 
     onSurfaceEvent(event: MouseOrTouchEvent): void {
         switch(event.status){
@@ -33,7 +33,7 @@ export class ShapeStrokeTool extends MouseOrTouchTool<Surface> {
         let previous = this.previous;
 
         // Add line from current to previous shape if there is room
-        if(IPoint.distance2(current, previous) > thickness * thickness){
+        if(current.distance2(previous) > thickness * thickness){
             this.previous = stroke.addLine(previous, current, thickness);
             surface.requestRender();
         }

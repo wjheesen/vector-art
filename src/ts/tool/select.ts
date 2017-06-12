@@ -4,7 +4,7 @@ import { MouseOrTouchEvent } from '../event/mouseOrTouch';
 import { Surface } from '../rendering/surface';
 import { Status } from 'gl2d/event/status';
 import { Mat2d } from 'gl2d/struct/mat2d';
-import { IPoint } from 'gl2d/struct/point';
+import { Point } from 'gl2d/struct/point';
 import { Vec2 } from 'gl2d/struct/vec2';
 import { MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
 
@@ -18,8 +18,8 @@ const enum Transformation{
 export class SelectTool extends MouseOrTouchTool<Surface> {
 
     control?: Ellipse;
-    previous?: IPoint;
-    pivot? : IPoint;
+    previous?: Point;
+    pivot? : Point;
     dragCount = 0;
     reselected = false;
     transform: Transformation;
@@ -48,7 +48,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         this.previous = pointer;
     }
 
-    onMove(event: MouseOrTouchEvent, pointer: IPoint){
+    onMove(event: MouseOrTouchEvent, pointer: Point){
         let surface = event.target;
         let { selection, hover } = surface.renderer;
 
@@ -64,7 +64,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         }
     }
 
-    onStart(event: MouseOrTouchEvent, pointer: IPoint) {
+    onStart(event: MouseOrTouchEvent, pointer: Point) {
         let surface = event.target;
         let { selection, hover } = surface.renderer;
         this.reselected = selection.contains(pointer);
@@ -92,7 +92,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         surface.requestRender();
     }
 
-    onDrag(event: MouseOrTouchEvent, pointer: IPoint) {
+    onDrag(event: MouseOrTouchEvent, pointer: Point) {
         if(!this.matrix) { return; }
 
         let surface = event.target;
@@ -121,7 +121,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         surface.requestRender();
     }
 
-    onEnd(event: MouseOrTouchEvent, pointer: IPoint) {
+    onEnd(event: MouseOrTouchEvent, pointer: Point) {
         let surface = event.target;
         let renderer = surface.renderer;
         let selection = renderer.selection;
@@ -152,7 +152,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         surface.requestRender();
     }
 
-    getTransformType(pointer: IPoint, selected?: Selection){
+    getTransformType(pointer: Point, selected?: Selection){
         let {pivot, control, frame} = selected;
         // Choose transformation based on position of pointer
          if(selected.target && selected.contains(pointer)) {

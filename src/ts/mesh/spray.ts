@@ -2,7 +2,7 @@ import { IndexTupleBuffer } from 'gl2d/struct/indextuple';
 import { VertexBuffer } from 'gl2d/struct/vertex';
 import { Shape } from 'gl2d/drawable/shape';
 import { Mesh } from 'gl2d/drawable/mesh';
-import { Point, IPoint } from "gl2d/struct/point";
+import { Point, PointLike } from "gl2d/struct/point";
 import { Mat2d } from "gl2d/struct/mat2d";
 
 export class SprayMesh extends Mesh {
@@ -20,8 +20,8 @@ export class SprayMesh extends Mesh {
         // Create helper variables for placing each shape in its ring
         let angle = 2 * Math.PI / shapesInInnerRing;
         let rotation = Mat2d.rotate(angle);
-        let p1 = Point.create$(0, 0);
-        let p2 = Point.create$(0, 1);
+        let p1 = new Point(0, 0);
+        let p2 = new Point(0, 1);
         let matrix = new Mat2d();
 
         // Fill each ring with shapes
@@ -54,8 +54,8 @@ export class SprayMesh extends Mesh {
         for(let offset = 0; offset<totalVertexCount; offset+= vertexCount){
             indices.moveToPosition(-1);
             while(indices.moveToNext()){
-                indexBuffer.$set(indices);
-                indexBuffer.$add$(offset,offset,offset);
+                indexBuffer.set(indices);
+                indexBuffer.add$(offset,offset,offset);
                 indexBuffer.moveToNext();
             }
         }
@@ -73,7 +73,7 @@ export class SprayMesh extends Mesh {
         return shapesInInnerRing * ((1<<rings) - 1);
     }
 
-    contains(pt: IPoint){
+    contains(pt: PointLike){
         if(this.bounds.contains(pt)){
             let vertices = this.vertices;
             let vertexCount = vertices.capacity();

@@ -3,12 +3,12 @@ import { ScaleToFit } from 'gl2d/struct/mat2d';
 import { Rect } from 'gl2d/struct/rect';
 import { Surface } from '../rendering/surface';
 import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { IPoint } from "gl2d/struct/point";
+import { Point } from "gl2d/struct/point";
 import { Status } from "gl2d/event/status";
 
 export class ShapeTool extends MouseOrTouchTool<Surface> {
 
-    protected start: IPoint;
+    protected start: Point;
 
     onSurfaceEvent(event: MouseOrTouchEvent): void {
         switch(event.status){

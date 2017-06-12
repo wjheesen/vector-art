@@ -1,7 +1,7 @@
 import { ShapeAspectTool } from './tool/shapeAspect';
 import { ToolGroup } from './tool/group';
 import { ColorSampler } from './tool/colorSampler';
-import { IColor } from 'gl2d/struct/color';
+import { ColorLike } from 'gl2d/struct/color';
 import { Surface } from './rendering/surface';
 import { ColorSettings } from './settings/color';
 import { OtherSettings } from './settings/other';
@@ -37,7 +37,7 @@ function setTool(tool: _MouseOrTouchTool){
     }
 }
 
-function setDrawColor(color: IColor){
+function setDrawColor(color: ColorLike){
     let { drawColor, renderer } = surface;
     let { target } = renderer.selection;
     // Modify draw color
@@ -65,12 +65,7 @@ function redo(){
 let colorPicker = ColorSettings.create(setDrawColor);
 
 ShapeSettings.create(type => {
-    let renderer = surface.renderer;
-    if(type === "ellipse"){
-        surface.mesh = renderer.ellipseProgram.mesh;
-    } else {
-        surface.mesh = renderer.meshes.find(mesh => mesh.id === type);
-    }
+    surface.mesh = surface.getMesh(type);
 });
 
 let selectTool = new SelectTool();

@@ -2,7 +2,7 @@ import { Ellipse } from './ellipse';
 import { ShapeBatch } from './shapeBatch';
 import { Renderer } from '../rendering/renderer';
 import { Mat2d } from 'gl2d/struct/mat2d';
-import { IPoint } from "gl2d/struct/point";
+import { PointLike } from "gl2d/struct/point";
 import { Rect } from "gl2d/struct/rect";
 import { Point } from "gl2d/struct/point";
 
@@ -28,7 +28,7 @@ export class EllipseBatch extends ShapeBatch {
     /**
      * Returns true if any shape in this batch contains the specified point.
      */
-    contains(pt: IPoint): boolean {
+    contains(pt: PointLike): boolean {
         let matrices = this.matrices;
         let bounds = this.mesh.bounds;
         let inverse = new Mat2d();

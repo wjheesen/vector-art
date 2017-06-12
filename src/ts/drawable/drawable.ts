@@ -1,17 +1,17 @@
+import { Surface } from '../rendering/surface';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Renderer } from '../rendering/renderer';
 import { Drawable as Base} from 'gl2d/drawable/drawable';
 import { Rect } from "gl2d/struct/rect";
-import { IVec2 } from "gl2d/struct/vec2";
-import { IMat2d } from "gl2d/struct/mat2d";
-import { IPoint } from "gl2d/struct/point";
-import { Database } from '../database/database';
+import { Vec2Like } from "gl2d/struct/vec2";
+import { Mat2d } from "gl2d/struct/mat2d";
+import { PointLike } from "gl2d/struct/point";
 
 export interface Drawable extends Base<Renderer>{
     /**
-     * The key for this drawable's database entry.
+     * The z position of this drawable.
      */
-    id: number;
+    zIndex: number;
     /**
      * The color of this drawable. 
      */
@@ -26,19 +26,19 @@ export interface Drawable extends Base<Renderer>{
      * @param point the point to check.
      * @returns true if the point lies on or within this drawable; false otherwise.
      */
-    contains(pt: IPoint): boolean;
+    contains(pt: PointLike): boolean;
     /**
      * Offsets this drawable by the specified vector.
      */
-    offset(vec: IVec2): void;
+    offset(vec: Vec2Like): void;
     /**
      * Transforms this drawable by the specified matrix.
      * @param matrix the transformation matrix.
      */
-    transform(matrix: IMat2d): void;
+    transform(matrix: Mat2d): void;
 
     /**
-     * Saves this drawable to the specified database.
+     * Saves this drawable the database connected to the specified surface.
      */
-    save(db: Database, canvasId: number): void;
+    save(surface: Surface): void;
 }

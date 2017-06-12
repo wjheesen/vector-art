@@ -60,6 +60,7 @@ export class Renderer extends Base {
         // Init programs
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
+        this.meshes.push(this.ellipseProgram.mesh);
         this.strokeProgram = StrokeProgram.create(gl);
         this.frameProgram = FrameProgram.create(gl);
         // Init background

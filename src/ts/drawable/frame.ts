@@ -1,7 +1,7 @@
 import { Renderer } from '../rendering/renderer';
 import { RectStruct, Rect } from 'gl2d/struct/rect';
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { IPoint, Point } from "gl2d/struct/point";
+import { PointLike, Point } from "gl2d/struct/point";
 import { Drawable } from "gl2d/drawable/drawable";
 
 export class Frame implements Drawable<Renderer>{
@@ -27,7 +27,7 @@ export class Frame implements Drawable<Renderer>{
         return bounds;
     }
 
-    contains(point: IPoint){
+    contains(point: PointLike){
         return this.measureBoundaries().contains(point);
     }
 
@@ -36,7 +36,7 @@ export class Frame implements Drawable<Renderer>{
      * @param point the point.
      * @return the vertex that is opposite the point.
      */
-    getVertexOpposite(point: IPoint){
+    getVertexOpposite(point: PointLike){
         let frame = this.innerRect;
         let opposite = new Point();
         // If the point is to the left of the frame center

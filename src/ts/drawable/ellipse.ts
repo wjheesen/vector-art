@@ -1,8 +1,8 @@
-import { Shape } from './shape';
 import { Renderer } from '../rendering/renderer';
-import { IPoint,} from "gl2d/struct/point";
-import { IMat2d } from 'gl2d/struct/mat2d';
-import { Rect } from "gl2d/struct/rect";
+import { Shape } from './shape';
+import { Mat2d } from 'gl2d/struct/mat2d';
+import { PointLike } from 'gl2d/struct/point';
+import { Rect } from 'gl2d/struct/rect';
 
 export class Ellipse extends Shape {
 
@@ -12,7 +12,7 @@ export class Ellipse extends Shape {
      * @param ry the semi-y axis.
      * @param center the center of the ellipse. Defaults to the origin.
      */
-    set(rx: number, ry: number, center?: IPoint){
+    set(rx: number, ry: number, center?: PointLike){
         this.matrix.setScale(rx, ry);
         if(center){
             this.matrix.postTranslate(center);
@@ -27,7 +27,7 @@ export class Ellipse extends Shape {
      * Measures the boundaries of a unit circle transformed to an ellipse by the specified matrix.
      * @param matrix the transformation matrix.
      */
-    static measureBoundaries(matrix: IMat2d){
+    static measureBoundaries(matrix: Mat2d){
             // Performs singular value decomposition of the model matrix to extract
             // (1) The length of the semi-x axis (sx), which is equal to the first singular value in the Sigma matrix
             // (2) The length of the semi-y axis (sy), which is equal to the second singular value in the Sigma matrix
@@ -69,7 +69,7 @@ export class Ellipse extends Shape {
      * @param point the point to check.
      * @param inverse the inverse of this ellipse's model matrix. If undefined, the inverse matrix will be calculated on the fly.
      */
-    contains(pt: IPoint, inverse?: IMat2d) {
+    contains(pt: PointLike, inverse?: Mat2d) {
         let modelPoint = this.convertPointToModelSpace(pt, inverse);
         if(this.mesh.bounds.contains(modelPoint)){
             return modelPoint.distance2() <= 1;

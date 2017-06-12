@@ -1,13 +1,13 @@
 import { Drawable } from '../drawable/drawable';
 import { Surface } from '../rendering/surface';
 import { Action } from './action';
-import { IMat2d, Mat2d } from 'gl2d/struct/mat2d';
+import { Mat2d } from 'gl2d/struct/mat2d';
 
 export class Transformation implements Action {
     
     constructor(
         public drawable: Drawable,
-        public matrix: IMat2d){
+        public matrix: Mat2d){
     }
 
     redo(surface: Surface) {

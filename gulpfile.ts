@@ -20,6 +20,3 @@ gulp.task("update:shaders", function(){
         .pipe(rename({extname: ".ts"}))
         .pipe(gulp.dest("./src/ts/shader/"));
 })
-
-
-

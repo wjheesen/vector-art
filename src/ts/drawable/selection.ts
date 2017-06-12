@@ -3,12 +3,12 @@ import { Shape } from './shape';
 import { Ellipse } from './ellipse';
 import { Frame } from './frame';
 import { Renderer } from "../rendering/renderer";
-import { IVec2 } from "gl2d/struct/vec2";
-import { IMat2d } from 'gl2d/struct/mat2d';
+import { Vec2Like } from "gl2d/struct/vec2";
+import { Mat2d } from 'gl2d/struct/mat2d';
 import { Mat2dStruct } from 'gl2d/struct/mat2d';
 import { Mesh } from "gl2d/drawable/mesh";
 import { ColorFStruct } from "gl2d/struct/colorf";
-import { IPoint } from "gl2d/struct/point";
+import { PointLike } from "gl2d/struct/point";
 
 export class Selection {
 
@@ -42,38 +42,38 @@ export class Selection {
         }
     }
 
-    contains(point: IPoint){
+    contains(point: PointLike){
         return this.target && this.frame.contains(point);
     }
 
-    offset(vec: IVec2){
+    offset(vec: Vec2Like){
         this.target.offset(vec);
         this.frame.innerRect.offset(vec);
         this.pivot.offset(vec);
         this.control.offset(vec);
     }
 
-    scale(scale: IMat2d){
+    scale(scale: Mat2d){
         let target = this.target;
         let frameRect = this.frame.innerRect;
         target.transform(scale);
-        IMat2d.mapRect(scale, frameRect, frameRect);
+        scale.mapRect(frameRect, frameRect);
         this.pivot.offsetTo(this.getPivot());
         this.control.offsetTo(this.getControl());
     }
 
-    transform(matrix: IMat2d){
+    transform(matrix: Mat2d){
         // Transform target and frame
         let target = this.target;
         this.target.transform(matrix);
         this.frame.innerRect.set(target.measureBoundaries());
         // Transform pivot point
         let pc = this.pivot.measureCenter();
-        IMat2d.map(matrix, pc, pc);
+        matrix.map(pc,pc);
         this.pivot.offsetTo(pc);
         // Transform control point        
         let cc = this.control.measureCenter();
-        IMat2d.map(matrix, cc, cc);
+        matrix.map(pc,pc);
         this.control.offsetTo(cc);
     }
 
