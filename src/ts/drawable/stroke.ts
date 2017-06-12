@@ -11,14 +11,16 @@ import { VertexBuffer } from 'gl2d/struct/vertex';
 
 export class Stroke implements Drawable {
 
-
-    zIndex = -1;
+    id: number;
+    zIndex: number;
     color: ColorFStruct;
     vertices: VertexBuffer;
 
-    constructor(color: ColorFStruct, vertices: VertexBuffer){
+    constructor(color: ColorFStruct, vertices: VertexBuffer, zIndex?: number, id?: number){
         this.color = color;
         this.vertices = vertices;
+        this.zIndex = zIndex;
+        this.id = id;
     }
 
     measureBoundaries(): Rect {
@@ -176,7 +178,34 @@ export class Stroke implements Drawable {
             canvasId: canvasId,
             color: color,
             vertices: vertices
-        }).then(zIndex => this.zIndex = zIndex);
+        }).then(id => { 
+            this.id = id;
+            this.zIndex = zIndex;
+        });
+    }
+
+    delete(surface: Surface): void {
+        surface.database.strokes.delete(this.id);
+    }
+
+    updateColor(surface: Surface, color: ColorStruct): void {
+        this.color.setFromColor(color);
+        surface.database.strokes.update(this.id, {
+            color: color.data.buffer
+        })
+    }
+    
+    updateZIndex(surface: Surface, zIndex: number): void {
+        this.zIndex = zIndex;
+        surface.database.strokes.update(this.id, {
+            zIndex: zIndex
+        })
+    }
+
+    updatePosition(surface: Surface){
+        surface.database.strokes.update(this.id, {
+            vertices: this.vertices.data.buffer
+        });
     }
 }
 

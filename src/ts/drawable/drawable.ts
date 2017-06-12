@@ -1,3 +1,4 @@
+import { ColorStruct } from 'gl2d';
 import { Surface } from '../rendering/surface';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Renderer } from '../rendering/renderer';
@@ -9,7 +10,11 @@ import { PointLike } from "gl2d/struct/point";
 
 export interface Drawable extends Base<Renderer>{
     /**
-     * The z position of this drawable.
+     * The unique identifier for this drawable (if any).
+     */
+    id: number;
+    /**
+     * The z position of this drawable (if any).
      */
     zIndex: number;
     /**
@@ -36,9 +41,24 @@ export interface Drawable extends Base<Renderer>{
      * @param matrix the transformation matrix.
      */
     transform(matrix: Mat2d): void;
-
     /**
-     * Saves this drawable the database connected to the specified surface.
+     * Saves this drawable to the surface database.
      */
     save(surface: Surface): void;
+    /**
+     * Deletes this drawable from the surface database.
+     */
+    delete(surface: Surface): void;
+    /**
+     * Updates the color of this drawable in the surface database.
+     */
+    updateColor(surface: Surface, color: ColorStruct): void;
+    /**
+     * Updates the zIndex of this drawable in the surface database.
+     */
+    updateZIndex(surface: Surface, zIndex: number): void;
+    /**
+     * Updates the position of this drawable in the surface database.
+     */
+    updatePosition(surface: Surface): void;
 }

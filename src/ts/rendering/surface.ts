@@ -1,10 +1,11 @@
-import { Database } from '../database/database';
+import { ColorLike } from 'gl2d';
 import { Action } from '../action/action';
 import { ColorChange } from '../action/colorChange';
 import { Insertion } from '../action/insertion';
 import { ActionRecord } from '../action/record';
 import { Removal } from '../action/removal';
 import { Transformation } from '../action/transformation';
+import { Database } from '../database/database';
 import { Drawable } from '../drawable/drawable';
 import { Ellipse } from '../drawable/ellipse';
 import { EllipseBatch } from '../drawable/ellipseBatch';
@@ -18,7 +19,7 @@ import { Camera } from 'gl2d/rendering/camera';
 import { Surface as Base } from 'gl2d/rendering/surface';
 import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { Mat2d, Mat2dBuffer } from 'gl2d/struct/mat2d';
+import { Mat2d, Mat2dBuffer, Mat2dStruct } from 'gl2d/struct/mat2d';
 import { PointLike } from 'gl2d/struct/point';
 import { RectStruct } from 'gl2d/struct/rect';
 import { VertexBuffer } from 'gl2d/struct/vertex';
@@ -35,7 +36,7 @@ export class Surface extends Base<Renderer> {
 
     database = new Database();
     canvasId: number;
-    zIndex: number;
+    zIndex = 1;
 
     buffer = new Float32Array(25000); // 100kb
 
@@ -46,16 +47,45 @@ export class Surface extends Base<Renderer> {
         let camera = new Camera(RectStruct.create$(-1,1,1,-1), 1.0, 1000);
         let renderer = new Renderer(gl, camera);
         renderer.ext = gl.getExtension('ANGLE_instanced_arrays');
-        return new Surface(canvas, renderer);
+        let surface = new Surface(canvas, renderer);
+        surface.importDrawables(1);
+        return surface;
     }
 
     importDrawables(canvasId: number){
-        // let db = this.database;
-        // let cursor = db.shapes.where("canvasId").equals(canvasId).each(shape => {
-        //     let mesh = this.getMesh(shape.type);
-        //     let color = ColorFStruct.fromColor()
-        //     shape.
-        // })
+        this.canvasId = canvasId;
+        let db = this.database;
+        let stack = this.renderer.drawables;
+        stack.length = 0;
+
+        db.transaction("r", db.shapes, db.shapeBatches, db.strokes, db.canvases, () => {
+            db.shapes.where("canvasId").equals(canvasId).each(shape => {
+                let mesh = this.getMesh(shape.type);
+                let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(shape.color)));
+                let matrix = new Mat2dStruct(new Float32Array(shape.matrix));
+                stack.push(new Shape(mesh, color, matrix, shape.zIndex, shape.id))
+            });
+            db.shapeBatches.where("canvasId").equals(canvasId).each(batch => {
+                let mesh = this.getMesh(batch.type);
+                let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(batch.color)));
+                let matrices = new Mat2dBuffer(new Float32Array(batch.matrices));
+                matrices.moveToLast();
+                stack.push(new ShapeBatch(mesh, color, matrices, batch.zIndex, batch.id))
+            });
+            db.strokes.where("canvasId").equals(canvasId).each(stroke => {
+                let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(stroke.color)));
+                let vertices = new VertexBuffer(new Float32Array(stroke.vertices));
+                vertices.moveToLast();
+                stack.push(new Stroke(color, vertices, stroke.zIndex, stroke.id))
+            });
+            db.canvases.update(canvasId, { lastAccessTime: Date.now()} );
+        }).then(() => {
+            stack.sort((a,b) => (a.zIndex > b.zIndex) ? 1 : -1);
+            this.requestRender();
+            if(stack.length > 0){
+                this.zIndex = stack[stack.length-1].zIndex;
+            }
+        });
     }
 
     getDrawableContaining(point: PointLike){
@@ -141,7 +171,7 @@ export class Surface extends Base<Renderer> {
         // Modify color of selected drawable (if any)
         if(target){
             target.color.set(drawColor);
-            this.recordColorChange(target, drawColor);
+            this.changeColor(target, drawColor);
         }
     }
 
@@ -154,6 +184,8 @@ export class Surface extends Base<Renderer> {
             let index = drawables.length;
             drawables.push(temp);
             record.push(new Insertion(temp, index));
+            temp.save(this);
+            this.zIndex++;
         }
         // Remove temp drawable
         renderer.temp = null;
@@ -201,14 +233,16 @@ export class Surface extends Base<Renderer> {
         if(drawable && matrix && !matrix.isIdentity()){
             let action = new Transformation(drawable, matrix);
             this.record.push(action);
+            drawable.updatePosition(this);
         }
     }
     
-    recordColorChange(drawable: Drawable, color: ColorFStruct){
-        let oldColor = ColorStruct.fromColorF(drawable.color);
-        let newColor = ColorStruct.fromColorF(color);
+    changeColor(drawable: Drawable, color: ColorLike){
+        let oldColor = ColorStruct.create(color);
+        let newColor = ColorStruct.create(color);
         let action = new ColorChange(drawable, oldColor, newColor);
         this.record.push(action);
+        drawable.updateColor(this, newColor);
     }
 
     removeDrawable(drawable: Drawable){
@@ -217,6 +251,7 @@ export class Surface extends Base<Renderer> {
         let action = new Removal(drawable, index);
         action.redo(this); // Does the actual removal
         record.push(action);
+        drawable.delete(this);
     }
 
     undoLastAction(){

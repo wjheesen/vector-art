@@ -20,9 +20,14 @@ export class Database extends Dexie {
         // (Here's where the implicit table props are dynamically created)
         this.version(1).stores({
             canvases: '++id, creationTime, lastAccessTime',
-            shapes: 'zIndex, canvasId, type, color, matrix',
-            shapeBatches: 'zIndex, canvasId, type, color, matrices',
-            strokes: 'zIndex, canvasId, color, vertices',
+            shapes: '++id, canvasId, zIndex, type, color, matrix',
+            shapeBatches: '++id, canvasId, zIndex, type, color, matrices',
+            strokes: '++id, canvasId, zIndex, color, vertices',
         });
+
+        this.on("populate", () => {
+            let time = Date.now();
+            this.canvases.add({id: 1, creationTime: time, lastAccessTime: time })
+        })
     }
 }

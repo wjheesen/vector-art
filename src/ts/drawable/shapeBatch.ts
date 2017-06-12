@@ -13,7 +13,8 @@ import { Vec2Like, Vec2 } from 'gl2d/struct/vec2';
 
 export class ShapeBatch implements Drawable {
 
-    zIndex = -1;
+    id: number;
+    zIndex: number;
 
     mesh: Mesh;
 
@@ -21,10 +22,12 @@ export class ShapeBatch implements Drawable {
 
     matrices: Mat2dBuffer;
 
-    constructor(mesh: Mesh, color: ColorFStruct, matrices: Mat2dBuffer){
+    constructor(mesh: Mesh, color: ColorFStruct, matrices: Mat2dBuffer, zIndex?: number, id?: number){
         this.mesh = mesh;
         this.color = color;
         this.matrices = matrices;
+        this.zIndex = zIndex;
+        this.id = id;
     }
 
     add(center: PointLike, radius: number){
@@ -147,7 +150,34 @@ export class ShapeBatch implements Drawable {
             type: type,
             color: color,
             matrices: matrices
-        }).then(zIndex => this.zIndex = zIndex);
+        }).then(id => { 
+            this.id = id;
+            this.zIndex = zIndex;
+        });
+    }
+
+    delete(surface: Surface): void {
+        surface.database.shapeBatches.delete(this.id);
+    }
+
+    updateColor(surface: Surface, color: ColorStruct): void {
+        this.color.setFromColor(color);
+        surface.database.shapeBatches.update(this.id, {
+            color: color.data.buffer
+        })
+    }
+    
+    updateZIndex(surface: Surface, zIndex: number): void {
+        this.zIndex = zIndex;
+        surface.database.shapeBatches.update(this.id, {
+            zIndex: zIndex
+        })
+    }
+
+    updatePosition(surface: Surface){
+        surface.database.shapeBatches.update(this.id, {
+            matrices: this.matrices.data.buffer
+        });
     }
 }
 

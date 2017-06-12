@@ -44,8 +44,7 @@ function setDrawColor(color: ColorLike){
     drawColor.setFromColor(color);
     // Modify color of selected drawable (if any)
     if(target){
-        target.color.set(drawColor);
-        surface.recordColorChange(target, drawColor);
+        surface.changeColor(target, color);
         surface.requestRender();
     }
 }

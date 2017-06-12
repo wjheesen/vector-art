@@ -1,8 +1,8 @@
-import { ColorFStruct } from 'gl2d';
-import { Color } from "gl2d/struct/color";
-import { ColorOption } from '../option/color';
-import * as $ from 'jquery';
 import 'spectrum-colorpicker';
+import { ColorOption } from '../option/color';
+import { Color } from 'gl2d/struct/color';
+import * as $ from 'jquery';
+import { ColorFStruct } from "gl2d/struct/colorF";
 
 export type OnColorPick = (color: Color) => any;
 

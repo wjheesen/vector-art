@@ -1,5 +1,5 @@
 export interface Canvas {
     id?: number;
-    creationTime: string;
-    lastAccessTime: string;
+    creationTime: number;
+    lastAccessTime: number;
 }

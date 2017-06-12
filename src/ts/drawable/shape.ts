@@ -9,16 +9,19 @@ import { Mat2dStruct } from 'gl2d/struct/mat2d';
 
 export class Shape extends Base implements Drawable {
 
-    zIndex = -1;
+    id: number;
+    zIndex: number;
 
     /**
      * The color of this shape. 
      */
     color: ColorFStruct;
 
-    constructor(mesh: Mesh, color: ColorFStruct, matrix?: Mat2dStruct){
+    constructor(mesh: Mesh, color: ColorFStruct, matrix?: Mat2dStruct, zIndex?: number, id?: number){
         super(mesh, matrix);
         this.color = color;
+        this.zIndex = zIndex;
+        this.id = id;
     }
 
     draw(renderer: Renderer){
@@ -44,6 +47,33 @@ export class Shape extends Base implements Drawable {
             type: type,
             color: color,
             matrix: matrix
-        }).then(zIndex => this.zIndex = zIndex);
+        }).then(id => { 
+            this.id = id;
+            this.zIndex = zIndex;
+        });
+    }
+
+    delete(surface: Surface): void {
+        surface.database.shapes.delete(this.id);
+    }
+
+    updateColor(surface: Surface, color: ColorStruct): void {
+        this.color.setFromColor(color);
+        surface.database.shapes.update(this.id, {
+            color: color.data.buffer
+        });
+    }
+    
+    updateZIndex(surface: Surface, zIndex: number): void {
+        this.zIndex = zIndex;
+        surface.database.shapes.update(this.id, {
+            zIndex: zIndex
+        })
+    }
+
+    updatePosition(surface: Surface){
+        surface.database.shapes.update(this.id, {
+            matrix: this.matrix.data.buffer
+        });
     }
 }

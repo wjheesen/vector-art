@@ -3,4 +3,5 @@
 2017-05-23 (C) Add move forward, move backward, move to front, and move to back options @feature @idea
 2017-06-05 Add zoom to rect tool @tool @idea
 2017-06-05 Add paint bucket tool @tool @idea
-2017-06-07 (A) Save shapes on canvas to IndexedDB using Dexie.js
+x 2017-06-12 2017-06-07 (A) Save shapes on canvas to IndexedDB using Dexie.js
+2017-06-12 Merge shape, shape batch, and stroke into single drawable table with type, color, position, and zIndex @idea
