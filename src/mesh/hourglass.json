@@ -1,0 +1,14 @@
+{
+    "vertices": [
+        1,2, //Top Right
+        -1,2, //Top left
+        0,1, //Center
+        -1,0, //Bottom left
+        1,0  //Bottom Right
+    ], 
+    "indices": [
+        0, 1, 2, // Top
+        2, 3, 4  // Bottom
+    ]
+}
+

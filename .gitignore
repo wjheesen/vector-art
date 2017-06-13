@@ -1,5 +1,6 @@
 node_modules/
 build/
-gulpfile.js
+*.js
 todo.txt.bak
 src/icon/
+src/ts/meshData/

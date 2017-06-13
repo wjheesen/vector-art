@@ -3,7 +3,9 @@ import browserify = require('browserify');
 import source = require('vinyl-source-stream'); // Makes browserify output compatible with gulp
 import shadify = require('gulp-shadify');
 import rename = require('gulp-rename');
+import meshify = require('./meshify');
 let tsify = require('tsify');
+let jsonMinify = require('gulp-json-minify');
 
 gulp.task("update:bundle", function(){
      return browserify()
@@ -19,4 +21,12 @@ gulp.task("update:shaders", function(){
         .pipe(shadify())
         .pipe(rename({extname: ".ts"}))
         .pipe(gulp.dest("./src/ts/shader/"));
+})
+
+gulp.task("update:meshes", function(){
+     return gulp.src("./src/mesh/*.json")
+        .pipe(jsonMinify())
+        .pipe(meshify())
+        .pipe(rename({extname: ".ts"}))
+        .pipe(gulp.dest("./src/ts/meshData/"))
 })

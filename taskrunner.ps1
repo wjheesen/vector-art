@@ -31,8 +31,12 @@ function Update-Gulpfile(){
     tsc.cmd $gulpfileTs
 }
 
+function Update-Meshes(){
+    gulp.cmd update:meshes --gulpfile $gulpfileJs
+}
+
 function Update-Shaders(){
-    gulp.cmd update:shaders
+    gulp.cmd update:shaders --gulpfile $gulpfileJs
 }
 
 function Update-Js(){
