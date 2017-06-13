@@ -39,6 +39,10 @@ function Update-Shaders(){
     gulp.cmd update:shaders --gulpfile $gulpfileJs
 }
 
+function Update-Svgs(){
+    gulp.cmd update:svgs --gulpfile $gulpfileJs
+}
+
 function Update-Js(){
     gulp.cmd update:bundle --gulpfile $gulpfileJs
 }
@@ -85,6 +89,7 @@ function Update-Build(){
 
 function Update-All(){
     Update-Gulpfile
+    Update-Meshes
     Update-Shaders
     Update-Build
 }

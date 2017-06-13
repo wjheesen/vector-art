@@ -4,6 +4,7 @@ import source = require('vinyl-source-stream'); // Makes browserify output compa
 import shadify = require('gulp-shadify');
 import rename = require('gulp-rename');
 import meshify = require('./meshify');
+import svgify = require('./svgify');
 let tsify = require('tsify');
 let jsonMinify = require('gulp-json-minify');
 
@@ -29,4 +30,12 @@ gulp.task("update:meshes", function(){
         .pipe(meshify())
         .pipe(rename({extname: ".ts"}))
         .pipe(gulp.dest("./src/ts/meshData/"))
+})
+
+gulp.task("update:svgs", function(){
+    return gulp.src("./src/mesh/*.json")
+        .pipe(jsonMinify())
+        .pipe(svgify())
+        .pipe(rename({extname: ".svg"}))
+        .pipe(gulp.dest("./src/shapeSvg/"))
 })
