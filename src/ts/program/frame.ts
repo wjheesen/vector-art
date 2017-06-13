@@ -3,7 +3,7 @@ import { Program } from './program';
 import { RectStruct } from 'gl2d/struct/rect';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat4Struct } from 'gl2d/struct/mat4';
-import * as Shader from '../shader/frame';
+import * as Shader from '../../res/build/shader/frame';
 import * as Util from 'gl2d/rendering/util';
 
 /**

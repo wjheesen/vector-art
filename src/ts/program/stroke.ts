@@ -4,7 +4,7 @@ import { VertexBuffer } from 'gl2d/struct/vertex';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat4Struct } from 'gl2d/struct/mat4';
 import * as Util from 'gl2d/rendering/util';
-import * as Shader from '../shader/stroke';
+import * as Shader from '../../res/build/shader/stroke';
 
 /**
  * Program for rendering brush strokes.

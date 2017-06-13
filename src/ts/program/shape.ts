@@ -5,7 +5,7 @@ import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat4Struct } from 'gl2d/struct/mat4';
 import { Mesh } from "gl2d/mesh/mesh";
 import * as Util from 'gl2d/rendering/util';
-import * as Shader from '../shader/shape';
+import * as Shader from '../../res/build/shader/shape';
 
 /**
  * Program for rendering shapes.

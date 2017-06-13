@@ -8,34 +8,37 @@ import svgify = require('./svgify');
 let tsify = require('tsify');
 let jsonMinify = require('gulp-json-minify');
 
+let src = "./src";
+let build = "./build"
+let res = src + "/res";
+
 gulp.task("update:js", function(){
      return browserify()
-        .add("./src/ts/main.ts")
+        .add(`${src}/ts/main.ts`)
         .plugin(tsify)
         .bundle()
         .pipe(source("bundle.js"))
-        .pipe(gulp.dest("./build/debug/"));
+        .pipe(gulp.dest(`${build}/debug`));
 })
 
 gulp.task("update:shaders", function(){
-    return gulp.src("./src/shader/*.glslx")
+    return gulp.src(`${res}/src/shader/*.glslx`)
         .pipe(shadify())
         .pipe(rename({extname: ".ts"}))
-        .pipe(gulp.dest("./src/ts/shader/"));
+        .pipe(gulp.dest(`${res}/build/shader`))
 })
 
 gulp.task("update:meshes", function(){
-     return gulp.src("./src/mesh/*.json")
+     return gulp.src(`${res}/src/mesh/*.json`)
         .pipe(jsonMinify())
         .pipe(meshify())
-        .pipe(rename({extname: ".ts"}))
-        .pipe(gulp.dest("./src/ts/meshSpec/"))
+        .pipe(gulp.dest(`${res}/build/mesh`))
 })
 
 gulp.task("update:svgs", function(){
-    return gulp.src("./src/mesh/*.json")
+    return gulp.src(`${res}/src/mesh/*.json`)
         .pipe(jsonMinify())
         .pipe(svgify())
         .pipe(rename({extname: ".svg"}))
-        .pipe(gulp.dest("./src/shapeSvg/"))
+        .pipe(gulp.dest(`${res}/build/svg/shape`))
 })

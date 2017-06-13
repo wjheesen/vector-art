@@ -1,7 +1,5 @@
+gulp/*.js
 node_modules/
 build/
-*.js
+src/res/build/
 todo.txt.bak
-src/icon/
-src/ts/meshSpec/
-src/shapeSvg/

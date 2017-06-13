@@ -40,6 +40,7 @@
     "browserify": "^14.3.0",
     "gulp": "^3.9.1",
     "gulp-json-minify": "^1.2.0",
+    "gulp-reduce-file": "0.0.1",
     "gulp-rename": "^1.2.2",
     "gulp-shadify": "0.0.6",
     "tsify": "^3.0.1",

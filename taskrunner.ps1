@@ -15,11 +15,11 @@ $build = "$PSScriptRoot\build"
 $src = "$PSScriptRoot\src"
     $php = "$src\index.php"
     $scss = "$src\style.scss"
-    $svg = "$src\svg"
-    $icon = "$src\icon"
+    $res = "$src\res"
+        $icon = "$res\build\icon"
 
-$gulpfileJs = "$PSScriptRoot\gulpfile.js"
-$gulpfileTs = "$PSScriptRoot\gulpfile.ts"
+$gulpfileJs = "$PSScriptRoot\gulp\file.js"
+$gulpfileTs = "$PSScriptRoot\gulp\file.ts"
 
 function Initialize-Repository(){
     Set-Location $PSScriptRoot
@@ -58,7 +58,7 @@ function Update-Html(){
 function Update-Icons(){
     Remove-Directory $icon
     New-Item $icon -ItemType "Directory"
-    icon-font-generator.cmd "$svg\*.svg" --out $icon --prefix "icon" --center --normalize
+    icon-font-generator.cmd "$res\**\*.svg" --out $icon --prefix "icon" --center --normalize
     Remove-Directory "$debug\icon";
     Remove-Directory "$release\icon"
     Copy-Item $icon $debug -Recurse -ErrorAction Ignore
@@ -97,8 +97,8 @@ function Update-All(){
 function Publish-App([string] $msg){
     Copy-Item "$release/*" $app -Force -Recurse
     Set-Location $website
-    git commit --all --message $msg
-    git push
+    git.cmd commit --all --message $msg
+    git.cmd push
     Set-Location $PSScriptRoot
 }
 
