@@ -1,7 +1,7 @@
 import { Renderer } from '../rendering/renderer';
 import { Surface } from '../rendering/surface';
 import { Drawable } from './drawable';
-import { Mesh } from 'gl2d/drawable/mesh';
+import { Mesh } from 'gl2d/mesh/mesh';
 import { Shape as Base } from 'gl2d/drawable/shape';
 import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';

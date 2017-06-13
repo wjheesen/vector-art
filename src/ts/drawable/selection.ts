@@ -6,7 +6,7 @@ import { Renderer } from "../rendering/renderer";
 import { Vec2Like } from "gl2d/struct/vec2";
 import { Mat2d } from 'gl2d/struct/mat2d';
 import { Mat2dStruct } from 'gl2d/struct/mat2d';
-import { Mesh } from "gl2d/drawable/mesh";
+import { Mesh } from "gl2d/mesh/mesh";
 import { ColorFStruct } from "gl2d/struct/colorf";
 import { PointLike } from "gl2d/struct/point";
 

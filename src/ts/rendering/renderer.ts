@@ -8,7 +8,8 @@ import { FrameProgram } from '../program/frame';
 import { ShapeProgram } from '../program/shape';
 import { StrokeProgram } from '../program/stroke';
 import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
-import { Mesh, MeshSource } from 'gl2d/drawable/mesh';
+import { Mesh } from 'gl2d/mesh/mesh';
+import { MeshSpecification } from 'gl2d/mesh/specification';
 import { Renderer as Base } from 'gl2d/rendering/renderer';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Rect } from "gl2d/struct/rect";
@@ -100,7 +101,7 @@ export class Renderer extends Base {
 
 }
 
-function heart(): MeshSource {
+function heart(): MeshSpecification {
     return {
          id: "heart",
          vertices: [0,12,-3,16,-5,16,-8,12,-8,8,0,0,8,8,8,12,5,16,3,16], 
@@ -108,7 +109,7 @@ function heart(): MeshSource {
     }
 }
 
-function flower(): MeshSource {
+function flower(): MeshSpecification {
     return { 
         id: "flower",
         vertices: [0,-2,-1,-1,-2,-1,-2,-2,-3,-3,-1,-3,-2,-4,-2,-5,-1,-5,0,-6,0,-4,1,-5,2,-5,2,-4,3,-3,1,-3,2,-2,2,-1,1,-1,0,0], 
@@ -116,7 +117,7 @@ function flower(): MeshSource {
     };
 }
 
-function bat(): MeshSource {
+function bat(): MeshSpecification {
     return { 
         id: "bat", 
         vertices: [0,3,-2,5,-3,2,-5,0,-8,3,-10,7,-17,10,-13,5,-12,-1,-3,-7,0,-10,3,-7,12,-1,13,5,17,10,10,7,8,3,5,0,3,2,2,5], 

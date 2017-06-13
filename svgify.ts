@@ -1,55 +1,22 @@
-import { Mesh } from 'gl2d/drawable/mesh';
+import { MeshSpecification as Base } from 'gl2d/mesh/specification';
+import { Mesh } from 'gl2d/mesh/mesh';
 import { Rect } from 'gl2d/struct/rect';
 import { Mat2d, ScaleToFit } from 'gl2d/struct/mat2d';
-import { VertexBuffer } from 'gl2d/struct/vertex';
 import * as stream from 'stream';
 import * as through2 from 'through2';
 import * as File from 'vinyl';
 
-interface MeshData {
-    type?: string;
-    vertices?: number[];
-    indices?: number[];
+interface MeshSpecification extends Base {
     path?: number[][];
-}
-
-interface Polygon extends MeshData {
-    sides?: number;
-    hasFlatTop?: boolean;
-}
-
-interface Star extends MeshData {
-    points: number;
-    ratio: number;
 }
 
 function svgify(): stream.Transform{
     return through2.obj(function (file: File, encoding, callback) {
         
         // Extract mesh vertices from .json file
-        let mesh = JSON.parse(file.contents.toString()) as MeshData;
-        let vertices: VertexBuffer;
-
-        if(mesh.vertices){
-            vertices = new VertexBuffer(new Float32Array(mesh.vertices));
-        } else {
-            switch(mesh.type){
-                case "polygon":
-                    let { sides, hasFlatTop } = mesh as Polygon;
-                    if(sides){
-                        vertices = Mesh.polygonVertices(sides, hasFlatTop);
-                    }
-                    break;
-                case "star":
-                    let { points, ratio } = mesh as Star;
-                    if(points && ratio){
-                        vertices = Mesh.starVertices(points, ratio);
-                    }
-                    break;
-                default:
-                    throw new Error(`Insufficient vertex data in ${file.path}`);
-            }
-        }
+        let spec = JSON.parse(file.contents.toString()) as MeshSpecification;
+        let mesh = Mesh.fromSpecification(spec);
+        let vertices = mesh.vertices;
 
         // Flip mesh horizontally because svg origin is at top left
         vertices.transform(Mat2d.scale(1, -1)); 
@@ -62,8 +29,8 @@ function svgify(): stream.Transform{
         // Convert vertices to svg path
         let path = "";
 
-        if(mesh.path){
-            mesh.path.forEach(poly => {
+        if(spec.path){
+            spec.path.forEach(poly => {
                 path += "M";
                 poly.forEach(index => {
                     vertices.moveToPosition(index);

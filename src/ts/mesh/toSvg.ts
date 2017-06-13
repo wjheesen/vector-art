@@ -1,4 +1,4 @@
-import { Mesh } from "gl2d/drawable/mesh";
+import { Mesh } from "gl2d/mesh/mesh";
 import { SprayMesh } from "./spray";
 import { Mat2d, ScaleToFit} from "gl2d/struct/mat2d";
 import { Rect } from 'gl2d/struct/rect';

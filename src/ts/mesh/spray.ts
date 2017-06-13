@@ -1,7 +1,7 @@
 import { IndexTupleBuffer } from 'gl2d/struct/indextuple';
 import { VertexBuffer } from 'gl2d/struct/vertex';
 import { Shape } from 'gl2d/drawable/shape';
-import { Mesh } from 'gl2d/drawable/mesh';
+import { Mesh } from 'gl2d/mesh/mesh';
 import { Point, PointLike } from "gl2d/struct/point";
 import { Mat2d } from "gl2d/struct/mat2d";
 
