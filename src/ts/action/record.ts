@@ -7,8 +7,13 @@ export class ActionRecord {
     undoableActions: Action[] = [];
     redoableActions: Action[] = [];
 
-    push(undoableAction: Action){
-        this.undoableActions.push(undoableAction);
+    push(action: Action){
+        this.undoableActions.push(action);
+        this.redoableActions.length = 0;
+    }
+
+    clear(){
+        this.undoableActions.length = 0;
         this.redoableActions.length = 0;
     }
 }

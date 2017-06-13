@@ -1,7 +1,6 @@
 import { Drawable } from '../drawable/drawable';
 import { Surface } from '../rendering/surface';
 import { Action } from './action';
-import pullAt = require('lodash.pullat');
 
 
 export class Insertion implements Action {
@@ -14,12 +13,14 @@ export class Insertion implements Action {
     redo(surface: Surface) {
         let { drawable, index } = this;
         let stack = surface.renderer.drawables;
-        stack.splice(index, 0, drawable); // "insert(stack, index, drawable)"
+        stack.splice(index, 0, drawable); // "stack.add(index, drawable)"
+        drawable.save(surface);
     }
 
     undo(surface: Surface) {
-        let { index } = this;
+        let { drawable, index } = this;
         let stack = surface.renderer.drawables;
-        pullAt(stack, index);
+        stack.splice(index, 1); // "stack.remove(index)"
+        drawable.delete(surface);
     }
 }

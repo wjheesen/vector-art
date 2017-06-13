@@ -30,7 +30,6 @@
     "dexie": "^2.0.0-beta.11",
     "gl2d": "^0.5.2",
     "lodash.lastindexof": "^4.0.5",
-    "lodash.pullat": "^4.6.0",
     "spectrum-colorpicker": "^1.8.0"
   },
   "devDependencies": {

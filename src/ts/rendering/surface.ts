@@ -55,8 +55,7 @@ export class Surface extends Base<Renderer> {
     importDrawables(canvasId: number){
         this.canvasId = canvasId;
         let db = this.database;
-        let stack = this.renderer.drawables;
-        stack.length = 0;
+        this.clear();
 
         db.types.toArray().then(types => {
             db.transaction("rw", db.types, db.shapes, db.shapeBatches, db.strokes, db.canvases, () => {
@@ -90,11 +89,17 @@ export class Surface extends Base<Renderer> {
                 // Update last access time for this canvas
                 db.canvases.update(canvasId, { lastAccessTime: Date.now()} );
             }).then(() => {
+                let stack = this.renderer.drawables;
                 if(stack.length > 0){
                     this.zIndex = stack[stack.length-1].zIndex;
                 }
             });
         });
+    }
+
+    clear(){
+        this.renderer.drawables.length = 0;
+        this.record.clear();
     }
 
     private addDrawableToSortedStack(drawable: Drawable){
@@ -204,9 +209,9 @@ export class Surface extends Base<Renderer> {
         if(temp && camera.target.intersects(temp.measureBoundaries())){
             // Add to drawable stack and record action
             let index = drawables.length;
-            drawables.push(temp);
-            record.push(new Insertion(temp, index));
-            temp.save(this);
+            let action = new Insertion(temp, index);
+            action.redo(this); // Does the actual insertion
+            record.push(action);
             this.zIndex++;
         }
         // Remove temp drawable
@@ -273,7 +278,6 @@ export class Surface extends Base<Renderer> {
         let action = new Removal(drawable, index);
         action.redo(this); // Does the actual removal
         record.push(action);
-        drawable.delete(this);
     }
 
     undoLastAction(){
@@ -285,7 +289,8 @@ export class Surface extends Base<Renderer> {
         if(undoableActions.length > 0){
             action = undoableActions.pop();
         } else if(drawables.length > 0){
-            action = new Insertion(drawables.pop(), drawables.length)
+            let index = drawables.length - 1;
+            action = new Insertion(drawables[index], index)
         } 
 
         if(action){
