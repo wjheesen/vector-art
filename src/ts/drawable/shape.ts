@@ -37,19 +37,18 @@ export class Shape extends Base implements Drawable {
 
     save(surface: Surface){
         let { database, canvasId, zIndex } = surface;
+        this.zIndex = zIndex;
         let color = ColorStruct.fromColorF(this.color).data.buffer;
         let matrix = this.matrix.data.buffer;
-        let type = this.mesh.id; 
 
-        database.shapes.add({
-            zIndex: zIndex,
-            canvasId: canvasId,
-            type: type,
-            color: color,
-            matrix: matrix
-        }).then(id => { 
-            this.id = id;
-            this.zIndex = zIndex;
+        database.getTypeId(this.mesh.id).then(typeId => {
+            database.shapes.add({
+                zIndex: zIndex,
+                canvasId: canvasId,
+                typeId: typeId,
+                color: color,
+                matrix: matrix
+            }).then(id => this.id = id);
         });
     }
 

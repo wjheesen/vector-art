@@ -1,6 +1,6 @@
 import { Drawable } from './drawable';
 
 export interface ShapeBatch extends Drawable {
-    type: string;
+    typeId: number;
     matrices: ArrayBuffer;
 }

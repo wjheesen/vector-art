@@ -170,6 +170,7 @@ export class Stroke implements Drawable {
     
    save(surface: Surface){
         let { database, canvasId, zIndex } = surface;
+        this.zIndex = zIndex;
         let color = ColorStruct.fromColorF(this.color).data.buffer;
         let vertices = this.vertices.data.buffer;
 
@@ -178,10 +179,7 @@ export class Stroke implements Drawable {
             canvasId: canvasId,
             color: color,
             vertices: vertices
-        }).then(id => { 
-            this.id = id;
-            this.zIndex = zIndex;
-        });
+        }).then(id => this.id = id);
     }
 
     delete(surface: Surface): void {

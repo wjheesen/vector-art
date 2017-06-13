@@ -140,19 +140,18 @@ export class ShapeBatch implements Drawable {
 
    save(surface: Surface){
         let { database, canvasId, zIndex } = surface;
+        this.zIndex = zIndex;
         let color = ColorStruct.fromColorF(this.color).data.buffer;
         let matrices = this.matrices.data.buffer;
-        let type = this.mesh.id; 
 
-        database.shapeBatches.add({
-            zIndex: zIndex,
-            canvasId: canvasId,
-            type: type,
-            color: color,
-            matrices: matrices
-        }).then(id => { 
-            this.id = id;
-            this.zIndex = zIndex;
+        database.getTypeId(this.mesh.id).then(typeId => {
+            database.shapeBatches.add({
+                canvasId: canvasId,
+                typeId: typeId,
+                zIndex: zIndex,
+                color: color,
+                matrices: matrices
+            }).then(id => this.id = id);
         });
     }
 

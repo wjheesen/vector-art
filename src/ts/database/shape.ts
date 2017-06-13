@@ -1,6 +1,6 @@
 import { Drawable } from './drawable';
 
 export interface Shape extends Drawable {
-    type: string,
+    typeId: number;
     matrix: ArrayBuffer;
 }

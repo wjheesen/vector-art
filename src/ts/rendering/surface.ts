@@ -58,35 +58,57 @@ export class Surface extends Base<Renderer> {
         let stack = this.renderer.drawables;
         stack.length = 0;
 
-        db.transaction("r", db.shapes, db.shapeBatches, db.strokes, db.canvases, () => {
-            db.shapes.where("canvasId").equals(canvasId).each(shape => {
-                let mesh = this.getMesh(shape.type);
-                let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(shape.color)));
-                let matrix = new Mat2dStruct(new Float32Array(shape.matrix));
-                stack.push(new Shape(mesh, color, matrix, shape.zIndex, shape.id))
+        db.types.toArray().then(types => {
+            db.transaction("rw", db.types, db.shapes, db.shapeBatches, db.strokes, db.canvases, () => {
+                // Import shapes
+                db.shapes.where("canvasId").equals(canvasId).each(shape => {
+                    let type = types.find(t => t.id === shape.typeId);
+                    let mesh = this.getMesh(type.name);
+                    let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(shape.color)));
+                    let matrix = new Mat2dStruct(new Float32Array(shape.matrix));
+                    this.addDrawableToSortedStack(new Shape(mesh, color, matrix, shape.zIndex, shape.id))
+                    this.requestRender();
+                });
+                // Import shape batches
+                db.shapeBatches.where("canvasId").equals(canvasId).each(batch => {
+                    let type = types.find(t => t.id === batch.typeId);
+                    let mesh = this.getMesh(type.name);
+                    let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(batch.color)));
+                    let matrices = new Mat2dBuffer(new Float32Array(batch.matrices));
+                    matrices.moveToLast();
+                    this.addDrawableToSortedStack(new ShapeBatch(mesh, color, matrices, batch.zIndex, batch.id))
+                    this.requestRender();
+                });
+                // Import strokes
+                db.strokes.where("canvasId").equals(canvasId).each(stroke => {
+                    let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(stroke.color)));
+                    let vertices = new VertexBuffer(new Float32Array(stroke.vertices));
+                    vertices.moveToLast();
+                    this.addDrawableToSortedStack(new Stroke(color, vertices, stroke.zIndex, stroke.id))
+                    this.requestRender();
+                });
+                // Update last access time for this canvas
+                db.canvases.update(canvasId, { lastAccessTime: Date.now()} );
+            }).then(() => {
+                if(stack.length > 0){
+                    this.zIndex = stack[stack.length-1].zIndex;
+                }
             });
-            db.shapeBatches.where("canvasId").equals(canvasId).each(batch => {
-                let mesh = this.getMesh(batch.type);
-                let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(batch.color)));
-                let matrices = new Mat2dBuffer(new Float32Array(batch.matrices));
-                matrices.moveToLast();
-                stack.push(new ShapeBatch(mesh, color, matrices, batch.zIndex, batch.id))
-            });
-            db.strokes.where("canvasId").equals(canvasId).each(stroke => {
-                let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(stroke.color)));
-                let vertices = new VertexBuffer(new Float32Array(stroke.vertices));
-                vertices.moveToLast();
-                stack.push(new Stroke(color, vertices, stroke.zIndex, stroke.id))
-            });
-            db.canvases.update(canvasId, { lastAccessTime: Date.now()} );
-        }).then(() => {
-            stack.sort((a,b) => (a.zIndex > b.zIndex) ? 1 : -1);
-            this.requestRender();
-            if(stack.length > 0){
-                this.zIndex = stack[stack.length-1].zIndex;
-            }
         });
     }
+
+    private addDrawableToSortedStack(drawable: Drawable){
+        let stack = this.renderer.drawables;
+        let position = stack.length;
+        // TODO: implement binary search?
+        while(--position >= 0){
+            if(drawable.zIndex > stack[position].zIndex){
+                break;
+            }
+        }
+        stack.splice(position+1, 0, drawable);
+    }
+
 
     getDrawableContaining(point: PointLike){
         let drawables = this.renderer.drawables;
