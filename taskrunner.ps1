@@ -44,7 +44,7 @@ function Update-Svgs(){
 }
 
 function Update-Js(){
-    gulp.cmd update:bundle --gulpfile $gulpfileJs
+    gulp.cmd update:js --gulpfile $gulpfileJs
 }
 
 function Update-Css(){

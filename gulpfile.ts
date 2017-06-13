@@ -8,7 +8,7 @@ import svgify = require('./svgify');
 let tsify = require('tsify');
 let jsonMinify = require('gulp-json-minify');
 
-gulp.task("update:bundle", function(){
+gulp.task("update:js", function(){
      return browserify()
         .add("./src/ts/main.ts")
         .plugin(tsify)
@@ -29,7 +29,7 @@ gulp.task("update:meshes", function(){
         .pipe(jsonMinify())
         .pipe(meshify())
         .pipe(rename({extname: ".ts"}))
-        .pipe(gulp.dest("./src/ts/meshData/"))
+        .pipe(gulp.dest("./src/ts/meshSpec/"))
 })
 
 gulp.task("update:svgs", function(){

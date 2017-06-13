@@ -1,3 +1,22 @@
+import { square } from '../meshSpec/square';
+import { leaf } from '../meshSpec/leaf';
+import { chevron } from '../meshSpec/chevron';
+import { pineTree } from '../meshSpec/pineTree';
+import { bat } from '../meshSpec/bat';
+import { flower } from '../meshSpec/flower';
+import { heart } from '../meshSpec/heart';
+import { sun } from '../meshSpec/sun';
+import { star16 } from '../meshSpec/star16';
+import { star8 } from '../meshSpec/star8';
+import { star6 } from '../meshSpec/star6';
+import { star5 } from '../meshSpec/star5';
+import { star4 } from '../meshSpec/star4';
+import { star3 } from '../meshSpec/star3';
+import { diamond } from '../meshSpec/diamond';
+import { octagon } from '../meshSpec/octagon';
+import { hexagon } from '../meshSpec/hexagon';
+import { pentagon } from '../meshSpec/pentagon';
+import { triangle } from '../meshSpec/triangle';
 import { Drawable } from '../drawable/drawable';
 import { Frame } from '../drawable/frame';
 import { FramedDrawable } from '../drawable/framed';
@@ -9,10 +28,8 @@ import { ShapeProgram } from '../program/shape';
 import { StrokeProgram } from '../program/stroke';
 import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
 import { Mesh } from 'gl2d/mesh/mesh';
-import { MeshSpecification } from 'gl2d/mesh/specification';
 import { Renderer as Base } from 'gl2d/rendering/renderer';
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { Rect } from "gl2d/struct/rect";
 
 export class Renderer extends Base {
 
@@ -38,25 +55,28 @@ export class Renderer extends Base {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
         // Init meshes 
-        let triangle = Mesh.polygon(3,false,"triangle");
+        let tri = Mesh.fromSpecification(triangle);
         this.meshes = [
-            triangle,
-            Mesh.rectangle(Rect.lbwh(0,0,1,1),"square"),
-            Mesh.polygon(5,false,"pentagon"),
-            Mesh.polygon(6, false, "hexagon"),
-            Mesh.polygon(8, false, "octagon"),
-            SprayMesh.create(triangle, 3, 3, "spray"),
-            Mesh.star(2, .5,"diamond"),
-            Mesh.star(3, .25,"star3"),
-            Mesh.star(4, .25,"star4"),
-            Mesh.star(5, .4,"star5"),
-            Mesh.star(6, .5,"star6"),
-            Mesh.star(8, .5,"star8"),
-            Mesh.star(16, .1,"star16"),
-            Mesh.star(16, .8,"sun"),
-            Mesh.fromSource(heart()),
-            Mesh.fromSource(flower()),
-            Mesh.fromSource(bat()),
+            tri,
+            Mesh.fromSpecification(square),
+            Mesh.fromSpecification(pentagon),
+            Mesh.fromSpecification(hexagon),
+            Mesh.fromSpecification(octagon),
+            SprayMesh.create(tri, 3, 3, "spray"),
+            Mesh.fromSpecification(diamond),
+            Mesh.fromSpecification(star3),
+            Mesh.fromSpecification(star4),
+            Mesh.fromSpecification(star5),
+            Mesh.fromSpecification(star6),
+            Mesh.fromSpecification(star8),
+            Mesh.fromSpecification(star16),
+            Mesh.fromSpecification(sun),
+            Mesh.fromSpecification(heart),
+            Mesh.fromSpecification(flower),
+            Mesh.fromSpecification(bat),
+            Mesh.fromSpecification(leaf),
+            Mesh.fromSpecification(pineTree),
+            Mesh.fromSpecification(chevron)
         ];
         // Init programs
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
@@ -101,26 +121,3 @@ export class Renderer extends Base {
 
 }
 
-function heart(): MeshSpecification {
-    return {
-         id: "heart",
-         vertices: [0,12,-3,16,-5,16,-8,12,-8,8,0,0,8,8,8,12,5,16,3,16], 
-         indices: Mesh.polygonIndices(10)
-    }
-}
-
-function flower(): MeshSpecification {
-    return { 
-        id: "flower",
-        vertices: [0,-2,-1,-1,-2,-1,-2,-2,-3,-3,-1,-3,-2,-4,-2,-5,-1,-5,0,-6,0,-4,1,-5,2,-5,2,-4,3,-3,1,-3,2,-2,2,-1,1,-1,0,0], 
-        indices: [5,0,1,5,1,2,5,2,3,5,3,4,5,6,7,5,7,8,5,8,9,5,9,10,5,10,0,15,0,10,15,10,11,15,11,12,15,12,13,15,13,14,15,16,17,15,17,18,15,18,19,15,19,0] 
-    };
-}
-
-function bat(): MeshSpecification {
-    return { 
-        id: "bat", 
-        vertices: [0,3,-2,5,-3,2,-5,0,-8,3,-10,7,-17,10,-13,5,-12,-1,-3,-7,0,-10,3,-7,12,-1,13,5,17,10,10,7,8,3,5,0,3,2,2,5], 
-        indices: [0,1,2,0,2,3,0,3,9,0,9,10,0,10,11,0,11,17,0,17,18,0,18,19,4,5,6,4,6,7,4,7,8,4,8,9,4,9,3,16,14,15,16,13,14,16,12,13,16,11,12,16,17,11],
-    };
-}

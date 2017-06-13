@@ -3,5 +3,5 @@ build/
 *.js
 todo.txt.bak
 src/icon/
-src/ts/meshData/
+src/ts/meshSpec/
 src/shapeSvg/

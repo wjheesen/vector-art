@@ -1,6 +1,10 @@
 {
-    "type": "polygon",
-    "sides": 4,
-    "hasFlatTop": true
+    "type": "rectangle",
+    "bounds": {
+        "left":0,
+        "bottom":0,
+        "right": 1,
+        "top": 1
+    }
 }
 

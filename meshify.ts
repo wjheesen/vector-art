@@ -8,11 +8,12 @@ function meshify(): stream.Transform{
 
         let mesh = JSON.parse(file.contents.toString());
         mesh.id = file.relative.replace(".json","");
+        mesh.path = undefined;
 
         let tsFile = ast.createFile();
 
         tsFile.addVariable({
-            documentationComment: `The mesh data for a ${mesh.id}, generated from ${file.relative}.`,
+            documentationComment: `The specification for a ${mesh.id} mesh, generated from ${file.relative}`,
             isExported: true,
             declarationType: "const",
             name: mesh.id,
