@@ -1,0 +1,9 @@
+{
+    "type": "polygon",
+    "vertices": [
+        0, 3,   // top center
+        -1, 1,  // mid left
+        0, 0,   // bottom center
+        1, 1    // mid right
+    ]
+}

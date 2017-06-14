@@ -1,0 +1,10 @@
+{
+    "type": "polygon",
+    "vertices": [
+         0,6, // TOP
+        -4,5, // CENTER LEFT
+        -7,0, // BOTTOM LEFT
+        7,0,  // BOTTOM RIGHT
+        4,5  // CENTER RIGHT
+    ]
+}

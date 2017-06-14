@@ -6,10 +6,11 @@ $minor = $version[1];
 $title = "$package->displayName v$major.$minor";
 
 $shapes = [
-    "triangle", "square", "pentagon", "hexagon", "octagon", "circle", "spray", 
-    "diamond", "star3", "star4", "star5", "star6", "star8",  "star16",
-    "sun", "heart", "flower", "leaf", "pineTree",  "bat", "hourglass", 
-    "chevron"
+    "triangle", "trapezoid", "square", "pentagon", "hexagon", "octagon", "circle",
+    "diamond", "raindrop", "star3", "star4", "star5", "star6", "star8", 
+    "sun", "heart", "pineTree", "leaf", "bat", "cloud", "umbrella",  
+    "flower", "hourglass", "triangleFlower1", "triangleFlower2", "triangleFrame", "triforce", "blockFlower4",
+    "blockFlower5", "spray", "star16",
 ];
 
 $tools = [

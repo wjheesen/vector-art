@@ -1,0 +1,9 @@
+{
+    "type": "polygon",
+    "vertices": [
+        -1,3, //TOP LEFT
+        -2,0, //BOTTOM LEFT
+        2,0, //BOTTOM RIGHT
+        1,3 //TOP RIGHT
+    ]
+}

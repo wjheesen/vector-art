@@ -1,0 +1,33 @@
+{
+    // Note: 1.1547005 is a decimal approximate of 2/sqrt(3), the ratio of
+    // a side of an equilateral triangle to its median.
+    "vertices": [
+        //Top
+        0,2,
+        //Left
+        -0.57735025,1,
+        -1.1547005,0,
+        //Bot
+        0,0,
+        //Right
+        1.1547005,0,
+        0.57735025,1
+    ], 
+    "triangleIndices": [
+        //Top
+        0, 1, 5,
+        //Bottom left
+        1, 2, 3,
+        //Bottom right
+        3, 4, 5
+    ],
+    "polygonIndices": [
+        //Top
+        [0, 1, 5],
+        //Bottom left
+        [1, 2, 3],
+        //Bottom right
+        [3, 4, 5]
+    ]
+}
+
