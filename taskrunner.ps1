@@ -104,8 +104,8 @@ function Update-All(){
 function Publish-App([string] $msg){
     Copy-Item "$release/*" $app -Force -Recurse
     Set-Location $website
-    git.cmd commit --all --message $msg
-    git.cmd push
+    git commit --all --message $msg
+    git push
     Set-Location $PSScriptRoot
 }
 

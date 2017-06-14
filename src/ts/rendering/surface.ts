@@ -60,22 +60,37 @@ export class Surface extends Base<Renderer> {
         db.types.toArray().then(types => {
             db.transaction("rw", db.types, db.shapes, db.shapeBatches, db.strokes, db.canvases, () => {
                 // Import shapes
-                db.shapes.where("canvasId").equals(canvasId).each(shape => {
-                    let type = types.find(t => t.id === shape.typeId);
+                db.shapes.where("canvasId").equals(canvasId).each(data => {
+                    let type = types.find(t => t.id === data.typeId);
                     let mesh = this.getMesh(type.name);
-                    let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(shape.color)));
-                    let matrix = new Mat2dStruct(new Float32Array(shape.matrix));
-                    this.addDrawableToSortedStack(new Shape(mesh, color, matrix, shape.zIndex, shape.id))
+                    let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(data.color)));
+                    let matrix = new Mat2dStruct(new Float32Array(data.matrix));
+                    let { zIndex, id } = data;
+                    let shape: Shape;
+                    if(type.name === "circle"){
+                        shape = new Ellipse(mesh, color, matrix, zIndex, id);
+                    } else {
+                        shape = new Shape(mesh, color, matrix, zIndex, id);
+                    }
+                    this.addDrawableToSortedStack(shape)
                     this.requestRender();
                 });
                 // Import shape batches
-                db.shapeBatches.where("canvasId").equals(canvasId).each(batch => {
-                    let type = types.find(t => t.id === batch.typeId);
+                db.shapeBatches.where("canvasId").equals(canvasId).each(data => {
+                    let type = types.find(t => t.id === data.typeId);
                     let mesh = this.getMesh(type.name);
-                    let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(batch.color)));
-                    let matrices = new Mat2dBuffer(new Float32Array(batch.matrices));
+                    let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(data.color)));
+                    let matrices = new Mat2dBuffer(new Float32Array(data.matrices));
+                    let { zIndex, id } = data;
                     matrices.moveToLast();
-                    this.addDrawableToSortedStack(new ShapeBatch(mesh, color, matrices, batch.zIndex, batch.id))
+
+                    let batch: ShapeBatch;
+                    if(type.name === "circle"){
+                        batch = new EllipseBatch(mesh, color, matrices, zIndex, id);
+                    } else {
+                        batch = new ShapeBatch(mesh, color, matrices, zIndex, id);
+                    }
+                    this.addDrawableToSortedStack(batch)
                     this.requestRender();
                 });
                 // Import strokes
@@ -143,10 +158,10 @@ export class Surface extends Base<Renderer> {
         if(!shape){
             let mesh = this.mesh;
             let color = this.copyDrawColor();
-            if(mesh){
-                shape = new Shape(mesh, color);
+            if(mesh.id === "circle"){
+                shape = new Ellipse(mesh, color);
             } else {
-                shape = new Ellipse(renderer.ellipseProgram.mesh, color);
+                shape = new Shape(mesh, color);
             }
             renderer.temp = shape;
         }
@@ -160,10 +175,10 @@ export class Surface extends Base<Renderer> {
             let mesh = this.mesh; 
             let color = this.copyDrawColor();
             let matrices = new Mat2dBuffer(this.buffer);
-            if(mesh){
-                batch = new ShapeBatch(mesh, color, matrices);
+            if(mesh.id === "circle"){
+                batch = new EllipseBatch(mesh, color, matrices);
             } else {
-                batch = new EllipseBatch(renderer.ellipseProgram.mesh, color, matrices);
+                batch = new ShapeBatch(mesh, color, matrices);
             }
             renderer.temp = batch;
         }

@@ -14,7 +14,7 @@ export class EllipseProgram extends Program<Shader.Uniforms, Shader.Attributes> 
 
     positionBuffer: WebGLBuffer;
     matrixBuffer: WebGLBuffer;
-    mesh = Mesh.fromSpecification({id: "ellipse", vertices: [-1,1, -1,-1, 1,-1, 1,1] });
+    mesh = Mesh.fromSpecification({id: "circle", vertices: [-1,1, -1,-1, 1,-1, 1,1] });
 
     static create(gl: WebGLRenderingContext) {
         let program = new EllipseProgram();
