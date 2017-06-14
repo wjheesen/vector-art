@@ -1,0 +1,8 @@
+{
+    "type": "polygon",
+    "sides": 3,
+    "effect": "spray",
+    "innerRing": "3",
+    "rings": "3"
+}
+

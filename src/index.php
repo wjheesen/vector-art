@@ -4,11 +4,21 @@ $version = explode(".", $package->version);
 $major = $version[0];
 $minor = $version[1];
 $title = "$package->displayName v$major.$minor";
-$shapes = ["triangle", "square", "pentagon", "hexagon", "octagon", "circle", "spray", 
-           "diamond", "star3", "star4", "star5", "star6", "star8",  "star16",
-           "sun","heart", "flower", "bat"];
-$tools = ["shapeAspect", "shape", "shapeStroke", "stroke", "shapeLine", "line", "shapeSpray", "colorSampler", "pan", "select"];
+
+$shapes = [
+    "triangle", "square", "pentagon", "hexagon", "octagon", "circle", "spray", 
+    "diamond", "star3", "star4", "star5", "star6", "star8",  "star16",
+    "sun", "heart", "flower", "leaf", "pineTree",  "bat", "hourglass", 
+    "chevron"
+];
+
+$tools = [
+    "shapeAspect", "shape", "shapeStroke", "stroke", "shapeLine", "line", "shapeSpray", "colorSampler", 
+    "pan", "select"
+];
+
 $actions = ["undo", "redo"];
+
 $btn = "btn btn-sm";
 $btn_toggle = "$btn dropdown-toggle";
 $md = "md";

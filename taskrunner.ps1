@@ -18,8 +18,8 @@ $src = "$PSScriptRoot\src"
     $res = "$src\res"
         $icon = "$res\build\icon"
 
-$gulpfileJs = "$PSScriptRoot\gulp\file.js"
-$gulpfileTs = "$PSScriptRoot\gulp\file.ts"
+$gulpfileJs = "$PSScriptRoot\gulpfile.js"
+$gulpfileTs = "$PSScriptRoot\gulpfile.ts"
 
 function Initialize-Repository(){
     Set-Location $PSScriptRoot
@@ -31,8 +31,15 @@ function Update-Gulpfile(){
     tsc.cmd $gulpfileTs
 }
 
-function Update-Meshes(){
+function Update-MeshSpecifications {
     gulp.cmd update:meshes --gulpfile $gulpfileJs
+}
+
+function Update-Meshes(){
+    Update-MeshSpecifications
+    Update-Svgs
+    Update-Icons
+    Update-Js
 }
 
 function Update-Shaders(){

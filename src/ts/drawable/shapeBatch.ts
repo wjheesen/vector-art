@@ -2,7 +2,7 @@ import { Renderer } from '../rendering/renderer';
 import { Surface } from '../rendering/surface';
 import { Drawable } from './drawable';
 import { Shape } from './shape';
-import { Mesh } from 'gl2d/mesh/mesh';
+import { Mesh } from 'gl2d/drawable/mesh';
 import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat2d, Mat2dBuffer, ScaleToFit } from 'gl2d/struct/mat2d';

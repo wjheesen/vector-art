@@ -19,7 +19,7 @@
         1,6,
         2,6
     ], 
-    "indices": [
+    "triangleIndices": [
         //First ring (top)
         0,1,2,
         0,2,13,

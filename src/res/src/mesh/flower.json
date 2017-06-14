@@ -21,7 +21,7 @@
         1, -1,
         0, 0
     ],
-    "indices": [
+    "triangleIndices": [
         // Left
         5, 0, 1,
         5, 1, 2,

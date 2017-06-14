@@ -14,7 +14,7 @@ import { Shape } from '../drawable/shape';
 import { ShapeBatch } from '../drawable/shapeBatch';
 import { Stroke } from '../drawable/stroke';
 import { Renderer } from './renderer';
-import { Mesh } from 'gl2d/mesh/mesh';
+import { Mesh } from 'gl2d/drawable/mesh';
 import { Camera } from 'gl2d/rendering/camera';
 import { Surface as Base } from 'gl2d/rendering/surface';
 import { ColorStruct } from 'gl2d/struct/color';

@@ -3,8 +3,8 @@ import browserify = require('browserify');
 import source = require('vinyl-source-stream'); // Makes browserify output compatible with gulp
 import shadify = require('gulp-shadify');
 import rename = require('gulp-rename');
-import meshify = require('./meshify');
-import svgify = require('./svgify');
+import meshify = require('./gulp/meshify');
+import svgify = require('./gulp/svgify');
 let tsify = require('tsify');
 let jsonMinify = require('gulp-json-minify');
 

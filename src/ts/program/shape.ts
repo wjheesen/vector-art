@@ -3,7 +3,7 @@ import { Mat2dBuffer, Mat2dStruct } from 'gl2d/struct/mat2d';
 import { Renderer } from '../rendering/renderer';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat4Struct } from 'gl2d/struct/mat4';
-import { Mesh } from "gl2d/mesh/mesh";
+import { Mesh } from "gl2d/drawable/mesh";
 import * as Util from 'gl2d/rendering/util';
 import * as Shader from '../../res/build/shader/shape';
 
@@ -114,7 +114,7 @@ export class ShapeProgram extends Program<Shader.Uniforms, Shader.Attributes> {
     draw(renderer: Renderer, primcount = 1){
         let gl = renderer.gl;
         let ext = renderer.ext;
-        let count = this.mesh.indices.data.length;
+        let count = this.mesh.triangleIndices.data.length;
         let offset = this.mesh.elementBufferOffset;
         ext.drawElementsInstancedANGLE(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, offset, primcount);
     }
@@ -157,7 +157,7 @@ function packMeshIndices(gl: WebGLRenderingContext, meshes: Mesh[]) {
     // Create an array buffer big enough to hold all the indices
     let size = 0;
     for(let mesh of meshes){
-        size += mesh.indices.data.byteLength;
+        size += mesh.triangleIndices.data.byteLength;
     }
 
     let buffer = Util.createElementBuffer(gl, size, gl.STATIC_DRAW);
@@ -166,7 +166,7 @@ function packMeshIndices(gl: WebGLRenderingContext, meshes: Mesh[]) {
     let offset = 0;
 
     for (let mesh of meshes) {
-        let data = mesh.indices.data;
+        let data = mesh.triangleIndices.data;
         gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, offset, data);
         mesh.elementBufferOffset = offset;
         offset += data.byteLength;

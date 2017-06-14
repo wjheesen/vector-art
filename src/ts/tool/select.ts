@@ -54,10 +54,12 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
 
         // If the point is outside of the selection 
         if(!selection.contains(pointer)){
-            // And if the hovered target is not the same as the previous
-            if(!hover.target || !hover.target.contains(pointer)){
-                // Search for newly hovered drawable and select it if it exists
-                hover.setTarget(surface.getDrawableContaining(pointer));
+            // Check if the point is inside some other drawable
+            let drawable = surface.getDrawableContaining(pointer);
+            // If the drawable is not already the hover target
+            if(drawable !== hover.target){
+                // Indicate that drawable is being hovered
+                hover.setTarget(drawable);
                 // Render to show changes
                 surface.requestRender();
             }

@@ -1,5 +1,6 @@
-gulp/*.js
 node_modules/
+gulp/*.js
+gulpfile.js
 build/
 src/res/build/
 todo.txt.bak

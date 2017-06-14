@@ -1,5 +1,5 @@
-import { MeshSpecification as Base } from 'gl2d/mesh/specification';
-import { Mesh } from 'gl2d/mesh/mesh';
+import { MeshSpecification as Base } from 'gl2d/specification/mesh';
+import { Mesh, InstancedPolygonMesh, MultiPolygonMesh } from 'gl2d/drawable/mesh';
 import { Rect } from 'gl2d/struct/rect';
 import { Mat2d, ScaleToFit } from 'gl2d/struct/mat2d';
 import * as stream from 'stream';
@@ -29,23 +29,33 @@ function svgify(): stream.Transform{
         // Convert vertices to svg path
         let path = "";
 
-        if(spec.path){
-            spec.path.forEach(poly => {
+        if(mesh instanceof MultiPolygonMesh){
+            mesh.polygonIndices.forEach(indices => {
                 path += "M";
-                poly.forEach(index => {
+                indices.forEach(index => {
                     vertices.moveToPosition(index);
                     path += `${vertices.x},${vertices.y} `;
                 })
             })
         } else {
-            path += "M"
-            vertices.moveToPosition(-1);
-            while(vertices.moveToNext()){
-                path += `${vertices.x},${vertices.y} `;
+            let vertexCount: number;
+            if(mesh instanceof InstancedPolygonMesh){
+                vertexCount = mesh.verticesPerInstance;
+            } else { 
+                vertexCount = mesh.vertices.capacity();
+            }
+            
+            vertices.moveToFirst();
+            while(vertices.hasValidPosition()){
+                path += "M";
+                for(let i = 0; i<vertexCount; i++){
+                    path += `${vertices.x},${vertices.y} `;
+                    vertices.moveToNext();
+                }
             }
         }
 
-        // Output svg file
+        // Write path to svg
         let svg = 
 `<?xml version="1.0" ?>
 <svg width="${dst.width()}" height="${dst.height()}" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
@@ -54,6 +64,7 @@ function svgify(): stream.Transform{
 </g>
 </svg>`
 
+        // Output svg
         file.contents = new Buffer(svg);
         callback(null, file);
     });

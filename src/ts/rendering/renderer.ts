@@ -1,33 +1,14 @@
-import { square } from '../meshSpec/square';
-import { leaf } from '../meshSpec/leaf';
-import { chevron } from '../meshSpec/chevron';
-import { pineTree } from '../meshSpec/pineTree';
-import { bat } from '../meshSpec/bat';
-import { flower } from '../meshSpec/flower';
-import { heart } from '../meshSpec/heart';
-import { sun } from '../meshSpec/sun';
-import { star16 } from '../meshSpec/star16';
-import { star8 } from '../meshSpec/star8';
-import { star6 } from '../meshSpec/star6';
-import { star5 } from '../meshSpec/star5';
-import { star4 } from '../meshSpec/star4';
-import { star3 } from '../meshSpec/star3';
-import { diamond } from '../meshSpec/diamond';
-import { octagon } from '../meshSpec/octagon';
-import { hexagon } from '../meshSpec/hexagon';
-import { pentagon } from '../meshSpec/pentagon';
-import { triangle } from '../meshSpec/triangle';
+import { MeshSpecifications } from '../../res/build/mesh/specifications';
 import { Drawable } from '../drawable/drawable';
 import { Frame } from '../drawable/frame';
 import { FramedDrawable } from '../drawable/framed';
 import { Selection } from '../drawable/selection';
-import { SprayMesh } from '../mesh/spray';
 import { EllipseProgram } from '../program/ellipse';
 import { FrameProgram } from '../program/frame';
 import { ShapeProgram } from '../program/shape';
 import { StrokeProgram } from '../program/stroke';
 import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
-import { Mesh } from 'gl2d/mesh/mesh';
+import { Mesh } from 'gl2d/drawable/mesh';
 import { Renderer as Base } from 'gl2d/rendering/renderer';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 
@@ -55,37 +36,18 @@ export class Renderer extends Base {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
         // Init meshes 
-        let tri = Mesh.fromSpecification(triangle);
-        this.meshes = [
-            tri,
-            Mesh.fromSpecification(square),
-            Mesh.fromSpecification(pentagon),
-            Mesh.fromSpecification(hexagon),
-            Mesh.fromSpecification(octagon),
-            SprayMesh.create(tri, 3, 3, "spray"),
-            Mesh.fromSpecification(diamond),
-            Mesh.fromSpecification(star3),
-            Mesh.fromSpecification(star4),
-            Mesh.fromSpecification(star5),
-            Mesh.fromSpecification(star6),
-            Mesh.fromSpecification(star8),
-            Mesh.fromSpecification(star16),
-            Mesh.fromSpecification(sun),
-            Mesh.fromSpecification(heart),
-            Mesh.fromSpecification(flower),
-            Mesh.fromSpecification(bat),
-            Mesh.fromSpecification(leaf),
-            Mesh.fromSpecification(pineTree),
-            Mesh.fromSpecification(chevron)
-        ];
+        this.meshes = MeshSpecifications.map(spec => Mesh.fromSpecification(spec));
+        
         // Init programs
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.meshes.push(this.ellipseProgram.mesh);
         this.strokeProgram = StrokeProgram.create(gl);
         this.frameProgram = FrameProgram.create(gl);
+
         // Init background
         this.foreground = new Frame(ColorFStruct.create$(.6,.6,.6,1), 10, this.camera.target);
+        
         // Init selection boxes
         let frameThickness = 0.08;
         let pointRadius = 0.05;
