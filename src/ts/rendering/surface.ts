@@ -48,11 +48,11 @@ export class Surface extends Base<Renderer> {
         let renderer = new Renderer(gl, camera);
         renderer.ext = gl.getExtension('ANGLE_instanced_arrays');
         let surface = new Surface(canvas, renderer);
-        surface.importDrawables(1);
+        surface.importCanvas(1);
         return surface;
     }
 
-    importDrawables(canvasId: number){
+    importCanvas(canvasId: number){
         this.canvasId = canvasId;
         let db = this.database;
         this.clear();

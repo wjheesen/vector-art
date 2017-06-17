@@ -9,8 +9,8 @@ $shapes = [
     "triangle", "trapezoid", "square", "pentagon", "hexagon", "octagon", "circle",
     "diamond", "raindrop", "star3", "star4", "star5", "star6", "star8", 
     "sun", "heart", "pineTree", "leaf", "bat", "cloud", "umbrella",  
-    "flower", "chevron", "hourglass", "triangleFlower1", "triangleFlower2", "triangleFrame", "triforce", 
-    "blockFlower4", "blockFlower5", "spray", "star16",
+    "flower", "chevron", "arrow", "hourglass", "triangleFlower1", "triangleFlower2", "triangleFrame", 
+    "triforce", "blockFlower4", "blockFlower5", "spray", "star16",
 ];
 
 $tools = [
