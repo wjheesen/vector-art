@@ -73,7 +73,7 @@ export class Selection {
         this.pivot.offsetTo(pc);
         // Transform control point        
         let cc = this.control.measureCenter();
-        matrix.map(pc,pc);
+        matrix.map(cc,cc);
         this.control.offsetTo(cc);
     }
 

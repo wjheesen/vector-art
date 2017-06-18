@@ -352,7 +352,7 @@ export class Surface extends Base<Renderer> {
     }
 
     private scaleFramesAndControlPoints(scale: number){
-        this.renderer.hover.frame.thickness *= scale;
+        this.renderer.selectionHover.frame.thickness *= scale;
         this.renderer.selection.frame.thickness *= scale;
         this.renderer.selection.pivot.stretch(scale);
         this.renderer.selection.control.stretch(scale);

@@ -50,16 +50,16 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
 
     onMove(event: MouseOrTouchEvent, pointer: Point){
         let surface = event.target;
-        let { selection, hover } = surface.renderer;
+        let { selection, selectionHover } = surface.renderer;
 
         // If the point is outside of the selection 
         if(!selection.contains(pointer)){
             // Check if the point is inside some other drawable
             let drawable = surface.getDrawableContaining(pointer);
             // If the drawable is not already the hover target
-            if(drawable !== hover.target){
+            if(drawable !== selectionHover.target){
                 // Indicate that drawable is being hovered
-                hover.setTarget(drawable);
+                selectionHover.setTarget(drawable);
                 // Render to show changes
                 surface.requestRender();
             }
@@ -68,17 +68,17 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
 
     onStart(event: MouseOrTouchEvent, pointer: Point) {
         let surface = event.target;
-        let { selection, hover } = surface.renderer;
+        let { selection, selectionHover } = surface.renderer;
         this.reselected = selection.contains(pointer);
 
         if(this.reselected){
             // Reclicked a drawable that has already been selected
             this.transform = this.getTransformType(pointer, selection);
         } else {
-            if(hover.contains(pointer)){
+            if(selectionHover.contains(pointer)){
                 // Selected a drawable that has already been indicated by the hover graphic
-                selection.setTarget(hover.target);
-                hover.setTarget(null);
+                selection.setTarget(selectionHover.target);
+                selectionHover.setTarget(null);
                 this.transform = Transformation.Translate;
             } else {
                 // Selected a new drawable, or clicked on nothing
@@ -140,7 +140,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         let selection = renderer.selection;
         // Remove selections
-        let hover = renderer.hover;
+        let hover = renderer.selectionHover;
         selection.setTarget(null);
         hover.setTarget(null);
         // Reset helper variables
