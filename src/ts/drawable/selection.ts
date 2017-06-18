@@ -43,7 +43,10 @@ export class Selection {
     }
 
     contains(point: PointLike){
-        return this.target && this.frame.contains(point);
+        return this.target && 
+            (this.frame.contains(point)   ||
+             this.pivot.contains(point)   || 
+             this.control.contains(point));
     }
 
     offset(vec: Vec2Like){
