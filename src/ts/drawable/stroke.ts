@@ -176,7 +176,7 @@ export class Stroke implements Drawable {
 
         database.strokes.add({
             zIndex: zIndex,
-            canvasId: canvasId,
+            canvasId: canvasId.val,
             color: color,
             vertices: vertices
         }).then(id => this.id = id);

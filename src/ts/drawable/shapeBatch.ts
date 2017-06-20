@@ -146,7 +146,7 @@ export class ShapeBatch implements Drawable {
 
         database.getTypeId(this.mesh.id).then(typeId => {
             database.shapeBatches.add({
-                canvasId: canvasId,
+                canvasId: canvasId.val,
                 typeId: typeId,
                 zIndex: zIndex,
                 color: color,

@@ -28,9 +28,46 @@ export class Database extends Dexie {
             strokes: '++id, canvasId, zIndex, color, vertices',
         });
 
+        // TODO: move out to main.ts
         this.on("populate", () => {
-            let time = Date.now();
-            this.canvases.add({id: 1, creationTime: time, lastAccessTime: time })
+            this.createCanvas();
+        })
+    }
+
+    getCanvas(id: number){
+        return this.canvases.where("id").equals(id).first();
+    }
+
+    createCanvas(){
+        let time = Date.now();
+        return this.canvases.add({
+            creationTime: time,
+            lastAccessTime: time
+        });
+    }
+
+    /**
+     * Removes all the drawables from a canvas.
+     * @param id the id of the canvas to clear.
+     */
+    clearCanvas(id: number){
+        let { shapes, shapeBatches, strokes } = this;
+        for(let table of [shapes, shapeBatches, strokes]){
+            table.where("canvasId").equals(id).delete();
+        }
+    }
+
+    /**
+     * Removes a canvas and all its drawables from the database.
+    * @param id the id of the canvas to remove.
+     */
+    removeCanvas(id: number){
+        let { canvases, shapes, shapeBatches, strokes } = this;
+        return this.transaction("rw", canvases, shapes, shapeBatches, strokes, () => {
+            // Delete all the drawables on the canvas
+            this.clearCanvas(id);
+            // Delete the canvas itself
+            canvases.delete(id);
         })
     }
 

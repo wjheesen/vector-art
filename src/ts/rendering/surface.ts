@@ -24,6 +24,7 @@ import { PointLike } from 'gl2d/struct/point';
 import { RectStruct } from 'gl2d/struct/rect';
 import { VertexBuffer } from 'gl2d/struct/vertex';
 import lastIndexOf = require('lodash.lastindexof');
+import { Option } from "../option/option";
 
 
 export class Surface extends Base<Renderer> {
@@ -35,7 +36,7 @@ export class Surface extends Base<Renderer> {
     record = new ActionRecord();
 
     database = new Database();
-    canvasId: number;
+    canvasId = Option.num("canvasId",1, 1, 0xffffffff);
     zIndex = 1;
 
     buffer = new Float32Array(25000); // 100kb
@@ -44,16 +45,27 @@ export class Surface extends Base<Renderer> {
         let canvas = document.getElementById("canvas") as HTMLCanvasElement;
         // Note: alpha option not supported before iOS 10
         let gl = canvas.getContext('webgl', { alpha: false });
-        let camera = new Camera(RectStruct.create$(-1,1,1,-1), 1.0, 1000);
+        let camera = new Camera(RectStruct.create$(-1,1,1,-1), 0.5, 1000);
         let renderer = new Renderer(gl, camera);
         renderer.ext = gl.getExtension('ANGLE_instanced_arrays');
         let surface = new Surface(canvas, renderer);
-        surface.importCanvas(1);
+        let canvasId = surface.canvasId.val;
+        let database = surface.database;
+        // Get canvas or create if none exists
+        database.getCanvas(canvasId).then(canvas => {
+            if(canvas){
+                surface.importCanvas(canvas.id);
+            } else {
+                database.createCanvas().then(id => {
+                    surface.canvasId.val = id;
+                })
+            }
+        })
         return surface;
     }
 
     importCanvas(canvasId: number){
-        this.canvasId = canvasId;
+        this.canvasId.val = canvasId;
         let db = this.database;
         this.clear();
 
@@ -110,6 +122,41 @@ export class Surface extends Base<Renderer> {
                 }
             });
         });
+    }
+
+    importCanvasOnLeft(){
+        let { canvasId, database } = this;
+        database.canvases.where("id").below(canvasId.val).last()
+            .then(canvas => {
+                if(canvas){
+                    this.importCanvas(canvas.id);
+                }
+            })
+    }
+
+    importCanvasOnRight(){
+        let { canvasId, database } = this;
+        database.canvases.where("id").above(canvasId.val).first()
+            .then(canvas =>{
+                if(canvas){
+                    this.importCanvas(canvas.id);
+                }
+            })
+    }
+
+    addCanvas(){
+        let { canvasId, database } = this;
+        database.createCanvas().then(id => {
+            canvasId.val = id;
+            this.clear(); 
+        })
+    }
+
+    removeCanvas(){
+        let { canvasId, database } = this;
+        database.removeCanvas(canvasId.val).then(() => {
+            this.importCanvasOnLeft();
+        })
     }
 
     clear(){

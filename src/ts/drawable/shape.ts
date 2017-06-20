@@ -1,11 +1,12 @@
 import { Renderer } from '../rendering/renderer';
 import { Surface } from '../rendering/surface';
 import { Drawable } from './drawable';
+import { Rect } from 'gl2d/struct/rect';
 import { Mesh } from 'gl2d/drawable/mesh';
 import { Shape as Base } from 'gl2d/drawable/shape';
 import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { Mat2dStruct } from 'gl2d/struct/mat2d';
+import { Mat2d, Mat2dStruct, ScaleToFit } from 'gl2d/struct/mat2d';
 
 export class Shape extends Base implements Drawable {
 
@@ -22,6 +23,16 @@ export class Shape extends Base implements Drawable {
         this.color = color;
         this.zIndex = zIndex;
         this.id = id;
+    }
+
+    mapToRect(dst: Rect, stf?: ScaleToFit, preserveOrientation = false){
+        if(preserveOrientation){
+            let src = preserveOrientation ? this.measureBoundaries() : this.mesh.bounds;
+            let matrix = Mat2d.rectToRect(src, dst, stf);
+            this.transform(matrix);
+        } else {
+            super.mapToRect(dst, stf);
+        }
     }
 
     draw(renderer: Renderer){
@@ -44,7 +55,7 @@ export class Shape extends Base implements Drawable {
         database.getTypeId(this.mesh.id).then(typeId => {
             database.shapes.add({
                 zIndex: zIndex,
-                canvasId: canvasId,
+                canvasId: canvasId.val,
                 typeId: typeId,
                 color: color,
                 matrix: matrix

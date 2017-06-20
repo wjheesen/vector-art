@@ -17,16 +17,47 @@ export class NavigationTool extends MouseOrTouchTool<Surface> {
     }
 
     onMove(event: MouseOrTouchEvent) {
-        // let pointer = this.getPrimaryPointer(event);
+        let surface = event.target;
+        let { navigateLeft, navigateRight, addCanvas, removeCanvas, buttonHover } = surface.renderer;
+        let pointer = this.getPrimaryPointer(event);
 
+        // If button is being hovered
+        for(let button of [navigateLeft, navigateRight, addCanvas, removeCanvas]){
+            let bounds = button.measureBoundaries();
+            if(bounds.contains(pointer)){
+                // Indicate with blue button hover
+                buttonHover.mapToRect(bounds);
+                surface.requestRender();
+                return;
+            }
+        }
+
+        // No button is being hovered
+        if(!buttonHover.matrix.equalsScalar(0)){
+            // Remove blue button hover
+            buttonHover.matrix.setScalar(0);
+            surface.requestRender();
+        }
     }
 
     onStart(event: MouseOrTouchEvent) {
-        // let pointer = this.getPrimaryPointer(event);
-
+        this.onMove(event);
     }
 
     onEnd(event: MouseOrTouchEvent) {
-    
+        let surface = event.target;
+        let { navigateLeft, navigateRight, addCanvas, removeCanvas, buttonHover } = surface.renderer;
+        let pointer = this.getPrimaryPointer(event);
+        if(navigateLeft.measureBoundaries().contains(pointer)){
+            surface.importCanvasOnLeft();
+        } else if (navigateRight.measureBoundaries().contains(pointer)){
+            surface.importCanvasOnRight();
+        } else if (addCanvas.measureBoundaries().contains(pointer)){
+            surface.addCanvas();
+        } else if(removeCanvas.measureBoundaries().contains(pointer)) {
+            surface.removeCanvas();
+        }
+        buttonHover.matrix.setScalar(0);
+        surface.requestRender();
     }
 }

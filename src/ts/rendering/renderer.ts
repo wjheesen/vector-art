@@ -1,19 +1,20 @@
+import { Mesh } from 'gl2d/drawable/mesh';
+import { Renderer as Base } from 'gl2d/rendering/renderer';
+import { ColorFStruct } from 'gl2d/struct/colorf';
+import { Mat2dStruct, ScaleToFit } from 'gl2d/struct/mat2d';
+import { Rect } from 'gl2d/struct/rect';
+
 import { MeshSpecifications } from '../../res/build/mesh/specifications';
 import { Drawable } from '../drawable/drawable';
 import { Frame } from '../drawable/frame';
 import { FramedDrawable } from '../drawable/framed';
 import { Selection } from '../drawable/selection';
+import { Shape } from '../drawable/shape';
 import { EllipseProgram } from '../program/ellipse';
 import { FrameProgram } from '../program/frame';
 import { ShapeProgram } from '../program/shape';
 import { StrokeProgram } from '../program/stroke';
 import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
-import { Mesh } from 'gl2d/drawable/mesh';
-import { Renderer as Base } from 'gl2d/rendering/renderer';
-import { ColorFStruct } from 'gl2d/struct/colorf';
-// import { Shape } from "../drawable/shape";
-// import { Rect } from "gl2d/struct/rect";
-// import { ScaleToFit, Mat2dStruct } from "gl2d/struct/mat2d";
 
 export class Renderer extends Base {
 
@@ -31,9 +32,11 @@ export class Renderer extends Base {
     selection: Selection;
     selectionHover: FramedDrawable;
 
-    // navigateRight: Shape;
-    // navigateLeft: Shape;
-    // buttonHover: Shape;
+    navigateRight: Shape;
+    navigateLeft: Shape;
+    addCanvas: Shape;
+    removeCanvas: Shape;
+    buttonHover: Shape;
 
     meshes: Mesh[];
 
@@ -66,29 +69,29 @@ export class Renderer extends Base {
         this.selectionHover = new FramedDrawable(new Frame(blueHover, frameThickness));
 
         // Init navigation buttons
-        // let black = ColorFStruct.create$(0,0,0,1);
-        // let arrow = this.meshes.find(mesh => mesh.id === "arrow");
-        // let square = this.meshes.find(mesh => mesh.id === "square");
-        // this.navigateLeft = new Shape(arrow, black, Mat2dStruct.rotate(Math.PI/4));
-        // this.navigateRight = new Shape(arrow, black, Mat2dStruct.rotate(-Math.PI/4));
-        // this.buttonHover = new Shape(square, blueHover);
+        let black = ColorFStruct.create$(0,0,0,1);
+        let arrow = this.meshes.find(mesh => mesh.id === "arrow");
+        let square = this.meshes.find(mesh => mesh.id === "square");
+        let x = this.meshes.find(mesh => mesh.id === "x");
+        this.navigateLeft = new Shape(arrow, black, Mat2dStruct.rotate(-Math.PI/2));
+        this.navigateRight = new Shape(arrow, black, Mat2dStruct.rotate(Math.PI/2));
+        this.addCanvas = new Shape(x, black, Mat2dStruct.rotate(Math.PI/4));
+        this.removeCanvas = new Shape(x, black)
+        this.buttonHover = new Shape(square, blueHover, new Mat2dStruct());
+
+        // Place navigation buttons on canvas
+        let left = Rect.lrbt(-1.75, -1.25, -1, 1);
+        let right = Rect.lrbt(1.25, 1.75, -1, 1);
+        let bottom = Rect.lrbt(-1, 1, -1.75, -1.25);
+        let top = Rect.lrbt(-1, 1, 1.25, 1.75);
+        this.navigateLeft.mapToRect(left, ScaleToFit.Center, true);
+        this.navigateRight.mapToRect(right, ScaleToFit.Center, true);
+        this.addCanvas.mapToRect(top, ScaleToFit.Center, true);
+        this.removeCanvas.mapToRect(bottom, ScaleToFit.Center, false);
     }
     
     // onSurfaceChanged(width: number, height: number){
     //     super.onSurfaceChanged(width, height);
-    //     let view = this.camera.view;
-    //     if(width > height){
-    //         // Landscape mode
-    //         let left = Rect.lrbt(view.left, -1, -1, 1);
-    //         let right = Rect.lrbt(1, view.right, -1, 1);
-    //         this.navigateLeft.mapToRect(left, ScaleToFit.Center);
-    //         this.navigateRight.mapToRect(right, ScaleToFit.Center);
-    //     } else {
-    //         // Portrait mode
-    //         let top = Rect.lrbt(-1, 1, 1, view.top);
-    //         this.navigateLeft.mapToRect(top, ScaleToFit.Center);
-    //         this.navigateRight.mapToRect(top, ScaleToFit.Center);
-    //     }
     // }
 
     onDrawFrame(): void {
@@ -101,16 +104,18 @@ export class Renderer extends Base {
             this.temp.draw(this);
         }
         this.foreground.draw(this);
-        // this.navigateLeft.draw(this);
-        // this.navigateRight.draw(this);
-        // this.buttonHover.draw(this);
+        this.navigateLeft.draw(this);
+        this.navigateRight.draw(this);
+        this.addCanvas.draw(this);
+        this.removeCanvas.draw(this);
+        this.buttonHover.draw(this);
         if(this.selection.target){
             this.selection.draw(this);
         }
         if(this.selectionHover.target){
             this.selectionHover.draw(this);
         }
-        // Clear backbuffer alpha
+        // Clear backbuffer alpha 
         gl.colorMask(false, false, false, true);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.colorMask(true, true, true, true);

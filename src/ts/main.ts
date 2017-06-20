@@ -16,6 +16,7 @@ import { ShapeSprayTool } from './tool/shapeSpray';
 import { ShapeStrokeTool } from './tool/shapeStroke';
 import { StrokeTool } from './tool/stroke';
 import { _MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
+import { NavigationTool } from './tool/navigation';
 import { PanTool } from 'gl2d/tool/pan';
 import { PinchZoomTool } from 'gl2d/tool/pinchZoom';
 import * as $ from 'jquery';
@@ -70,6 +71,7 @@ ShapeSettings.create(type => {
 let selectTool = new SelectTool();
 let wheelZoomTool = new WheelZoomTool(1.5, 5);
 let pinchZoomTool = new PinchZoomTool();
+let navigationTool = new NavigationTool();
 
 let tools: ToolGroup = {
     shape: new ShapeTool(),
@@ -84,7 +86,6 @@ let tools: ToolGroup = {
     select: selectTool,
 }
 
-// TODO: add shape-aspect tool with ellipse-rectangle vs circle-square icon
 let toolSettings = ToolSettings.create(type => {
     setTool(tools[type]);
 });
@@ -147,6 +148,7 @@ surface.onMouseEvent(event =>{
     switch(event.src.button){
         case 0: /*Left*/
             // Ctrl not held
+            navigationTool.onSurfaceEvent(event);
             currentTool.onSurfaceEvent(event);
             break;
         case 1: /*Wheel*/
@@ -159,6 +161,7 @@ surface.onMouseEvent(event =>{
 
 surface.onTouchEvent(event => {
     if(event.pointers.length < 2){
+        navigationTool.onSurfaceEvent(event);
         currentTool.onSurfaceEvent(event);
     } else {
         pinchZoomTool.onSurfaceEvent(event);
