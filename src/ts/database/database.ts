@@ -27,11 +27,6 @@ export class Database extends Dexie {
             shapeBatches: '++id, canvasId, typeId, zIndex, color, matrices',
             strokes: '++id, canvasId, zIndex, color, vertices',
         });
-
-        // TODO: move out to main.ts
-        this.on("populate", () => {
-            this.createCanvas();
-        })
     }
 
     getCanvas(id: number){

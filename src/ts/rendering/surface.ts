@@ -126,21 +126,23 @@ export class Surface extends Base<Renderer> {
 
     importCanvasOnLeft(){
         let { canvasId, database } = this;
-        database.canvases.where("id").below(canvasId.val).last()
+        return database.canvases.where("id").below(canvasId.val).last()
             .then(canvas => {
                 if(canvas){
                     this.importCanvas(canvas.id);
-                }
+                } 
+                return canvas;
             })
     }
 
     importCanvasOnRight(){
         let { canvasId, database } = this;
-        database.canvases.where("id").above(canvasId.val).first()
+        return database.canvases.where("id").above(canvasId.val).first()
             .then(canvas =>{
                 if(canvas){
                     this.importCanvas(canvas.id);
                 }
+                return canvas;
             })
     }
 
@@ -153,9 +155,18 @@ export class Surface extends Base<Renderer> {
     }
 
     removeCanvas(){
+        this.clear();
         let { canvasId, database } = this;
         database.removeCanvas(canvasId.val).then(() => {
-            this.importCanvasOnLeft();
+            this.importCanvasOnLeft().then(canvas => {
+                if(!canvas){
+                    this.importCanvasOnRight().then(canvas => {
+                        if(!canvas){
+                            this.addCanvas();
+                        }
+                    })
+                }
+            })
         })
     }
 
