@@ -25,7 +25,7 @@ export class Database extends Dexie {
             types: '++id, name',
             shapes: '++id, canvasId, typeId, zIndex, color, matrix',
             shapeBatches: '++id, canvasId, typeId, zIndex, color, matrices',
-            strokes: '++id, canvasId, zIndex, color, vertices',
+            strokes: '++id, canvasId, zIndex, color, vertices, matrix',
         });
     }
 

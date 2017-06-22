@@ -24,6 +24,7 @@ import * as tether from 'tether';
 (<any> window).jQuery = $;
 (<any> window).Tether = tether;
 import 'bootstrap';
+import { TraceTool } from "./tool/trace";
 
 let surface = Surface.create();
 
@@ -82,6 +83,7 @@ let tools: ToolGroup = {
     shapeStroke: new ShapeStrokeTool(),
     stroke: new StrokeTool(),
     colorSampler: new ColorSampler(color => colorPicker.pickColorF(color)),
+    trace: new TraceTool(),
     pan: new PanTool(),
     select: selectTool,
 }

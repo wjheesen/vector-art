@@ -126,16 +126,22 @@ export class ShapeBatch implements Drawable {
     }
 
     draw(renderer: Renderer){
-        let gl = renderer.gl;
-        let program = renderer.shapeProgram;
-        let matrices = this.matrices;
-        let instanceCount = matrices.position();
+        let { color, matrices, mesh } = this;
+        let { gl, ext, shapeProgram: program } = renderer;
+        let primcount = matrices.position();
         renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
-        program.setMesh(gl, this.mesh)
+        program.setVertices(gl, mesh)
         program.setMatrices(gl, matrices);
-        program.setColor(gl, this.color);
-        program.draw(renderer, instanceCount);
+        program.setColor(gl, color);
+        if(mesh.triangleIndices){
+            let count = mesh.triangleIndices.data.length;
+            let offset = mesh.elementBufferOffset;
+            ext.drawElementsInstancedANGLE(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, offset, primcount)
+        } else {
+            let count = mesh.vertices.capacity();
+            ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, count, primcount);
+        }
     }
 
    save(surface: Surface){

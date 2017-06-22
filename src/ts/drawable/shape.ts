@@ -18,7 +18,7 @@ export class Shape extends Base implements Drawable {
      */
     color: ColorFStruct;
 
-    constructor(mesh: Mesh, color: ColorFStruct, matrix?: Mat2dStruct, zIndex?: number, id?: number){
+    constructor(mesh: Mesh, color?: ColorFStruct, matrix?: Mat2dStruct, zIndex?: number, id?: number){
         super(mesh, matrix);
         this.color = color;
         this.zIndex = zIndex;
@@ -36,14 +36,21 @@ export class Shape extends Base implements Drawable {
     }
 
     draw(renderer: Renderer){
-        let gl = renderer.gl;
-        let program = renderer.shapeProgram;
+        let { color, mesh, matrix } = this;
+        let { gl, ext, shapeProgram: program } = renderer;
         renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
-        program.setColor(gl, this.color);
-        program.setMesh(gl, this.mesh);
-        program.setMatrices(gl, this.matrix);
-        program.draw(renderer);
+        program.setColor(gl, color);
+        program.setVertices(gl, mesh);
+        program.setMatrices(gl, matrix);
+        if(mesh.triangleIndices){
+            let count = mesh.triangleIndices.data.length;
+            let offset = mesh.elementBufferOffset;
+            ext.drawElementsInstancedANGLE(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, offset, 1)
+        } else {
+            let count = mesh.vertices.capacity();
+            ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, count, 1);
+        }
     }
 
     save(surface: Surface){

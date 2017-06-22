@@ -108,9 +108,10 @@ export class Surface extends Base<Renderer> {
                 // Import strokes
                 db.strokes.where("canvasId").equals(canvasId).each(stroke => {
                     let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(stroke.color)));
+                    let matrix = new Mat2dStruct(new Float32Array(stroke.matrix));
                     let vertices = new VertexBuffer(new Float32Array(stroke.vertices));
                     vertices.moveToLast();
-                    this.addDrawableToSortedStack(new Stroke(color, vertices, stroke.zIndex, stroke.id))
+                    this.addDrawableToSortedStack(new Stroke(color, vertices, matrix, stroke.zIndex, stroke.id))
                     this.requestRender();
                 });
                 // Update last access time for this canvas

@@ -13,7 +13,6 @@ import { Shape } from '../drawable/shape';
 import { EllipseProgram } from '../program/ellipse';
 import { FrameProgram } from '../program/frame';
 import { ShapeProgram } from '../program/shape';
-import { StrokeProgram } from '../program/stroke';
 import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
 
 export class Renderer extends Base {
@@ -22,7 +21,6 @@ export class Renderer extends Base {
     
     shapeProgram: ShapeProgram;
     ellipseProgram: EllipseProgram;
-    strokeProgram: StrokeProgram;
     frameProgram: FrameProgram;
 
     foreground: Frame;
@@ -52,7 +50,6 @@ export class Renderer extends Base {
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.meshes.push(this.ellipseProgram.mesh);
-        this.strokeProgram = StrokeProgram.create(gl);
         this.frameProgram = FrameProgram.create(gl);
 
         // Init background
@@ -90,10 +87,6 @@ export class Renderer extends Base {
         this.removeCanvas.mapToRect(bottom, ScaleToFit.Center, false);
     }
     
-    // onSurfaceChanged(width: number, height: number){
-    //     super.onSurfaceChanged(width, height);
-    // }
-
     onDrawFrame(): void {
         let gl = this.gl;
         gl.clear(gl.COLOR_BUFFER_BIT);

@@ -1,41 +1,47 @@
 import { Renderer } from '../rendering/renderer';
 import { Surface } from '../rendering/surface';
 import { Drawable } from './drawable';
+import { Shape } from './shape';
+import { Mat2dStruct } from 'gl2d';
+import { Graphic } from 'gl2d/drawable/graphic';
 import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat2d } from 'gl2d/struct/mat2d';
-import { PointLike, Point } from 'gl2d/struct/point';
+import { Point, PointLike } from 'gl2d/struct/point';
 import { Rect } from 'gl2d/struct/rect';
-import { Vec2Like, Vec2 } from 'gl2d/struct/vec2';
+import { Vec2, Vec2Like } from 'gl2d/struct/vec2';
 import { VertexBuffer } from 'gl2d/struct/vertex';
 
-export class Stroke implements Drawable {
+export class Stroke extends Graphic implements Drawable {
 
     id: number;
     zIndex: number;
     color: ColorFStruct;
     vertices: VertexBuffer;
 
-    constructor(color: ColorFStruct, vertices: VertexBuffer, zIndex?: number, id?: number){
+    constructor(color: ColorFStruct, vertices: VertexBuffer, matrix?: Mat2dStruct, zIndex?: number, id?: number){
+        super(matrix);
         this.color = color;
         this.vertices = vertices;
         this.zIndex = zIndex;
         this.id = id;
     }
 
-    measureBoundaries(): Rect {
-        return this.vertices.measureBoundaries();
+    measureBoundaries(dst = new Rect()): Rect {
+        let { matrix, vertices } = this;
+        return Shape.measureBoundaries(matrix,vertices);
     }
 
     contains(pt: PointLike, inverse?: Mat2d): boolean {
         let vertices = this.vertices;
+        let modelPt =  this.convertPointToModelSpace(pt, inverse);
         let count = vertices.capacity();
         // If the stroke has at least one segment
         if (count > 3) {
             // Return true if any of the segments inside this stroke contain the point
             for (let i = 3; i < count; i += 2) {
                 let segment = vertices.measureBoundaries(i - 3, 4);
-                if (segment.contains(pt)){ 
+                if (segment.contains(modelPt)){ 
                     return true; 
                 } 
             }
@@ -44,20 +50,12 @@ export class Stroke implements Drawable {
         return false;
     }
 
-    offset(vec: Vec2Like): void {
-        this.vertices.offset(vec);
-    }
-
-    transform(matrix: Mat2d): void {
-        this.vertices.transform(matrix);
-    }
-
     /**
      * Begins this stroke at the specified point.
      * @param point where to begin the stroke.
      * @param lineWidth the width of the initial line.
      */
-    begin(point: PointLike, lineWidth: number) {
+    moveTo(point: PointLike, lineWidth: number) {
         let { x, y } = point;
         let vertices = this.vertices;
         let halfThickness = 0.5 * lineWidth;
@@ -68,11 +66,11 @@ export class Stroke implements Drawable {
     }
 
    /**
-     * Adds a line to this stroke.
+     * Adds a line to the specified point.
      * @param point the point at the end of the line.
      * @param lineWidth the width of the line.
      */
-    add(point: PointLike, lineWidth: number){
+    lineTo(point: PointLike, lineWidth: number){
 
         let vertices = this.vertices;
         let position = vertices.position();
@@ -133,39 +131,106 @@ export class Stroke implements Drawable {
             miter = ortho;
         }
 
-        // Update vertices
+        // Join to previous line
         vertices.moveToPosition(position - 2);
 
-        // Top left:
+        // Update previous top
         vertices.set(prevCen);
         vertices.add(miter);
         vertices.moveToNext();
 
-        // Bottom left:
+        // Update previous bottom
         vertices.set(prevCen);
         vertices.subtract(miter);
         vertices.moveToNext();
 
-        // Top right:
+        // Add new top
         vertices.set(point);
         vertices.add(ortho);
         vertices.moveToNext();
 
-        // Bottom right:
+        // Add new bottom
         vertices.set(point);
         vertices.subtract(ortho);
         vertices.moveToNext();
     }
 
-    draw(renderer: Renderer): void {
-        let gl = renderer.gl;
-        let program = renderer.strokeProgram;
+    /**
+     * Adds a line to the first point in this stroke.
+     * @param lineWidth the width of the point.
+     */
+    close(lineWidth: number){
+        
         let vertices = this.vertices;
+        let position = vertices.position();
+        let miter: Vec2;
+
+        // Must have at least 6 vertices (2 line segments) to close the path
+        if(position < 6 ) { return; }
+
+        // Measure the previous line
+        vertices.moveToPosition(position-4);
+        let prevPrevPoint = Point.midpoint(vertices.rget(), vertices.rget()); 
+        let prevPoint = Point.midpoint(vertices.rget(), vertices.rget()); 
+        let prevLine = Vec2.fromPointToPoint(prevPrevPoint, prevPoint);
+
+        // Measure the current line (previous point to first)
+        vertices.moveToFirst();
+        let currPoint = Point.midpoint(vertices.rget(), vertices.rget()); 
+        let currLine = Vec2.fromPointToPoint(prevPoint, currPoint);
+
+        // Measure the next line (first point to second)
+        let nextPoint = Point.midpoint(vertices.rget(), vertices.rget()); 
+        let nextLine = Vec2.fromPointToPoint(currPoint, nextPoint);
+
+        // Join the previous line to the current line
+        miter = miterVector(prevLine, currLine, 0.5 * lineWidth, 1.5 * lineWidth);
+
+        vertices.moveToPosition(position-2);
+
+        vertices.set(prevPoint);
+        vertices.add(miter);
+        vertices.moveToNext();
+
+        vertices.set(prevPoint);
+        vertices.subtract(miter);
+        vertices.moveToNext();
+
+        // Join the current line to the next line
+        miter = miterVector(currLine, nextLine, 0.5 * lineWidth, 1.5 * lineWidth);
+
+        let top = Point.create(currPoint);
+        top.add(miter);
+        
+        let bot = Point.create(currPoint);
+        bot.subtract(miter);
+
+        vertices.rset(top);
+        vertices.rset(bot);
+
+        vertices.aset(0, top);
+        vertices.aset(1, bot);
+    }
+
+    trace(shape: Shape, lineWidth: number){
+        let count = shape.mesh.vertices.capacity();
+        this.moveTo(shape.measureVertex(0), lineWidth);
+        for(let i = 1; i<count; i++){
+            this.lineTo(shape.measureVertex(i), lineWidth)
+        }
+        this.close(lineWidth);
+    }
+
+    draw(renderer: Renderer): void {
+        let { color, vertices, matrix } = this;
+        let { gl, ext, shapeProgram: program } = renderer;
+        let count = vertices.position();
         renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
-        program.setColor(gl, this.color);
+        program.setColor(gl, color);
         program.setVertices(gl, vertices);
-        program.draw(gl, vertices.position()); 
+        program.setMatrices(gl, matrix);
+        ext.drawArraysInstancedANGLE(gl.TRIANGLE_STRIP, 0, count, 1);
     }
     
    save(surface: Surface){
@@ -173,12 +238,14 @@ export class Stroke implements Drawable {
         this.zIndex = zIndex;
         let color = ColorStruct.fromColorF(this.color).data.buffer;
         let vertices = this.vertices.data.buffer;
+        let matrix = this.matrix.data.buffer;
 
         database.strokes.add({
             zIndex: zIndex,
             canvasId: canvasId.val,
             color: color,
-            vertices: vertices
+            vertices: vertices,
+            matrix: matrix
         }).then(id => this.id = id);
     }
 
@@ -202,7 +269,7 @@ export class Stroke implements Drawable {
 
     updatePosition(surface: Surface){
         surface.database.strokes.update(this.id, {
-            vertices: this.vertices.data.buffer
+            matrix: this.matrix.data.buffer
         });
     }
 }

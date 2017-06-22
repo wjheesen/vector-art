@@ -12,3 +12,5 @@ x 2017-06-01 2017-05-19 (C) Pop redo stack and add to drawable stack on redo but
 x 2017-06-01 2017-06-01 Add tool for filling a line with shapes
 x 2017-06-07 2017-06-01 Replace maintain aspect checkbox with tool that maintains aspect and tool that does not maintain aspect @tool
 x 2017-06-07 2017-06-05 Restrict scroll zoom by time
+x 2017-06-12 2017-06-07 (A) Save shapes on canvas to IndexedDB using Dexie.js
+x 2017-06-19 2017-06-19 (A) Add navigate left, navigate right, add canvas, and remove canvas buttons
