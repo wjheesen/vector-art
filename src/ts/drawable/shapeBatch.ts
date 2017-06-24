@@ -48,18 +48,18 @@ export class ShapeBatch implements Drawable {
         let a = Point.create(start);
         let b = Vec2.fromPointToPoint(start, end);
         
-        // Determine how many shapes can be drawn on the line from end to end
+        // Determine how many shapes can be drawn on the line end to end
         let ratio = b.length() / thickness;
-        let count = Math.min(ratio >> 0, this.matrices.capacity() - this.matrices.position());
+        let count = ratio >>> 0;
         
-        // Re-parameterize line to a + bt, o <= t <= count
+        // Re-parameterize the line to a + bt, o <= t <= count
         b.divScalar(ratio);
 
         // Fill the line with shapes
         let p1 = a;
         let p2 = Point.create(a);
         
-        while(count--){
+        while(count-- && this.matrices.hasValidPosition()){
             p2.add(b);
             this.addAcrossLine(p1, p2);
             p1.set(p2);
@@ -115,10 +115,7 @@ export class ShapeBatch implements Drawable {
             inverse.setInverse(matrices);
             inverse.map(pt, modelPt);
             if(mesh.contains(modelPt)){
-                matrices.moveToLast();
-                matrices.moveToNext();
                 return true;
-                // return matrices.moveToLast(); 
             }
         }
         
@@ -128,7 +125,7 @@ export class ShapeBatch implements Drawable {
     draw(renderer: Renderer){
         let { color, matrices, mesh } = this;
         let { gl, ext, shapeProgram: program } = renderer;
-        let primcount = matrices.position();
+        let primcount = matrices.capacity();
         renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
         program.setVertices(gl, mesh)

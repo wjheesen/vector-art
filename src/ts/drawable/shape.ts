@@ -18,6 +18,9 @@ export class Shape extends Base implements Drawable {
      */
     color: ColorFStruct;
 
+    strokeColor = ColorFStruct.create$(0,0,0,0.3);
+    lineWidth = 0.025;
+
     constructor(mesh: Mesh, color?: ColorFStruct, matrix?: Mat2dStruct, zIndex?: number, id?: number){
         super(mesh, matrix);
         this.color = color;
@@ -36,13 +39,13 @@ export class Shape extends Base implements Drawable {
     }
 
     draw(renderer: Renderer){
-        let { color, mesh, matrix } = this;
-        let { gl, ext, shapeProgram: program } = renderer;
-        renderer.attachProgram(program);
-        program.setProjection(gl, renderer.camera.matrix);
-        program.setColor(gl, color);
-        program.setVertices(gl, mesh);
-        program.setMatrices(gl, matrix);
+        let { color, mesh, matrix, strokeColor, lineWidth } = this;
+        let { gl, ext, shapeProgram, outlineProgram } = renderer;
+        renderer.attachProgram(shapeProgram);
+        shapeProgram.setProjection(gl, renderer.camera.matrix);
+        shapeProgram.setColor(gl, color);
+        shapeProgram.setVertices(gl, mesh);
+        shapeProgram.setMatrices(gl, matrix);
         if(mesh.triangleIndices){
             let count = mesh.triangleIndices.data.length;
             let offset = mesh.elementBufferOffset;
@@ -51,6 +54,16 @@ export class Shape extends Base implements Drawable {
             let count = mesh.vertices.capacity();
             ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, count, 1);
         }
+        renderer.attachProgram(outlineProgram);
+        outlineProgram.setProjection(gl, renderer.camera.matrix);
+        outlineProgram.setMatrices(gl, matrix);
+        outlineProgram.setColor(gl, strokeColor);
+        outlineProgram.setVertices(gl, mesh);
+        outlineProgram.setMiters(gl, mesh);
+        outlineProgram.setLineWidth(gl, lineWidth);
+        let count = mesh.vertices.capacity() * 2 + 2;
+        let offset = mesh.strokeElementBufferOffset;
+        ext.drawElementsInstancedANGLE(gl.TRIANGLE_STRIP, count, gl.UNSIGNED_SHORT, offset, 1)
     }
 
     save(surface: Surface){

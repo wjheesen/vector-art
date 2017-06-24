@@ -7,4 +7,4 @@ x 2017-06-22 2017-06-21 (A) Implement close method on stroke class
 x 2017-06-22 2017-06-22 (A) Add matrix transformation to stroke class.
 2017-06-22 (B) Set projection matrix when program is bound
 2017-06-22 (B) Add mesh property indicating draw mode @idea
-2017-06-22 (B) Add vertices property to graphic class and implement measureBoundaries function
+2017-06-24 (B) Stop unnecessarily bundling debug code

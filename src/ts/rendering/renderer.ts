@@ -12,6 +12,7 @@ import { Selection } from '../drawable/selection';
 import { Shape } from '../drawable/shape';
 import { EllipseProgram } from '../program/ellipse';
 import { FrameProgram } from '../program/frame';
+import { OutlineProgram } from '../program/outline';
 import { ShapeProgram } from '../program/shape';
 import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
 
@@ -19,7 +20,8 @@ export class Renderer extends Base {
 
     ext: ANGLEInstancedArrays;
     
-    shapeProgram: ShapeProgram;
+    shapeProgram: ShapeProgram; // TODO: rename to FillProgram
+    outlineProgram: OutlineProgram; // TODO: rename to StrokeProgram?
     ellipseProgram: EllipseProgram;
     frameProgram: FrameProgram;
 
@@ -48,6 +50,7 @@ export class Renderer extends Base {
         
         // Init programs
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
+        this.outlineProgram = OutlineProgram.create(gl, this.meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.meshes.push(this.ellipseProgram.mesh);
         this.frameProgram = FrameProgram.create(gl);

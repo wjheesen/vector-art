@@ -21,7 +21,7 @@ export class ShapeSprayTool extends MouseOrTouchTool<Surface> {
 
         // Add another shape if there is room
         let matrices = stroke.matrices;
-        if(matrices.position() < matrices.capacity()){
+        if(matrices.hasValidPosition()){
             let center = this.getPrimaryPointer(event);
             let radius = surface.lineWidth / 2;
             stroke.add(center, radius);

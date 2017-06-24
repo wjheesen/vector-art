@@ -9,8 +9,9 @@ import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat2d } from 'gl2d/struct/mat2d';
 import { Point, PointLike } from 'gl2d/struct/point';
 import { Rect } from 'gl2d/struct/rect';
-import { Vec2, Vec2Like } from 'gl2d/struct/vec2';
+import { Vec2 } from 'gl2d/struct/vec2';
 import { VertexBuffer } from 'gl2d/struct/vertex';
+import { measureMiter } from 'gl2d/math/miter';
 
 export class Stroke extends Graphic implements Drawable {
 
@@ -40,10 +41,9 @@ export class Stroke extends Graphic implements Drawable {
         if (count > 3) {
             // Return true if any of the segments inside this stroke contain the point
             for (let i = 3; i < count; i += 2) {
-                let segment = vertices.measureBoundaries(i - 3, 4);
-                if (segment.contains(modelPt)){ 
-                    return true; 
-                } 
+                if(vertices.indexedContains(modelPt, [i-3, i-2, i, i-1])){
+                    return true;
+                }
             }
         }
         //This stroke does not contain the point.
@@ -126,7 +126,7 @@ export class Stroke extends Graphic implements Drawable {
         // If there are more than two line segments (with non-zero length), use a miter vector join them. 
         // Otherwise use the ortho vector to compute the top and bottom left vertices of the line segment.
         if(prevLine && !prevLine.epsilonEqualsScalar(0, halfThickness/8)){
-            miter =  miterVector(prevLine, line, halfThickness, halfThickness*3);
+            miter =  measureMiter(prevLine, line, halfThickness, halfThickness*3);
         } else {
             miter = ortho;
         }
@@ -184,7 +184,7 @@ export class Stroke extends Graphic implements Drawable {
         let nextLine = Vec2.fromPointToPoint(currPoint, nextPoint);
 
         // Join the previous line to the current line
-        miter = miterVector(prevLine, currLine, 0.5 * lineWidth, 1.5 * lineWidth);
+        miter = measureMiter(prevLine, currLine, 0.5 * lineWidth, 1.5 * lineWidth);
 
         vertices.moveToPosition(position-2);
 
@@ -197,11 +197,11 @@ export class Stroke extends Graphic implements Drawable {
         vertices.moveToNext();
 
         // Join the current line to the next line
-        miter = miterVector(currLine, nextLine, 0.5 * lineWidth, 1.5 * lineWidth);
+        miter = measureMiter(currLine, nextLine, 0.5 * lineWidth, 1.5 * lineWidth);
 
         let top = Point.create(currPoint);
         top.add(miter);
-        
+
         let bot = Point.create(currPoint);
         bot.subtract(miter);
 
@@ -212,19 +212,10 @@ export class Stroke extends Graphic implements Drawable {
         vertices.aset(1, bot);
     }
 
-    trace(shape: Shape, lineWidth: number){
-        let count = shape.mesh.vertices.capacity();
-        this.moveTo(shape.measureVertex(0), lineWidth);
-        for(let i = 1; i<count; i++){
-            this.lineTo(shape.measureVertex(i), lineWidth)
-        }
-        this.close(lineWidth);
-    }
-
     draw(renderer: Renderer): void {
         let { color, vertices, matrix } = this;
         let { gl, ext, shapeProgram: program } = renderer;
-        let count = vertices.position();
+        let count = vertices.capacity();
         renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
         program.setColor(gl, color);
@@ -272,42 +263,4 @@ export class Stroke extends Graphic implements Drawable {
             matrix: this.matrix.data.buffer
         });
     }
-}
-
-/**
- * Measures the miter vector for the joining of two lines.
- * @param prevLine the nonzero vector from the start of the previous line to the end of the previous line.
- * @param line the nonzero vector from the start of the previous line to the end of the previous line.
- * @param halfThickness half the thickness of the second line.
- * @param miterLimit the maximum allowable miter length before a bevel is applied.
- * @returns the miter vector.
- */
-function miterVector(prevLine: Vec2Like, line: Vec2Like, halfThickness: number, miterLimit: number) {
-
-    // Measure the ortho norm of the previous vector and the next vector.
-    let n1 = Vec2.create(prevLine);
-    n1.normalize();
-    n1.rotateLeft();
-    
-    let n2 = Vec2.create(line);
-    n2.normalize();
-    n2.rotateLeft();
-
-    // Average the ortho norms to get the miter vector.
-    let miter = Vec2.create(n1);
-    miter.add(n2);
-    miter.normalize(); 
-
-    // Measure the length of the miter by projecting it onto one of the ortho norms and inverting it.
-    let length = halfThickness / miter.dot(n2);
-
-    // Ensure length does not exceed miter limit
-    if(length > miterLimit){
-        length = miterLimit;
-    }
-
-    // Scale vector to the measured length
-    miter.mulScalar(length);
-
-    return miter;
 }

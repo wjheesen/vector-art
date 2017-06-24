@@ -15,7 +15,7 @@ $shapes = [
 
 $tools = [
     "shapeAspect", "shape", "shapeStroke", "stroke", "shapeLine", "line", "shapeSpray", "colorSampler", 
-    "pan", "select", "trace"
+    "pan", "select"
 ];
 
 $actions = ["undo", "redo"];

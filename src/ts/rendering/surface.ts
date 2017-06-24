@@ -94,7 +94,6 @@ export class Surface extends Base<Renderer> {
                     let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(data.color)));
                     let matrices = new Mat2dBuffer(new Float32Array(data.matrices));
                     let { zIndex, id } = data;
-                    matrices.moveToLast();
 
                     let batch: ShapeBatch;
                     if(type.name === "circle"){
@@ -110,7 +109,6 @@ export class Surface extends Base<Renderer> {
                     let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(stroke.color)));
                     let matrix = new Mat2dStruct(new Float32Array(stroke.matrix));
                     let vertices = new VertexBuffer(new Float32Array(stroke.vertices));
-                    vertices.moveToLast();
                     this.addDrawableToSortedStack(new Stroke(color, vertices, matrix, stroke.zIndex, stroke.id))
                     this.requestRender();
                 });
@@ -234,6 +232,7 @@ export class Surface extends Base<Renderer> {
             let mesh = this.mesh; 
             let color = this.copyDrawColor();
             let matrices = new Mat2dBuffer(this.buffer);
+            matrices.capacity = matrices.position;
             if(mesh.id === "circle"){
                 batch = new EllipseBatch(mesh, color, matrices);
             } else {
@@ -250,6 +249,7 @@ export class Surface extends Base<Renderer> {
         if(!stroke){
             let color = this.copyDrawColor();
             let vertices = new VertexBuffer(buffer);
+            vertices.capacity = vertices.position;
             stroke = new Stroke(color, vertices);
             renderer.temp = stroke;
         }
@@ -303,7 +303,7 @@ export class Surface extends Base<Renderer> {
             // Copy matrices into new buffer with capacity equal to size
             matrices.moveToFirst();
             batch.matrices = Mat2dBuffer.create(size);
-            batch.matrices.putBuffer(matrices, size);
+            batch.matrices.rsetFromBuffer(matrices, size);
             // Proceed with adding batch to drawable stack
             this.addTempDrawable();
         } else {
@@ -322,7 +322,7 @@ export class Surface extends Base<Renderer> {
             // Copy vertices into new buffer with capacity equal to size
             vertices.moveToFirst();
             stroke.vertices = VertexBuffer.create(size);
-            stroke.vertices.putBuffer(vertices, size);
+            stroke.vertices.rsetFromBuffer(vertices, size);
             // Proceed with adding stroke to drawable stack
             this.addTempDrawable();
         } else {
