@@ -51,6 +51,8 @@ function Update-Svgs(){
 }
 
 function Update-Js(){
+    Remove-Item "$debug\*.js" -ErrorAction Ignore
+    # tsc --project "$src\ts\tsconfig.json"
     gulp.cmd update:js --gulpfile $gulpfileJs
 }
 

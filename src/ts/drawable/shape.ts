@@ -61,7 +61,7 @@ export class Shape extends Base implements Drawable {
         outlineProgram.setVertices(gl, mesh);
         outlineProgram.setMiters(gl, mesh);
         outlineProgram.setLineWidth(gl, lineWidth);
-        let count = mesh.vertices.capacity() * 2 + 2;
+        let count = mesh.strokeElementCount;
         let offset = mesh.strokeElementBufferOffset;
         ext.drawElementsInstancedANGLE(gl.TRIANGLE_STRIP, count, gl.UNSIGNED_SHORT, offset, 1)
     }

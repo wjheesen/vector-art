@@ -120,7 +120,7 @@ export class Stroke extends Graphic implements Drawable {
         // Compute the ortho vector needed to compute the top and bottom right vertices of the line segment.
         ortho = Vec2.create(line);
         ortho.normalize();
-        ortho.rotateLeft();
+        ortho.rotateRight();
         ortho.mulScalar(halfThickness);
 
         // If there are more than two line segments (with non-zero length), use a miter vector join them. 
