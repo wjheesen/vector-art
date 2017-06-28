@@ -1,4 +1,4 @@
-import { ColorStruct } from 'gl2d';
+import { ColorStruct } from 'gl2d/struct/color';
 import { Surface } from '../rendering/surface';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Renderer } from '../rendering/renderer';
@@ -18,9 +18,9 @@ export interface Drawable extends Base<Renderer>{
      */
     zIndex: number;
     /**
-     * The color of this drawable. 
+     * The fill color for this drawable. 
      */
-    color: ColorFStruct;
+    fillColor: ColorFStruct;
     /**
      * Measures the boundaries of this drawable in world space.
      * @returns the boundaries of this drawable.
@@ -50,15 +50,15 @@ export interface Drawable extends Base<Renderer>{
      */
     delete(surface: Surface): void;
     /**
-     * Updates the color of this drawable in the surface database.
+     * Sets the color of this drawable and saves the change in the surface database.
      */
-    updateColor(surface: Surface, color: ColorStruct): void;
+    setFillColorAndSave(surface: Surface, color: ColorStruct): void;
     /**
-     * Updates the zIndex of this drawable in the surface database.
+     * Sets the zIndex of this drawable and saves the change in the surface database.
      */
-    updateZIndex(surface: Surface, zIndex: number): void;
+    setZIndexAndSave(surface: Surface, zIndex: number): void;
     /**
-     * Updates the position of this drawable in the surface database.
+     * Saves the position of this drawable in the surface database.
      */
-    updatePosition(surface: Surface): void;
+    savePosition(surface: Surface): void;
 }

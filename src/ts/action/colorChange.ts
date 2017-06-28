@@ -13,11 +13,11 @@ export class ColorChange implements Action {
 
     redo(surface: Surface) {
         let { drawable, newColor } = this;
-        drawable.color.setFromColor(newColor);
+        drawable.fillColor.setFromColor(newColor);
     }
 
     undo(surface: Surface) {
         let { drawable, oldColor } = this;
-        drawable.color.setFromColor(oldColor);
+        drawable.fillColor.setFromColor(oldColor);
     }
 }

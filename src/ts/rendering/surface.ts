@@ -1,4 +1,4 @@
-import { ColorLike } from 'gl2d';
+import { ColorLike } from 'gl2d/struct/color';
 import { Action } from '../action/action';
 import { ColorChange } from '../action/colorChange';
 import { Insertion } from '../action/insertion';
@@ -10,8 +10,8 @@ import { Drawable } from '../drawable/drawable';
 import { Ellipse } from '../drawable/ellipse';
 import { EllipseBatch } from '../drawable/ellipseBatch';
 import { Line } from '../drawable/line';
-import { Shape } from '../drawable/shape';
-import { ShapeBatch } from '../drawable/shapeBatch';
+import { Shape, ShapeOptions } from '../drawable/shape';
+import { ShapeBatch, ShapeBatchOptions } from '../drawable/shapeBatch';
 import { Stroke } from '../drawable/stroke';
 import { Renderer } from './renderer';
 import { Mesh } from 'gl2d/drawable/mesh';
@@ -19,12 +19,13 @@ import { Camera } from 'gl2d/rendering/camera';
 import { Surface as Base } from 'gl2d/rendering/surface';
 import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
-import { Mat2d, Mat2dBuffer, Mat2dStruct } from 'gl2d/struct/mat2d';
+import { Mat2d, Mat2dBuffer } from 'gl2d/struct/mat2d';
 import { PointLike } from 'gl2d/struct/point';
 import { RectStruct } from 'gl2d/struct/rect';
 import { VertexBuffer } from 'gl2d/struct/vertex';
 import lastIndexOf = require('lodash.lastindexof');
 import { Option } from "../option/option";
+import { convertToColorF, convertToMat2d, convertToMat2dBuffer, convertToVertexBuffer } from "../database/conversion";
 
 
 export class Surface extends Base<Renderer> {
@@ -71,49 +72,63 @@ export class Surface extends Base<Renderer> {
 
         db.types.toArray().then(types => {
             db.transaction("rw", db.types, db.shapes, db.shapeBatches, db.strokes, db.canvases, () => {
+
                 // Import shapes
                 db.shapes.where("canvasId").equals(canvasId).each(data => {
                     let type = types.find(t => t.id === data.typeId);
-                    let mesh = this.getMesh(type.name);
-                    let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(data.color)));
-                    let matrix = new Mat2dStruct(new Float32Array(data.matrix));
-                    let { zIndex, id } = data;
-                    let shape: Shape;
-                    if(type.name === "circle"){
-                        shape = new Ellipse(mesh, color, matrix, zIndex, id);
-                    } else {
-                        shape = new Shape(mesh, color, matrix, zIndex, id);
+
+                    let options: ShapeOptions = {
+                        mesh: this.getMesh(type.name),
+                        fillColor: convertToColorF(data.fillColor),
+                        strokeColor: convertToColorF(data.strokeColor),
+                        lineWidth: data.lineWidth,
+                        matrix:  convertToMat2d(data.matrix),
+                        zIndex: data.zIndex,
+                        id: data.id,
                     }
+
+                    console.log(options);
+                    
+                    let shape = type.name === "circle" ? new Ellipse(options) : new Shape(options);
                     this.addDrawableToSortedStack(shape)
                     this.requestRender();
                 });
+                
                 // Import shape batches
                 db.shapeBatches.where("canvasId").equals(canvasId).each(data => {
                     let type = types.find(t => t.id === data.typeId);
-                    let mesh = this.getMesh(type.name);
-                    let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(data.color)));
-                    let matrices = new Mat2dBuffer(new Float32Array(data.matrices));
-                    let { zIndex, id } = data;
 
-                    let batch: ShapeBatch;
-                    if(type.name === "circle"){
-                        batch = new EllipseBatch(mesh, color, matrices, zIndex, id);
-                    } else {
-                        batch = new ShapeBatch(mesh, color, matrices, zIndex, id);
+                    let options: ShapeBatchOptions = {
+                        mesh: this.getMesh(type.name),
+                        fillColor: convertToColorF(data.fillColor),
+                        matrices:  convertToMat2dBuffer(data.matrices),
+                        zIndex: data.zIndex,
+                        id: data.id,
                     }
+
+                    let batch = type.name === "circle" ? new EllipseBatch(options) : new ShapeBatch(options);
                     this.addDrawableToSortedStack(batch)
                     this.requestRender();
                 });
+
                 // Import strokes
-                db.strokes.where("canvasId").equals(canvasId).each(stroke => {
-                    let color = ColorFStruct.fromColor(new ColorStruct(new Uint8Array(stroke.color)));
-                    let matrix = new Mat2dStruct(new Float32Array(stroke.matrix));
-                    let vertices = new VertexBuffer(new Float32Array(stroke.vertices));
-                    this.addDrawableToSortedStack(new Stroke(color, vertices, matrix, stroke.zIndex, stroke.id))
+                db.strokes.where("canvasId").equals(canvasId).each(data => {
+
+                    let stroke = new Stroke({
+                        fillColor: convertToColorF(data.fillColor),
+                        matrix: convertToMat2d(data.matrix),
+                        vertices: convertToVertexBuffer(data.vertices),
+                        zIndex: data.zIndex,
+                        id: data.id,
+                    })
+
+                    this.addDrawableToSortedStack(stroke);
                     this.requestRender();
                 });
+
                 // Update last access time for this canvas
                 db.canvases.update(canvasId, { lastAccessTime: Date.now()} );
+
             }).then(() => {
                 let stack = this.renderer.drawables;
                 if(stack.length > 0){
@@ -202,9 +217,13 @@ export class Surface extends Base<Renderer> {
         let { renderer } = this;
         let line = renderer.temp as Line;
         if(!line){
-            let color = this.copyDrawColor();
-            line = new Line(this.getMesh("square"), color);
-            renderer.temp = line;
+            renderer.temp = line = new Line({
+                mesh: this.getMesh("square"),
+                fillColor: this.copyDrawColor(),
+                strokeColor: ColorFStruct.create$(0,0,0,0.5),
+                zIndex: this.zIndex,
+                lineWidth: -this.lineWidth // Inset
+            });
         }
         return line;
     }
@@ -213,14 +232,14 @@ export class Surface extends Base<Renderer> {
         let { renderer } = this;
         let shape = renderer.temp as Shape;
         if(!shape){
-            let mesh = this.mesh;
-            let color = this.copyDrawColor();
-            if(mesh.id === "circle"){
-                shape = new Ellipse(mesh, color);
-            } else {
-                shape = new Shape(mesh, color);
+            let options: ShapeOptions = {
+                mesh: this.mesh,
+                fillColor: this.copyDrawColor(),
+                strokeColor: ColorFStruct.create$(0,0,0,0.5),
+                zIndex: this.zIndex,
+                lineWidth: -this.lineWidth // Inset
             }
-            renderer.temp = shape;
+            renderer.temp = shape = this.mesh.id === "circle" ? new Ellipse(options): new Shape(options);
         }
         return shape;
     }
@@ -229,16 +248,17 @@ export class Surface extends Base<Renderer> {
         let { renderer } = this;
         let batch = renderer.temp as ShapeBatch;
         if(!batch){
-            let mesh = this.mesh; 
-            let color = this.copyDrawColor();
             let matrices = new Mat2dBuffer(this.buffer);
-            matrices.capacity = matrices.position;
-            if(mesh.id === "circle"){
-                batch = new EllipseBatch(mesh, color, matrices);
-            } else {
-                batch = new ShapeBatch(mesh, color, matrices);
+            matrices.capacity = matrices.position; // Hack
+
+            let options: ShapeBatchOptions = {
+                mesh: this.mesh,
+                fillColor: this.copyDrawColor(),
+                matrices: matrices,
+                zIndex: this.zIndex,
             }
-            renderer.temp = batch;
+
+            renderer.temp = batch = this.mesh.id === "circle" ? new EllipseBatch(options) : new ShapeBatch(options);
         }
         return batch;
     }
@@ -247,11 +267,13 @@ export class Surface extends Base<Renderer> {
         let { renderer, buffer } = this;
         let stroke = renderer.temp as Stroke;
         if(!stroke){
-            let color = this.copyDrawColor();
             let vertices = new VertexBuffer(buffer);
-            vertices.capacity = vertices.position;
-            stroke = new Stroke(color, vertices);
-            renderer.temp = stroke;
+            vertices.capacity = vertices.position; // Hack
+            renderer.temp = stroke = new Stroke({
+                fillColor: this.copyDrawColor(),
+                vertices: vertices,
+                zIndex: this.zIndex,
+            });
         }
         return stroke;
     }
@@ -271,7 +293,7 @@ export class Surface extends Base<Renderer> {
         drawColor.setFromColor(color);
         // Modify color of selected drawable (if any)
         if(target){
-            target.color.set(drawColor);
+            target.fillColor.set(drawColor);
             this.changeColor(target, drawColor);
         }
     }
@@ -334,7 +356,7 @@ export class Surface extends Base<Renderer> {
         if(drawable && matrix && !matrix.isIdentity()){
             let action = new Transformation(drawable, matrix);
             this.record.push(action);
-            drawable.updatePosition(this);
+            drawable.savePosition(this);
         }
     }
     
@@ -343,7 +365,7 @@ export class Surface extends Base<Renderer> {
         let newColor = ColorStruct.create(color);
         let action = new ColorChange(drawable, oldColor, newColor);
         this.record.push(action);
-        drawable.updateColor(this, newColor);
+        drawable.setFillColorAndSave(this, newColor);
     }
 
     removeDrawable(drawable: Drawable){
@@ -417,3 +439,4 @@ export class Surface extends Base<Renderer> {
         this.renderer.selection.control.stretch(scale);
     }
 }
+

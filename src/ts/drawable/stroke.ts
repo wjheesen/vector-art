@@ -1,8 +1,9 @@
+import { convertFromColorF } from '../database/conversion';
 import { Renderer } from '../rendering/renderer';
 import { Surface } from '../rendering/surface';
 import { Drawable } from './drawable';
 import { Shape } from './shape';
-import { Mat2dStruct } from 'gl2d';
+import { Mat2dStruct } from 'gl2d/struct/mat2d';
 import { Graphic } from 'gl2d/drawable/graphic';
 import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
@@ -13,19 +14,27 @@ import { Vec2 } from 'gl2d/struct/vec2';
 import { VertexBuffer } from 'gl2d/struct/vertex';
 import { measureMiter } from 'gl2d/math/miter';
 
+export interface StrokeOptions {
+    vertices: VertexBuffer;
+    fillColor: ColorFStruct;
+    matrix?: Mat2dStruct;
+    zIndex?: number;
+    id?: number;
+}
+
 export class Stroke extends Graphic implements Drawable {
 
     id: number;
     zIndex: number;
-    color: ColorFStruct;
+    fillColor: ColorFStruct;
     vertices: VertexBuffer;
 
-    constructor(color: ColorFStruct, vertices: VertexBuffer, matrix?: Mat2dStruct, zIndex?: number, id?: number){
-        super(matrix);
-        this.color = color;
-        this.vertices = vertices;
-        this.zIndex = zIndex;
-        this.id = id;
+    constructor(options: StrokeOptions){
+        super(options.matrix);
+        this.fillColor = options.fillColor;
+        this.vertices = options.vertices;
+        this.zIndex = options.zIndex;
+        this.id = options.id;
     }
 
     measureBoundaries(dst = new Rect()): Rect {
@@ -126,7 +135,7 @@ export class Stroke extends Graphic implements Drawable {
         // If there are more than two line segments (with non-zero length), use a miter vector join them. 
         // Otherwise use the ortho vector to compute the top and bottom left vertices of the line segment.
         if(prevLine && !prevLine.epsilonEqualsScalar(0, halfThickness/8)){
-            miter =  measureMiter(prevLine, line, halfThickness, halfThickness*3);
+            miter =  measureMiter(prevLine, line, halfThickness, lineWidth);
         } else {
             miter = ortho;
         }
@@ -213,30 +222,26 @@ export class Stroke extends Graphic implements Drawable {
     }
 
     draw(renderer: Renderer): void {
-        let { color, vertices, matrix } = this;
+        let { fillColor, vertices, matrix } = this;
         let { gl, ext, shapeProgram: program } = renderer;
         let count = vertices.capacity();
         renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
-        program.setColor(gl, color);
+        program.setColor(gl, fillColor);
         program.setVertices(gl, vertices);
         program.setMatrices(gl, matrix);
         ext.drawArraysInstancedANGLE(gl.TRIANGLE_STRIP, 0, count, 1);
     }
     
    save(surface: Surface){
-        let { database, canvasId, zIndex } = surface;
-        this.zIndex = zIndex;
-        let color = ColorStruct.fromColorF(this.color).data.buffer;
-        let vertices = this.vertices.data.buffer;
-        let matrix = this.matrix.data.buffer;
-
+        let { database, canvasId } = surface;
+        let { zIndex, fillColor, vertices, matrix } = this;
         database.strokes.add({
             zIndex: zIndex,
             canvasId: canvasId.val,
-            color: color,
-            vertices: vertices,
-            matrix: matrix
+            fillColor: convertFromColorF(fillColor),
+            vertices: vertices.data.buffer,
+            matrix: matrix.data.buffer
         }).then(id => this.id = id);
     }
 
@@ -244,21 +249,21 @@ export class Stroke extends Graphic implements Drawable {
         surface.database.strokes.delete(this.id);
     }
 
-    updateColor(surface: Surface, color: ColorStruct): void {
-        this.color.setFromColor(color);
+    setFillColorAndSave(surface: Surface, color: ColorStruct): void {
+        this.fillColor.setFromColor(color);
         surface.database.strokes.update(this.id, {
             color: color.data.buffer
         })
     }
     
-    updateZIndex(surface: Surface, zIndex: number): void {
+    setZIndexAndSave(surface: Surface, zIndex: number): void {
         this.zIndex = zIndex;
         surface.database.strokes.update(this.id, {
             zIndex: zIndex
         })
     }
 
-    updatePosition(surface: Surface){
+    savePosition(surface: Surface){
         surface.database.strokes.update(this.id, {
             matrix: this.matrix.data.buffer
         });

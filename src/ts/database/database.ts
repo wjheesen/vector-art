@@ -23,9 +23,9 @@ export class Database extends Dexie {
         this.version(1).stores({
             canvases: '++id, creationTime, lastAccessTime',
             types: '++id, name',
-            shapes: '++id, canvasId, typeId, zIndex, color, matrix',
-            shapeBatches: '++id, canvasId, typeId, zIndex, color, matrices',
-            strokes: '++id, canvasId, zIndex, color, vertices, matrix',
+            shapes: '++id, canvasId, typeId, zIndex, fillColor, strokeColor, lineWidth, matrix',
+            shapeBatches: '++id, canvasId, typeId, zIndex, fillColor, matrices',
+            strokes: '++id, canvasId, zIndex, fillColor, vertices, matrix',
         });
     }
 

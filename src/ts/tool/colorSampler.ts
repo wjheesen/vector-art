@@ -20,7 +20,7 @@ export class ColorSampler extends MouseOrTouchTool<Surface> {
                 let pointer = this.getPrimaryPointer(event);
                 let drawable = surface.getDrawableContaining(pointer);
                 if(drawable){
-                    let color = drawable.color;
+                    let color = drawable.fillColor;
                     this.onColorSample(color);
                 }
         }

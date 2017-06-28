@@ -52,7 +52,7 @@ export class EllipseBatch extends ShapeBatch {
         renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
         program.setMatrices(gl, matrices);
-        program.setColor(gl, this.color);
+        program.setColor(gl, this.fillColor);
         program.draw(renderer, instanceCount);
     }
     

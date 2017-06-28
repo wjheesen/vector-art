@@ -36,7 +36,6 @@ export class Renderer extends Base {
     navigateLeft: Shape;
     addCanvas: Shape;
     removeCanvas: Shape;
-    buttonHover: Shape;
 
     meshes: Mesh[];
 
@@ -62,7 +61,7 @@ export class Renderer extends Base {
         let frameThickness = 0.08;
         let pointRadius = 0.05;
         let blue = ColorFStruct.create$(0, 0.2, 0.9, 0.9);
-        let blueHover = ColorFStruct.create$(0, 0.2, 0.9, 0.5);
+        let blueHover = ColorFStruct.create$(0, 0.3, 1, 0.6);
         let red = ColorFStruct.create$(1,0,0,0.9);
         let pointMesh = this.ellipseProgram.mesh;
         this.selection = Selection.create(blue, frameThickness, pointMesh, red, pointRadius);
@@ -71,13 +70,35 @@ export class Renderer extends Base {
         // Init navigation buttons
         let black = ColorFStruct.create$(0,0,0,1);
         let arrow = this.meshes.find(mesh => mesh.id === "arrow");
-        let square = this.meshes.find(mesh => mesh.id === "square");
         let x = this.meshes.find(mesh => mesh.id === "x");
-        this.navigateLeft = new Shape(arrow, black, Mat2dStruct.rotate(-Math.PI/2));
-        this.navigateRight = new Shape(arrow, black, Mat2dStruct.rotate(Math.PI/2));
-        this.addCanvas = new Shape(x, black, Mat2dStruct.rotate(Math.PI/4));
-        this.removeCanvas = new Shape(x, black)
-        this.buttonHover = new Shape(square, blueHover, new Mat2dStruct());
+        let lineWidth = 0.025;
+        this.navigateLeft = new Shape({
+            mesh: arrow, 
+            fillColor:black,
+            strokeColor: ColorFStruct.create$(0,0,0,0.5), 
+            lineWidth: lineWidth, 
+            matrix: Mat2dStruct.rotate(-Math.PI/2)
+        });
+        this.navigateRight = new Shape({
+            mesh: arrow, 
+            fillColor: black,
+            strokeColor: ColorFStruct.create$(0,0,0,0.5), 
+            lineWidth: lineWidth, 
+            matrix: Mat2dStruct.rotate(Math.PI/2)
+        });
+        this.addCanvas = new Shape({
+            mesh: x, 
+            fillColor: black,
+            strokeColor: ColorFStruct.create$(0,0,0,0.5), 
+            lineWidth: lineWidth, 
+            matrix: Mat2dStruct.rotate(Math.PI/4)
+        });
+        this.removeCanvas = new Shape({
+            mesh: x, 
+            fillColor: black,
+            strokeColor: ColorFStruct.create$(0,0,0,0.5), 
+            lineWidth: lineWidth, 
+        })
 
         // Place navigation buttons on canvas
         let left = Rect.lrbt(-1.75, -1.25, -1, 1);
@@ -104,7 +125,6 @@ export class Renderer extends Base {
         this.navigateRight.draw(this);
         this.addCanvas.draw(this);
         this.removeCanvas.draw(this);
-        this.buttonHover.draw(this);
         if(this.selection.target){
             this.selection.draw(this);
         }

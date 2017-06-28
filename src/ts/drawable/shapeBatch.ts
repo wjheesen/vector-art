@@ -1,3 +1,4 @@
+import { convertFromColorF } from '../database/conversion';
 import { Renderer } from '../rendering/renderer';
 import { Surface } from '../rendering/surface';
 import { Drawable } from './drawable';
@@ -11,23 +12,28 @@ import { Point } from 'gl2d/struct/point';
 import { Rect } from 'gl2d/struct/rect';
 import { Vec2Like, Vec2 } from 'gl2d/struct/vec2';
 
+export interface ShapeBatchOptions {
+    mesh: Mesh;
+    fillColor: ColorFStruct;
+    matrices?: Mat2dBuffer;
+    zIndex?: number;
+    id?: number;
+}
+
 export class ShapeBatch implements Drawable {
 
-    id: number;
-    zIndex: number;
-
     mesh: Mesh;
-
-    color: ColorFStruct; // TODO change to set color?
-
+    fillColor: ColorFStruct; 
     matrices: Mat2dBuffer;
+    zIndex: number;
+    id: number;
 
-    constructor(mesh: Mesh, color: ColorFStruct, matrices: Mat2dBuffer, zIndex?: number, id?: number){
-        this.mesh = mesh;
-        this.color = color;
-        this.matrices = matrices;
-        this.zIndex = zIndex;
-        this.id = id;
+    constructor(options: ShapeBatchOptions){
+        this.mesh = options.mesh;
+        this.fillColor = options.fillColor;
+        this.matrices = options.matrices;
+        this.zIndex = options.zIndex;
+        this.id = options.id;
     }
 
     add(center: PointLike, radius: number){
@@ -123,14 +129,14 @@ export class ShapeBatch implements Drawable {
     }
 
     draw(renderer: Renderer){
-        let { color, matrices, mesh } = this;
+        let { fillColor, matrices, mesh } = this;
         let { gl, ext, shapeProgram: program } = renderer;
         let primcount = matrices.capacity();
         renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
         program.setVertices(gl, mesh)
         program.setMatrices(gl, matrices);
-        program.setColor(gl, color);
+        program.setColor(gl, fillColor);
         if(mesh.triangleIndices){
             let count = mesh.triangleIndices.data.length;
             let offset = mesh.elementBufferOffset;
@@ -142,18 +148,15 @@ export class ShapeBatch implements Drawable {
     }
 
    save(surface: Surface){
-        let { database, canvasId, zIndex } = surface;
-        this.zIndex = zIndex;
-        let color = ColorStruct.fromColorF(this.color).data.buffer;
-        let matrices = this.matrices.data.buffer;
-
-        database.getTypeId(this.mesh.id).then(typeId => {
+        let { database, canvasId } = surface;
+        let { zIndex, fillColor, matrices, mesh } = this;
+        database.getTypeId(mesh.id).then(typeId => {
             database.shapeBatches.add({
-                canvasId: canvasId.val,
                 typeId: typeId,
                 zIndex: zIndex,
-                color: color,
-                matrices: matrices
+                canvasId: canvasId.val,
+                fillColor: convertFromColorF(fillColor),
+                matrices: matrices.data.buffer
             }).then(id => this.id = id);
         });
     }
@@ -162,21 +165,21 @@ export class ShapeBatch implements Drawable {
         surface.database.shapeBatches.delete(this.id);
     }
 
-    updateColor(surface: Surface, color: ColorStruct): void {
-        this.color.setFromColor(color);
+    setFillColorAndSave(surface: Surface, color: ColorStruct): void {
+        this.fillColor.setFromColor(color);
         surface.database.shapeBatches.update(this.id, {
             color: color.data.buffer
         })
     }
     
-    updateZIndex(surface: Surface, zIndex: number): void {
+    setZIndexAndSave(surface: Surface, zIndex: number): void {
         this.zIndex = zIndex;
         surface.database.shapeBatches.update(this.id, {
             zIndex: zIndex
         })
     }
 
-    updatePosition(surface: Surface){
+    savePosition(surface: Surface){
         surface.database.shapeBatches.update(this.id, {
             matrices: this.matrices.data.buffer
         });

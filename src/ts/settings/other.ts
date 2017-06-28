@@ -2,45 +2,45 @@ import { Option } from '../option/option';
 // import * as $ from 'jquery';
 var Slider = require('bootstrap-slider');
 
-export type OnStrokeWidthPick = (strokeWidth: number) => any;
+export type OnLineWidthPick = (strokeWidth: number) => any;
 export type OnZoomSpeedPick = (zoomSpeed: number) => any;
 
 
 export class OtherSettings {
     
-    strokeWidth: Option<number>;
-    onStrokeWidthPick: OnStrokeWidthPick;
+    lineWidth: Option<number>;
+    onLineWidthPick: OnLineWidthPick;
 
     zoomSpeed: Option<number>;
     onZoomSpeedPick: OnZoomSpeedPick;
 
     private constructor(){}
 
-    static create(onStrokeThicknessPick: OnStrokeWidthPick, onZoomSpeedPick: OnZoomSpeedPick){
+    static create(onStrokeThicknessPick: OnLineWidthPick, onZoomSpeedPick: OnZoomSpeedPick){
 
         let settings = new OtherSettings();
-        settings.strokeWidth = Option.num("stroke-width", 50, 1, 100);
-        settings.onStrokeWidthPick = onStrokeThicknessPick;
+        settings.lineWidth = Option.num("line-width", 50, 1, 100);
+        settings.onLineWidthPick = onStrokeThicknessPick;
         settings.zoomSpeed = Option.num("zoom-speed", 50, 1, 100);
         settings.onZoomSpeedPick = onZoomSpeedPick;
 
         // Set initial values
-        onStrokeThicknessPick(settings.strokeWidth.val);
+        onStrokeThicknessPick(settings.lineWidth.val);
         onZoomSpeedPick(settings.zoomSpeed.val);
 
         // Init stroke thickness slider
-        let strokeSlider = new Slider("input[name=stroke-width]", {
+        let strokeSlider = new Slider("input[name=line-width]", {
             min: 1,
             max: 100,
             step: 1,
-            value: settings.strokeWidth.val,
+            value: settings.lineWidth.val,
             tooltip: 'show'
         });
 
         strokeSlider.on('slideStop', function () {
             let val = strokeSlider.getValue();
-            settings.strokeWidth.val = val;
-            settings.onStrokeWidthPick(val);
+            settings.lineWidth.val = val;
+            settings.onLineWidthPick(val);
         });
 
         // Init zoom speed slider

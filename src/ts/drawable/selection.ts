@@ -25,8 +25,8 @@ export class Selection {
 
     static create(frameColor: ColorFStruct, frameThickness: number, pointMesh: Mesh, pointColor: ColorFStruct, pointRadius: number){
         let frame = new Frame(frameColor, frameThickness);
-        let pivot = new Ellipse(pointMesh, pointColor, Mat2dStruct.stretch(pointRadius));
-        let control = new Ellipse(pointMesh, pointColor, Mat2dStruct.stretch(pointRadius));
+        let pivot = new Ellipse({ mesh: pointMesh, fillColor: pointColor, matrix: Mat2dStruct.stretch(pointRadius)});
+        let control = new Ellipse({ mesh: pointMesh, fillColor: pointColor, matrix: Mat2dStruct.stretch(pointRadius)});
         return new Selection(frame, pivot, control);
     }
 

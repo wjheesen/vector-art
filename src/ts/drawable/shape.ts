@@ -1,3 +1,4 @@
+import { convertFromColorF } from '../database/conversion';
 import { Renderer } from '../rendering/renderer';
 import { Surface } from '../rendering/surface';
 import { Drawable } from './drawable';
@@ -8,24 +9,31 @@ import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat2d, Mat2dStruct, ScaleToFit } from 'gl2d/struct/mat2d';
 
+export interface ShapeOptions {
+    mesh: Mesh;
+    fillColor: ColorFStruct;
+    strokeColor?: ColorFStruct;
+    lineWidth?: number;
+    matrix?: Mat2dStruct;
+    zIndex?: number;
+    id?: number;
+}
+
 export class Shape extends Base implements Drawable {
 
-    id: number;
+    fillColor: ColorFStruct;
+    strokeColor: ColorFStruct;
+    lineWidth: number;
     zIndex: number;
+    id: number;
 
-    /**
-     * The color of this shape. 
-     */
-    color: ColorFStruct;
-
-    strokeColor = ColorFStruct.create$(0,0,0,0.3);
-    lineWidth = 0.025;
-
-    constructor(mesh: Mesh, color?: ColorFStruct, matrix?: Mat2dStruct, zIndex?: number, id?: number){
-        super(mesh, matrix);
-        this.color = color;
-        this.zIndex = zIndex;
-        this.id = id;
+    constructor(options: ShapeOptions){
+        super(options.mesh, options.matrix);
+        this.fillColor = options.fillColor;
+        this.strokeColor = options.strokeColor;
+        this.lineWidth = options.lineWidth;
+        this.zIndex = options.zIndex;
+        this.id = options.id;
     }
 
     mapToRect(dst: Rect, stf?: ScaleToFit, preserveOrientation = false){
@@ -39,11 +47,12 @@ export class Shape extends Base implements Drawable {
     }
 
     draw(renderer: Renderer){
-        let { color, mesh, matrix, strokeColor, lineWidth } = this;
+        let { fillColor, mesh, matrix, strokeColor, lineWidth } = this;
         let { gl, ext, shapeProgram, outlineProgram } = renderer;
+        // Fill shape
         renderer.attachProgram(shapeProgram);
         shapeProgram.setProjection(gl, renderer.camera.matrix);
-        shapeProgram.setColor(gl, color);
+        shapeProgram.setColor(gl, fillColor);
         shapeProgram.setVertices(gl, mesh);
         shapeProgram.setMatrices(gl, matrix);
         if(mesh.triangleIndices){
@@ -54,31 +63,33 @@ export class Shape extends Base implements Drawable {
             let count = mesh.vertices.capacity();
             ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, count, 1);
         }
-        renderer.attachProgram(outlineProgram);
-        outlineProgram.setProjection(gl, renderer.camera.matrix);
-        outlineProgram.setMatrices(gl, matrix);
-        outlineProgram.setColor(gl, strokeColor);
-        outlineProgram.setVertices(gl, mesh);
-        outlineProgram.setMiters(gl, mesh);
-        outlineProgram.setLineWidth(gl, lineWidth);
-        let count = mesh.strokeElementCount;
-        let offset = mesh.strokeElementBufferOffset;
-        ext.drawElementsInstancedANGLE(gl.TRIANGLE_STRIP, count, gl.UNSIGNED_SHORT, offset, 1)
+        // Stroke shape
+        if(lineWidth){
+            renderer.attachProgram(outlineProgram);
+            outlineProgram.setProjection(gl, renderer.camera.matrix);
+            outlineProgram.setMatrices(gl, matrix);
+            outlineProgram.setColor(gl, strokeColor);
+            outlineProgram.setVertices(gl, mesh);
+            outlineProgram.setMiters(gl, mesh);
+            outlineProgram.setLineWidth(gl, lineWidth);
+            let count = mesh.strokeElementCount;
+            let offset = mesh.strokeElementBufferOffset;
+            ext.drawElementsInstancedANGLE(gl.TRIANGLE_STRIP, count, gl.UNSIGNED_SHORT, offset, 1)
+        }
     }
 
     save(surface: Surface){
-        let { database, canvasId, zIndex } = surface;
-        this.zIndex = zIndex;
-        let color = ColorStruct.fromColorF(this.color).data.buffer;
-        let matrix = this.matrix.data.buffer;
-
-        database.getTypeId(this.mesh.id).then(typeId => {
+        let { database, canvasId } = surface;
+        let { zIndex, fillColor, strokeColor, lineWidth, matrix, mesh } = this;
+        database.getTypeId(mesh.id).then(typeId => {
             database.shapes.add({
+                typeId: typeId,
                 zIndex: zIndex,
                 canvasId: canvasId.val,
-                typeId: typeId,
-                color: color,
-                matrix: matrix
+                lineWidth: lineWidth,
+                fillColor: convertFromColorF(fillColor),
+                strokeColor: convertFromColorF(strokeColor),
+                matrix: matrix.data.buffer,
             }).then(id => this.id = id);
         });
     }
@@ -87,21 +98,21 @@ export class Shape extends Base implements Drawable {
         surface.database.shapes.delete(this.id);
     }
 
-    updateColor(surface: Surface, color: ColorStruct): void {
-        this.color.setFromColor(color);
+    setFillColorAndSave(surface: Surface, color: ColorStruct): void {
+        this.fillColor.setFromColor(color);
         surface.database.shapes.update(this.id, {
             color: color.data.buffer
         });
     }
     
-    updateZIndex(surface: Surface, zIndex: number): void {
+    setZIndexAndSave(surface: Surface, zIndex: number): void {
         this.zIndex = zIndex;
         surface.database.shapes.update(this.id, {
             zIndex: zIndex
         })
     }
 
-    updatePosition(surface: Surface){
+    savePosition(surface: Surface){
         surface.database.shapes.update(this.id, {
             matrix: this.matrix.data.buffer
         });
