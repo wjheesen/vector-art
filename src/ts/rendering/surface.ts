@@ -236,7 +236,7 @@ export class Surface extends Base<Renderer> {
                 fillColor: this.copyDrawColor(),
                 strokeColor: ColorFStruct.create$(0,0,0,0.5),
                 zIndex: this.zIndex,
-                lineWidth: -this.lineWidth // Inset
+                lineWidth: this.lineWidth // outset
             }
             renderer.temp = shape = this.mesh.id === "circle" ? new Ellipse(options): new Shape(options);
         }

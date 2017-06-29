@@ -8,6 +8,9 @@ attribute vec2 offset;           // Third column of model matrix
 attribute vec2 position;         // Position of current vertex in model space
 attribute vec2 miter;            // The miter to apply to this vertex
 
+/**
+ * Creates a mat2 set to rotate by the specified angle (in radians), with a pivot point at the origin.
+ */
 mat2 rotation(float radians){
     float sin = sin(radians);
     float cos = cos(radians);
@@ -16,19 +19,17 @@ mat2 rotation(float radians){
 
 export void vertex(){
 
-    // Extract rotation angle from model matrix
+    // Apply SVD to model matrix to get left and right rotation matrices u and v
+    // For more information, see Pedro Gimeno's answer on https://scicomp.stackexchange.com/questions/8899/robust-algorithm-for-2x2-svd
     float a = model[0][0];
     float b = model[1][0];
     float c = model[0][1];
     float d = model[1][1];
 
-    float e = (a + d) / 2.0;
-    float f = (a - d) / 2.0;
-    float g = (c + b) / 2.0;
-    float h = (c - b) / 2.0;
-
-    float q = sqrt(e*e + h*h);
-    float r = sqrt(f*f + g*g);
+    float e = a + d;
+    float f = a - d;
+    float g = c + b;
+    float h = c - b;
 
     float a1 = atan(g,f);
     float a2 = atan(h,e);
@@ -39,11 +40,15 @@ export void vertex(){
     mat2 u = rotation(phi);
     mat2 v = rotation(theta);
 
-    // // 
-    vec2 rotatedMiter = /*rotation(phi+theta) **/ u * (lineWidth * (v * miter));
+    u[1] *= sign(a*d - b*c);
 
-    // Add miter to world position
+    // Apply rotation matrices to miter, replacing the scale matrix with a stretch by the specified line width
+    vec2 rotatedMiter =  u * (lineWidth * (v * miter));
+
+    // Add miter to mapped position to get world position
     vec2 worldPosition = (model * position) + offset + rotatedMiter;
+
+    // Project onto clip space
     gl_Position = projection * vec4(worldPosition, 1.0, 1.0);
 }
 
