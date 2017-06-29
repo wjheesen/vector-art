@@ -64,7 +64,6 @@ export class NavigationTool extends MouseOrTouchTool<Surface> {
             surface.removeCanvas();
         }
         this.resetHover();
-        surface.requestRender();
     }
 
     private resetHover(){

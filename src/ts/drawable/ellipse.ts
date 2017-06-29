@@ -54,7 +54,7 @@ export class Ellipse extends Shape {
 
             // Length of axes squared:
             let s1 = a2 + b2 + c2 + d2;
-            let s2 = Math.sqrt(Math.pow(n, 2) + 4*Math.pow(m, 2));
+            let s2 = Math.sqrt(n*n + 4*m*m);
             let sx2 = 0.5 * (s1 + s2);
             let sy2 = 0.5 * (s1 - s2);
 

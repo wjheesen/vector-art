@@ -1,9 +1,9 @@
 import { MouseOrTouchEvent } from '../event/mouseOrTouch';
-import { ScaleToFit } from 'gl2d/struct/mat2d';
-import { Rect } from 'gl2d/struct/rect';
 import { Surface } from '../rendering/surface';
-import { MouseOrTouchTool } from "gl2d/tool/mouseOrTouch";
-import { Point } from "gl2d/struct/point";
+import { ScaleToFit } from 'gl2d/struct/mat2d';
+import { Point } from 'gl2d/struct/point';
+import { Rect } from 'gl2d/struct/rect';
+import { MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
 import { Status } from "gl2d/event/status";
 
 export class ShapeTool extends MouseOrTouchTool<Surface> {
@@ -43,3 +43,4 @@ export class ShapeTool extends MouseOrTouchTool<Surface> {
         surface.requestRender();
     }
 }
+

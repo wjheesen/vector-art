@@ -87,8 +87,6 @@ export class Surface extends Base<Renderer> {
                         id: data.id,
                     }
 
-                    console.log(options);
-                    
                     let shape = type.name === "circle" ? new Ellipse(options) : new Shape(options);
                     this.addDrawableToSortedStack(shape)
                     this.requestRender();
@@ -165,6 +163,7 @@ export class Surface extends Base<Renderer> {
         database.createCanvas().then(id => {
             canvasId.val = id;
             this.clear(); 
+            this.requestRender();
         })
     }
 
