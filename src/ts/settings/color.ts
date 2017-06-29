@@ -7,43 +7,42 @@ import { ColorFStruct } from "gl2d/struct/colorF";
 export type OnColorPick = (color: Color) => any;
 
 export class ColorSettings {
-    
-    alpha: number;
-    color: ColorOption;
-    callback: OnColorPick;
-    input: JQuery;
 
-    private constructor(){}
+    private constructor(
+        public fillColorPicker: ColorPicker,
+        public strokeColorPicker: ColorPicker
+    ){}
 
-    pickRandom(){
-        this.color.val.setRandom();
-        this.updateColorSetting();
+    static create(onFillColorPick: OnColorPick, onStrokeColorPick: OnColorPick){
+        return new ColorSettings(
+            ColorPicker.create(
+                $("#fill-color"),
+                onFillColorPick,
+                ColorOption.create("fillColor", new Color(39, 78, 19, 0xff))
+            ),
+            ColorPicker.create(
+                $("#stroke-color"),
+                onStrokeColorPick,
+                ColorOption.create("strokeColor", new Color(0, 0, 0, 0xff))
+            )
+        )
     }
+}
 
-    pickColorF(color: ColorFStruct){
-        this.color.val.setFromColorF(color);
-        this.updateColorSetting();
-    }
+export class ColorPicker {
 
-    private updateColorSetting(){
-        let { color, input, callback } = this;
-        color.unparsed.val = color.val.toArgbString();
-        input.spectrum("set", color.unparsed.val);
-        callback(color.val);
-    }
+    private constructor (
+        public input: JQuery,
+        public onColorPick: OnColorPick,
+        public colorOption: ColorOption,
+        public alpha = colorOption.val.a / 0xff
+    ){}
 
-    static create(onColorPick: OnColorPick){
+    static create(input: JQuery, onColorPick: OnColorPick, colorOption: ColorOption){
+        let picker = new ColorPicker(input, onColorPick, colorOption);
 
-        let picker = new ColorSettings();
-        picker.input = $("#color-settings");
-        picker.color = ColorOption.create("drawColor", new Color(39, 78, 19, 255));
-        picker.alpha = picker.color.val.a / 0xff;
-        picker.callback = onColorPick;
-
-        onColorPick(picker.color.val);
-
-        picker.input.spectrum({
-            color: picker.color.unparsed.val,
+        input.spectrum({
+            color: colorOption.unparsed.val,
             flat: false,
             showInput: false,
             showInitial: false,
@@ -68,30 +67,51 @@ export class ColorSettings {
             ],
             change: function (tinycolor) {
                 if (tinycolor) {
+                    let { input, colorOption, alpha } = picker;
                     // Override alpha (in case of palette selection)
-                    tinycolor.setAlpha(picker.alpha);
+                    tinycolor.setAlpha(alpha);
                     // Update UI component
                     let argb = tinycolor.toHex8String();
-                    picker.input.spectrum("set", argb);
-                    // Update color
-                    picker.color.val.setFromArgbString(argb);
-                    picker.color.unparsed.val = argb;
-                    // Update renderer color
-                    onColorPick(picker.color.val);
+                    input.spectrum("set", argb);
+                    // Update color setting
+                    colorOption.val.setFromArgbString(argb);
+                    colorOption.unparsed.val = argb;
+                    // Send callback
+                    onColorPick(colorOption.val);
                 }
             },
             hide: function (tinycolor) {
                 // Set unconfirmed alpha back to alpha
-                picker.alpha = picker.color.val.a / 0xff;
+                picker.alpha = picker.colorOption.val.a / 0xff;
             }
-        });
+        })
 
-        picker.input.on("dragstop.spectrum", function (e, tinyColor) {
+        input.on("dragstop.spectrum", function (e, tinyColor) {
             // Value confirmed if change event is called.
             // Otherwise reverts to alpha when color picker is hidden.
             picker.alpha = tinyColor.getAlpha();
         });
 
+        onColorPick(colorOption.val);
+
         return picker;
     }
+
+    pickRandomColor(){
+        this.colorOption.val.setRandom();
+        this.saveColorUpdateInputAndInvokeCallback();
+    }
+
+    pickColor(color: ColorFStruct){
+        this.colorOption.val.setFromColorF(color);
+        this.saveColorUpdateInputAndInvokeCallback();
+    }
+
+    private saveColorUpdateInputAndInvokeCallback(){
+        let { colorOption, input, onColorPick } = this;
+        colorOption.unparsed.val = colorOption.val.toArgbString();
+        input.spectrum("set", colorOption.unparsed.val);
+        onColorPick(colorOption.val);
+    }
+
 }

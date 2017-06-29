@@ -38,7 +38,8 @@ $md = "md";
 </head>
 <body>
     <div id="toolbar">
-        <input id="color-settings" type="text" style="display: none" />
+        <input id="fill-color" type="text" style="display: none" />
+        <input id="stroke-color" type="text" style="display: none" />
         <div class="btn-group"> 
             <div class="btn-group">
                 <button id="shape-button" type="button" class="<?=$btn_toggle?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

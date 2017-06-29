@@ -14,3 +14,7 @@ x 2017-06-07 2017-06-01 Replace maintain aspect checkbox with tool that maintain
 x 2017-06-07 2017-06-05 Restrict scroll zoom by time
 x 2017-06-12 2017-06-07 (A) Save shapes on canvas to IndexedDB using Dexie.js
 x 2017-06-19 2017-06-19 (A) Add navigate left, navigate right, add canvas, and remove canvas buttons
+x 2017-06-29 2017-06-21 Add shape outlines
+x 2017-06-29 X 2017-06-21 (B) Improve accuracy of stroke contains method
+x 2017-06-22 2017-06-21 (A) Implement close method on stroke class
+x 2017-06-22 2017-06-22 (A) Add matrix transformation to stroke class.

@@ -38,14 +38,26 @@ function setTool(tool: _MouseOrTouchTool){
     }
 }
 
-function setDrawColor(color: ColorLike){
-    let { drawColor, renderer } = surface;
+function setFillColor(color: ColorLike){
+    let { fillColor, renderer } = surface;
     let { target } = renderer.selection;
-    // Modify draw color
-    drawColor.setFromColor(color);
-    // Modify color of selected drawable (if any)
+    // Set fill color
+    fillColor.setFromColor(color);
+    // Set color of selected drawable (if any)
     if(target){
-        surface.changeColor(target, color);
+        surface.setColorAndPushAction(target, color);
+        surface.requestRender();
+    }
+}
+
+function setStrokeColor(color: ColorLike){
+    let { strokeColor, renderer } = surface;
+    let { target } = renderer.selection;
+    // Set fill color
+    strokeColor.setFromColor(color);
+    // Set color of selected drawable (if any)
+    if(target){
+        surface.setColorAndPushAction(target, color);
         surface.requestRender();
     }
 }
@@ -62,7 +74,7 @@ function redo(){
     }
 }
 
-let colorPicker = ColorSettings.create(setDrawColor);
+let colorSettings = ColorSettings.create(setFillColor, setStrokeColor);
 
 ShapeSettings.create(type => {
     surface.mesh = surface.getMesh(type);
@@ -81,7 +93,7 @@ let tools: ToolGroup = {
     shapeLine: new ShapeLineTool(),
     shapeStroke: new ShapeStrokeTool(),
     stroke: new StrokeTool(),
-    colorSampler: new ColorSampler(color => colorPicker.pickColorF(color)),
+    colorSampler: new ColorSampler(color => colorSettings.fillColorPicker.pickColor(color)),
     pan: new PanTool(),
     select: selectTool,
 }
@@ -119,7 +131,8 @@ $(document)
                 }
             } else {
                 switch(key){
-                    case "R": colorPicker.pickRandom(); break;
+                    case "R": colorSettings.fillColorPicker.pickRandomColor(); break;
+                    case "T": colorSettings.strokeColorPicker.pickRandomColor(); break;
                     case "S": toolSettings.pickToolType("select"); break;
                     case "P": toolSettings.pickToolType("pan"); break;
                 }

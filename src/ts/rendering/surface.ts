@@ -30,15 +30,16 @@ import { convertToColorF, convertToMat2d, convertToMat2dBuffer, convertToVertexB
 
 export class Surface extends Base<Renderer> {
 
-    lineWidth: number;
-    drawColor = new ColorFStruct();
     mesh: Mesh;
+    fillColor = new ColorFStruct();
+    strokeColor = new ColorFStruct();
+    lineWidth: number;
+    zIndex = 1;
 
     record = new ActionRecord();
 
     database = new Database();
     canvasId = Option.num("canvasId",1, 1, 0xffffffff);
-    zIndex = 1;
 
     buffer = new Float32Array(25000); // 100kb
 
@@ -219,9 +220,7 @@ export class Surface extends Base<Renderer> {
             renderer.temp = line = new Line({
                 mesh: this.getMesh("square"),
                 fillColor: this.copyDrawColor(),
-                strokeColor: ColorFStruct.create$(0,0,0,0.5),
                 zIndex: this.zIndex,
-                lineWidth: -this.lineWidth // Inset
             });
         }
         return line;
@@ -231,12 +230,13 @@ export class Surface extends Base<Renderer> {
         let { renderer } = this;
         let shape = renderer.temp as Shape;
         if(!shape){
+            let { mesh, zIndex, lineWidth } = this;
             let options: ShapeOptions = {
-                mesh: this.mesh,
+                mesh: mesh,
                 fillColor: this.copyDrawColor(),
-                strokeColor: ColorFStruct.create$(0,0,0,0.5),
-                zIndex: this.zIndex,
-                lineWidth: this.lineWidth // outset
+                strokeColor: lineWidth? this.copyStrokeColor() : undefined,
+                zIndex: zIndex,
+                lineWidth: lineWidth 
             }
             renderer.temp = shape = this.mesh.id === "circle" ? new Ellipse(options): new Shape(options);
         }
@@ -282,18 +282,22 @@ export class Surface extends Base<Renderer> {
     }
 
     copyDrawColor(){
-        return ColorFStruct.create(this.drawColor);
+        return ColorFStruct.create(this.fillColor);
+    }
+
+    copyStrokeColor(){
+        return ColorFStruct.create(this.strokeColor);
     }
 
     setDrawColor(color: ColorStruct){
-        let { drawColor, renderer } = this;
+        let { fillColor, renderer } = this;
         let { target } = renderer.selection;
         // Modify draw color
-        drawColor.setFromColor(color);
+        fillColor.setFromColor(color);
         // Modify color of selected drawable (if any)
         if(target){
-            target.fillColor.set(drawColor);
-            this.changeColor(target, drawColor);
+            target.fillColor.set(fillColor);
+            this.setColorAndPushAction(target, fillColor);
         }
     }
 
@@ -359,7 +363,7 @@ export class Surface extends Base<Renderer> {
         }
     }
     
-    changeColor(drawable: Drawable, color: ColorLike){
+    setColorAndPushAction(drawable: Drawable, color: ColorLike){
         let oldColor = ColorStruct.create(color);
         let newColor = ColorStruct.create(color);
         let action = new ColorChange(drawable, oldColor, newColor);

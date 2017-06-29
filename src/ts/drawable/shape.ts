@@ -50,18 +50,20 @@ export class Shape extends Base implements Drawable {
         let { fillColor, mesh, matrix, strokeColor, lineWidth } = this;
         let { gl, ext, shapeProgram, outlineProgram } = renderer;
         // Fill shape
-        renderer.attachProgram(shapeProgram);
-        shapeProgram.setProjection(gl, renderer.camera.matrix);
-        shapeProgram.setColor(gl, fillColor);
-        shapeProgram.setVertices(gl, mesh);
-        shapeProgram.setMatrices(gl, matrix);
-        if(mesh.triangleIndices){
-            let count = mesh.triangleIndices.data.length;
-            let offset = mesh.elementBufferOffset;
-            ext.drawElementsInstancedANGLE(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, offset, 1)
-        } else {
-            let count = mesh.vertices.capacity();
-            ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, count, 1);
+        if(!fillColor.isTransparent()){
+            renderer.attachProgram(shapeProgram);
+            shapeProgram.setProjection(gl, renderer.camera.matrix);
+            shapeProgram.setColor(gl, fillColor);
+            shapeProgram.setVertices(gl, mesh);
+            shapeProgram.setMatrices(gl, matrix);
+            if(mesh.triangleIndices){
+                let count = mesh.triangleIndices.data.length;
+                let offset = mesh.elementBufferOffset;
+                ext.drawElementsInstancedANGLE(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, offset, 1)
+            } else {
+                let count = mesh.vertices.capacity();
+                ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, count, 1);
+            }
         }
         // Stroke shape
         if(lineWidth){
