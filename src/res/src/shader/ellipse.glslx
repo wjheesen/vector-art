@@ -60,7 +60,7 @@ export void vertex(){
     // Project onto clip space
     gl_Position = projection * vec4(worldPosition, 1.0, 1.0);
 
-    // Meausre fill position and stroke position for use in fragment shader
+    // Meausure fill position and stroke position for use in fragment shader
     strokePosition = v * position;
     fillPosition = strokePosition * (1.0 + (lineWidth/vec2(sx,sy)));
 }

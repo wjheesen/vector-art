@@ -87,8 +87,8 @@ let toolSettings = ToolSettings.create(type => {
 });
 
 OtherSettings.create(
-    thickness => {
-        surface.lineWidth = thickness/1000;
+    lineWidth => {
+        surface.setLineWidth(lineWidth/1000);
     },
     zoomSpeed => {
         wheelZoomTool.scaleFactor = 1 + zoomSpeed/100;

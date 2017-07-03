@@ -109,6 +109,12 @@ export class Shape extends Base implements Drawable {
             strokeColor: convertFromColorF(this.strokeColor),
         });
     }
+
+    saveLineWidth(database: Database): void {
+        database.shapes.update(this.id, {
+            lineWidth: this.lineWidth,
+        });
+    }
     
     saveZindex(database: Database): void {
         database.shapes.update(this.id, {

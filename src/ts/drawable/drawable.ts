@@ -21,9 +21,13 @@ export interface Drawable extends Base<Renderer>{
      */
     fillColor: ColorFStruct;
     /**
-     * The stroke color for this drawable. 
+     * The stroke color for this drawable (if any). 
      */
     strokeColor?: ColorFStruct;
+    /**
+     * The width of the lines making up the stroke (if any). 
+     */
+    lineWidth?: number;
     /**
      * Measures the boundaries of this drawable in world space.
      * @returns the boundaries of this drawable.
@@ -60,6 +64,10 @@ export interface Drawable extends Base<Renderer>{
      * Saves this drawable's stroke color to the specified database.
      */
     saveStrokeColor?(database: Database): void;
+    /**
+     * Saves this drawable's line width to the specified database.
+     */
+    saveLineWidth?(database: Database): void;
     /**
      * Saves this drawable's zIndex to the specified database.
      */

@@ -51,16 +51,17 @@ export class NavigationTool extends MouseOrTouchTool<Surface> {
     }
 
     onEnd(event: MouseOrTouchEvent) {
+        if(!this.previousButton) { return; }
         let surface = event.target;
         let { navigateLeft, navigateRight, addCanvas, removeCanvas } = surface.renderer;
         let pointer = this.getPrimaryPointer(event);
-        if(navigateLeft.measureBoundaries().contains(pointer)){
+        if(navigateLeft.contains(pointer)){
             surface.importCanvasOnLeft();
-        } else if (navigateRight.measureBoundaries().contains(pointer)){
+        } else if (navigateRight.contains(pointer)){
             surface.importCanvasOnRight();
-        } else if (addCanvas.measureBoundaries().contains(pointer)){
+        } else if (addCanvas.contains(pointer)){
             surface.addCanvas();
-        } else if(removeCanvas.measureBoundaries().contains(pointer)) {
+        } else if(removeCanvas.contains(pointer)) {
             surface.removeCanvas();
         }
         this.resetHover();

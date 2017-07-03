@@ -19,7 +19,7 @@ export class OtherSettings {
     static create(onStrokeThicknessPick: OnLineWidthPick, onZoomSpeedPick: OnZoomSpeedPick){
 
         let settings = new OtherSettings();
-        settings.lineWidth = Option.num("line-width", 50, 1, 100);
+        settings.lineWidth = Option.num("line-width", 50, 0, 100);
         settings.onLineWidthPick = onStrokeThicknessPick;
         settings.zoomSpeed = Option.num("zoom-speed", 50, 1, 100);
         settings.onZoomSpeedPick = onZoomSpeedPick;
@@ -30,7 +30,7 @@ export class OtherSettings {
 
         // Init stroke thickness slider
         let strokeSlider = new Slider("input[name=line-width]", {
-            min: 1,
+            min: 0,
             max: 100,
             step: 1,
             value: settings.lineWidth.val,

@@ -26,6 +26,7 @@ import lastIndexOf = require('lodash.lastindexof');
 import { Option } from "../option/option";
 import { convertToColorF, convertToMat2d, convertToMat2dBuffer, convertToVertexBuffer } from "../database/conversion";
 import { SetStrokeColorAction } from "../action/setStrokeColor";
+import { SetLineWidthAction } from "../action/setLineWidth";
 
 
 export class Surface extends Base<Renderer> {
@@ -234,7 +235,7 @@ export class Surface extends Base<Renderer> {
             let options: ShapeOptions = {
                 mesh: mesh,
                 fillColor: this.copyFillColor(),
-                strokeColor: lineWidth? this.copyStrokeColor() : undefined,
+                strokeColor: this.copyStrokeColor(),
                 zIndex: zIndex,
                 lineWidth: lineWidth 
             }
@@ -311,10 +312,21 @@ export class Surface extends Base<Renderer> {
         // Modify stroke color
         strokeColor.setFromColor(color);
         // Modify color of selected drawable (if any)
-        if(target){
+        if(target && target.saveStrokeColor){
             let oldColor = ColorStruct.create(color);
             let newColor = ColorStruct.create(color);
             let action = new SetStrokeColorAction(target, oldColor, newColor);
+            this.actionStack.push(action);
+            action.redo(this);
+            this.requestRender();
+        }
+    }
+
+    setLineWidth(lineWidth: number){
+        this.lineWidth = lineWidth;
+        let target = this.renderer.selection.target;
+        if(target && target.saveLineWidth){
+            let action = new SetLineWidthAction(target, target.lineWidth, lineWidth);
             this.actionStack.push(action);
             action.redo(this);
             this.requestRender();
