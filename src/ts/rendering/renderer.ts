@@ -21,7 +21,7 @@ export class Renderer extends Base {
     ext: ANGLEInstancedArrays;
     
     shapeProgram: ShapeProgram; // TODO: rename to FillProgram
-    outlineProgram: OutlineProgram; // TODO: rename to StrokeProgram?
+    shapeOutlineProgram: OutlineProgram; // TODO: rename to StrokeProgram?
     ellipseProgram: EllipseProgram;
     frameProgram: FrameProgram;
 
@@ -49,7 +49,7 @@ export class Renderer extends Base {
         
         // Init programs
         this.shapeProgram = ShapeProgram.create(gl, this.meshes);
-        this.outlineProgram = OutlineProgram.create(gl, this.meshes);
+        this.shapeOutlineProgram = OutlineProgram.create(gl, this.meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.meshes.push(this.ellipseProgram.mesh);
         this.frameProgram = FrameProgram.create(gl);

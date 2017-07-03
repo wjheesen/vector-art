@@ -45,15 +45,14 @@ export class EllipseBatch extends ShapeBatch {
     }
 
     draw(renderer: Renderer){
-        let gl = renderer.gl;
-        let program = renderer.ellipseProgram;
+        let { gl, ext, ellipseProgram: ellipseProgram } = renderer;
         let matrices = this.matrices;
-        let instanceCount = matrices.position();
-        renderer.attachProgram(program);
-        program.setProjection(gl, renderer.camera.matrix);
-        program.setMatrices(gl, matrices);
-        program.setColor(gl, this.fillColor);
-        program.draw(renderer, instanceCount);
+        let primcount = matrices.position();
+        renderer.attachProgram(ellipseProgram);
+        ellipseProgram.setProjection(gl, renderer.camera.matrix);
+        ellipseProgram.setMatrices(gl, matrices);
+        ellipseProgram.setFillColor(gl, this.fillColor);
+        ext.drawArraysInstancedANGLE(gl.TRIANGLE_FAN, 0, 4, primcount);
     }
     
 }

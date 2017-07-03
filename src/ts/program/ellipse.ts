@@ -4,6 +4,7 @@ import { Program } from './program';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat4Struct } from 'gl2d/struct/mat4';
 import { Mesh } from "gl2d/drawable/mesh";
+import { TRANSPARENT } from "../color/transparent";
 import * as Util from 'gl2d/rendering/util';
 import * as Shader from '../../res/build/shader/ellipse';
 
@@ -97,18 +98,23 @@ export class EllipseProgram extends Program<Shader.Uniforms, Shader.Attributes> 
     }
 
     /**
-     * Sets this program's draw color.
+     * Sets the fill color for the ellipse.
      */
-    setColor(gl: WebGLRenderingContext, color: ColorFStruct) {
-        gl.uniform4fv(this.uniforms.color, color.data);
+    setFillColor(gl: WebGLRenderingContext, color: ColorFStruct) {
+        gl.uniform4fv(this.uniforms.fillColor, color.data);
     }
 
     /**
-     * Draws an ellipse using the color and bounds data loaded into the program. 
+     * Sets the stroke color for the ellipse.
      */
-    draw(renderer: Renderer, primcount = 1){
-        let gl = renderer.gl;
-        let ext = renderer.ext;
-        ext.drawArraysInstancedANGLE(gl.TRIANGLE_FAN, 0, 4, primcount);
+    setStrokeColor(gl: WebGLRenderingContext, color?: ColorFStruct) {
+        gl.uniform4fv(this.uniforms.strokeColor, (color? color: TRANSPARENT).data);
+    }
+
+    /**
+     * Sets the width of the lines making up the stroke.
+     */
+    setLineWidth(gl: WebGLRenderingContext, lineWidth: number){
+        gl.uniform1f(this.uniforms.lineWidth, lineWidth);
     }
 }

@@ -31,11 +31,10 @@ export class Ellipse extends Shape {
             // Performs singular value decomposition of the model matrix to extract
             // (1) The length of the semi-x axis (sx), which is equal to the first singular value in the Sigma matrix
             // (2) The length of the semi-y axis (sy), which is equal to the second singular value in the Sigma matrix
-            // (3) The rotation angle (theta), from -PI/2 to PI/2, which is equal to the angle used to form the U matrix
-            // Note: there is no need to compute the matrix V*
-            // Boundaries are then computed with the formula:
-            // x = (sx)^2 * (cos(theta)^2) + (sy)^2*(sin(theta)^2)
-            // y = (sx)^2 * (sin(theta)^2) + (sy)^2*(cos(theta)^2)
+            // (3) The rotation angle (phi), from -PI/2 to PI/2, which is equal to the angle used to form the U matrix
+            // Boundaries are then meausure with the formula:
+            // x = (sx)^2 * (cos(phi)^2) + (sy)^2*(sin(phi)^2)
+            // y = (sx)^2 * (sin(phi)^2) + (sy)^2*(cos(phi)^2)
             // left = tx - x, right = tx + x, bottom = ty - y, top = ty + y
             let { c1r1: a, c2r1: b, c3r1: tx, c1r2: c, c2r2: d, c3r2: ty } = matrix;
 
@@ -48,9 +47,9 @@ export class Ellipse extends Shape {
             let n = a2 + b2 - c2 - d2;
 
             // Cos and sin of angle squared:
-            let theta = 0.5 * Math.atan2(2*m, n);
-            let cos2 = Math.pow(Math.cos(theta), 2);
-            let sin2 = Math.pow(Math.sin(theta), 2);
+            let phi = 0.5 * Math.atan2(2*m, n);
+            let cos2 = Math.pow(Math.cos(phi), 2);
+            let sin2 = Math.pow(Math.sin(phi), 2);
 
             // Length of axes squared:
             let s1 = a2 + b2 + c2 + d2;
@@ -79,12 +78,14 @@ export class Ellipse extends Shape {
     }
 
     draw(renderer: Renderer){
-        let gl = renderer.gl;
-        let program = renderer.ellipseProgram;
-        renderer.attachProgram(program);
-        program.setProjection(gl, renderer.camera.matrix);
-        program.setColor(gl, this.fillColor);
-        program.setMatrices(gl, this.matrix);
-        program.draw(renderer);
+        let { gl, ext, ellipseProgram } = renderer;
+        let { fillColor, matrix, strokeColor, lineWidth } = this;
+        renderer.attachProgram(ellipseProgram);
+        ellipseProgram.setProjection(gl, renderer.camera.matrix);
+        ellipseProgram.setMatrices(gl, matrix);
+        ellipseProgram.setFillColor(gl, fillColor);
+        ellipseProgram.setLineWidth(gl, lineWidth);
+        ellipseProgram.setStrokeColor(gl, strokeColor);
+        ext.drawArraysInstancedANGLE(gl.TRIANGLE_FAN, 0, 4, 1);
     }
 }

@@ -23,7 +23,7 @@ export class Shape extends Base implements Drawable {
 
     fillColor: ColorFStruct;
     strokeColor: ColorFStruct;
-    lineWidth: number;
+    lineWidth = 0;
     zIndex: number;
     id: number;
 
@@ -48,7 +48,7 @@ export class Shape extends Base implements Drawable {
 
     draw(renderer: Renderer){
         let { fillColor, mesh, matrix, strokeColor, lineWidth } = this;
-        let { gl, ext, shapeProgram, outlineProgram } = renderer;
+        let { gl, ext, shapeProgram, shapeOutlineProgram } = renderer;
         // Fill shape
         if(!fillColor.isTransparent()){
             renderer.attachProgram(shapeProgram);
@@ -67,13 +67,13 @@ export class Shape extends Base implements Drawable {
         }
         // Stroke shape
         if(lineWidth){
-            renderer.attachProgram(outlineProgram);
-            outlineProgram.setProjection(gl, renderer.camera.matrix);
-            outlineProgram.setMatrices(gl, matrix);
-            outlineProgram.setColor(gl, strokeColor);
-            outlineProgram.setVertices(gl, mesh);
-            outlineProgram.setMiters(gl, mesh);
-            outlineProgram.setLineWidth(gl, lineWidth);
+            renderer.attachProgram(shapeOutlineProgram);
+            shapeOutlineProgram.setProjection(gl, renderer.camera.matrix);
+            shapeOutlineProgram.setMatrices(gl, matrix);
+            shapeOutlineProgram.setColor(gl, strokeColor);
+            shapeOutlineProgram.setVertices(gl, mesh);
+            shapeOutlineProgram.setMiters(gl, mesh);
+            shapeOutlineProgram.setLineWidth(gl, lineWidth);
             let count = mesh.strokeElementCount;
             let offset = mesh.strokeElementBufferOffset;
             ext.drawElementsInstancedANGLE(gl.TRIANGLE_STRIP, count, gl.UNSIGNED_SHORT, offset, 1)

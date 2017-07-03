@@ -42,7 +42,7 @@
     "gulp-json-minify": "^1.2.0",
     "gulp-reduce-file": "0.0.1",
     "gulp-rename": "^1.2.2",
-    "gulp-shadify": "0.0.6",
+    "gulp-shadify": "^0.0.7",
     "tsify": "^3.0.1",
     "typescript": "^2.3.2",
     "vinyl-source-stream": "^1.1.0"
