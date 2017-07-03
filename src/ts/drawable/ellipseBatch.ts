@@ -38,7 +38,7 @@ export class EllipseBatch extends ShapeBatch {
             inverse.setInverse(matrices);
             inverse.map(pt, modelPt);
             if(bounds.contains(modelPt) && modelPt.distance2() <= 1){
-               return matrices.moveToLast();
+               return true;
             }
         }
         return false;
@@ -47,11 +47,12 @@ export class EllipseBatch extends ShapeBatch {
     draw(renderer: Renderer){
         let { gl, ext, ellipseProgram: ellipseProgram } = renderer;
         let matrices = this.matrices;
-        let primcount = matrices.position();
+        let primcount = matrices.capacity();
         renderer.attachProgram(ellipseProgram);
         ellipseProgram.setProjection(gl, renderer.camera.matrix);
         ellipseProgram.setMatrices(gl, matrices);
         ellipseProgram.setFillColor(gl, this.fillColor);
+        ellipseProgram.setLineWidth(gl, 0);
         ext.drawArraysInstancedANGLE(gl.TRIANGLE_FAN, 0, 4, primcount);
     }
     

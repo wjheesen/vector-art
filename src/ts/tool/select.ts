@@ -1,7 +1,6 @@
 import { Ellipse } from '../drawable/ellipse';
 import { Selection } from '../drawable/selection';
 import { MouseOrTouchEvent } from '../event/mouseOrTouch';
-import { convertToSVD } from '../math/convertToSvd';
 import { Surface } from '../rendering/surface';
 import { Status } from 'gl2d/event/status';
 import { Mat2d } from 'gl2d/struct/mat2d';
@@ -113,11 +112,6 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
                 let scaleMatrix = Mat2d.scaleToPoint(this.previous, pointer, this.pivot);
                 selection.scale(scaleMatrix);
                 matrix.postConcat(scaleMatrix);
-                let mat = (<any>selection.target).matrix;
-                let svd = convertToSVD(mat);
-                let m = Mat2d.create(svd.v);
-                m.postConcat(svd.s);
-                m.postConcat(svd.u);
                 break;
             case Transformation.Rotate:
                 let rotationMatrix = Mat2d.stretchRotateToPoint(this.control.measureCenter(), pointer, this.pivot);
@@ -134,7 +128,7 @@ export class SelectTool extends MouseOrTouchTool<Surface> {
         let renderer = surface.renderer;
         let selection = renderer.selection;
         // Save transform 
-        surface.recordTransformation(selection.target, this.matrix);
+        surface.transformDrawable(selection.target, this.matrix);
         this.matrix = null;
         // End transform if user tapped the selected shape
         if(this.reselected && this.dragCount <5 && selection.contains(pointer)){

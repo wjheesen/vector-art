@@ -1,16 +1,16 @@
-import { convertFromColorF } from '../database/conversion';
-import { Renderer } from '../rendering/renderer';
-import { Surface } from '../rendering/surface';
-import { Drawable } from './drawable';
-import { Shape } from './shape';
 import { Mesh } from 'gl2d/drawable/mesh';
-import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat2d, Mat2dBuffer, ScaleToFit } from 'gl2d/struct/mat2d';
 import { PointLike } from 'gl2d/struct/point';
 import { Point } from 'gl2d/struct/point';
 import { Rect } from 'gl2d/struct/rect';
-import { Vec2Like, Vec2 } from 'gl2d/struct/vec2';
+import { Vec2, Vec2Like } from 'gl2d/struct/vec2';
+
+import { convertFromColorF } from '../database/conversion';
+import { Database } from '../database/database';
+import { Renderer } from '../rendering/renderer';
+import { Drawable } from './drawable';
+import { Shape } from './shape';
 
 export interface ShapeBatchOptions {
     mesh: Mesh;
@@ -147,40 +147,37 @@ export class ShapeBatch implements Drawable {
         }
     }
 
-   save(surface: Surface){
-        let { database, canvasId } = surface;
+   save(database: Database, canvasId: number){
         let { zIndex, fillColor, matrices, mesh } = this;
         database.getTypeId(mesh.id).then(typeId => {
             database.shapeBatches.add({
                 typeId: typeId,
                 zIndex: zIndex,
-                canvasId: canvasId.val,
+                canvasId: canvasId,
                 fillColor: convertFromColorF(fillColor),
                 matrices: matrices.data.buffer
             }).then(id => this.id = id);
         });
     }
 
-    delete(surface: Surface): void {
-        surface.database.shapeBatches.delete(this.id);
+    delete(database: Database): void {
+        database.shapeBatches.delete(this.id);
     }
 
-    setFillColorAndSave(surface: Surface, color: ColorStruct): void {
-        this.fillColor.setFromColor(color);
-        surface.database.shapeBatches.update(this.id, {
-            color: color.data.buffer
+    saveFillColor(database: Database): void {
+        database.shapeBatches.update(this.id, {
+            fillColor: convertFromColorF(this.fillColor),
         })
     }
     
-    setZIndexAndSave(surface: Surface, zIndex: number): void {
-        this.zIndex = zIndex;
-        surface.database.shapeBatches.update(this.id, {
-            zIndex: zIndex
+    saveZindex(database: Database): void {
+        database.shapeBatches.update(this.id, {
+            zIndex: this.zIndex
         })
     }
 
-    savePosition(surface: Surface){
-        surface.database.shapeBatches.update(this.id, {
+    savePosition(database: Database){
+        database.shapeBatches.update(this.id, {
             matrices: this.matrices.data.buffer
         });
     }

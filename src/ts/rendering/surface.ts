@@ -1,10 +1,9 @@
-import { ColorLike } from 'gl2d/struct/color';
 import { Action } from '../action/action';
-import { ColorChange } from '../action/colorChange';
-import { Insertion } from '../action/insertion';
-import { ActionRecord } from '../action/record';
-import { Removal } from '../action/removal';
-import { Transformation } from '../action/transformation';
+import { SetFillColorAction } from '../action/setFillColor';
+import { AddDrawableAction } from '../action/addDrawable';
+import { ActionStack } from '../action/stack';
+import { RemoveDrawableAction } from '../action/removeDrawable';
+import { TransformDrawableAction } from '../action/transformDrawable';
 import { Database } from '../database/database';
 import { Drawable } from '../drawable/drawable';
 import { Ellipse } from '../drawable/ellipse';
@@ -17,7 +16,7 @@ import { Renderer } from './renderer';
 import { Mesh } from 'gl2d/drawable/mesh';
 import { Camera } from 'gl2d/rendering/camera';
 import { Surface as Base } from 'gl2d/rendering/surface';
-import { ColorStruct } from 'gl2d/struct/color';
+import { ColorStruct, ColorLike } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat2d, Mat2dBuffer } from 'gl2d/struct/mat2d';
 import { PointLike } from 'gl2d/struct/point';
@@ -26,6 +25,7 @@ import { VertexBuffer } from 'gl2d/struct/vertex';
 import lastIndexOf = require('lodash.lastindexof');
 import { Option } from "../option/option";
 import { convertToColorF, convertToMat2d, convertToMat2dBuffer, convertToVertexBuffer } from "../database/conversion";
+import { SetStrokeColorAction } from "../action/setStrokeColor";
 
 
 export class Surface extends Base<Renderer> {
@@ -36,7 +36,7 @@ export class Surface extends Base<Renderer> {
     lineWidth: number;
     zIndex = 1;
 
-    record = new ActionRecord();
+    actionStack = new ActionStack();
 
     database = new Database();
     canvasId = Option.num("canvasId",1, 1, 0xffffffff);
@@ -186,7 +186,7 @@ export class Surface extends Base<Renderer> {
 
     clear(){
         this.renderer.drawables.length = 0;
-        this.record.clear();
+        this.actionStack.clear();
     }
 
     private addDrawableToSortedStack(drawable: Drawable){
@@ -219,7 +219,7 @@ export class Surface extends Base<Renderer> {
         if(!line){
             renderer.temp = line = new Line({
                 mesh: this.getMesh("square"),
-                fillColor: this.copyDrawColor(),
+                fillColor: this.copyFillColor(),
                 zIndex: this.zIndex,
             });
         }
@@ -233,7 +233,7 @@ export class Surface extends Base<Renderer> {
             let { mesh, zIndex, lineWidth } = this;
             let options: ShapeOptions = {
                 mesh: mesh,
-                fillColor: this.copyDrawColor(),
+                fillColor: this.copyFillColor(),
                 strokeColor: lineWidth? this.copyStrokeColor() : undefined,
                 zIndex: zIndex,
                 lineWidth: lineWidth 
@@ -252,7 +252,7 @@ export class Surface extends Base<Renderer> {
 
             let options: ShapeBatchOptions = {
                 mesh: this.mesh,
-                fillColor: this.copyDrawColor(),
+                fillColor: this.copyFillColor(),
                 matrices: matrices,
                 zIndex: this.zIndex,
             }
@@ -269,7 +269,7 @@ export class Surface extends Base<Renderer> {
             let vertices = new VertexBuffer(buffer);
             vertices.capacity = vertices.position; // Hack
             renderer.temp = stroke = new Stroke({
-                fillColor: this.copyDrawColor(),
+                fillColor: this.copyFillColor(),
                 vertices: vertices,
                 zIndex: this.zIndex,
             });
@@ -281,7 +281,7 @@ export class Surface extends Base<Renderer> {
         return this.renderer.meshes.find(mesh => mesh.id === id);
     }
 
-    copyDrawColor(){
+    copyFillColor(){
         return ColorFStruct.create(this.fillColor);
     }
 
@@ -289,28 +289,48 @@ export class Surface extends Base<Renderer> {
         return ColorFStruct.create(this.strokeColor);
     }
 
-    setDrawColor(color: ColorStruct){
+    setFillColor(color: ColorLike){
         let { fillColor, renderer } = this;
         let { target } = renderer.selection;
-        // Modify draw color
+        // Modify fill color
         fillColor.setFromColor(color);
         // Modify color of selected drawable (if any)
         if(target){
-            target.fillColor.set(fillColor);
-            this.setColorAndPushAction(target, fillColor);
+            let oldColor = ColorStruct.create(color);
+            let newColor = ColorStruct.create(color);
+            let action = new SetFillColorAction(target, oldColor, newColor);
+            this.actionStack.push(action);
+            action.redo(this);
+            this.requestRender();
+        }
+    }
+
+    setStrokeColor(color: ColorLike){
+        let { strokeColor, renderer } = this;
+        let { target } = renderer.selection;
+        // Modify stroke color
+        strokeColor.setFromColor(color);
+        // Modify color of selected drawable (if any)
+        if(target){
+            let oldColor = ColorStruct.create(color);
+            let newColor = ColorStruct.create(color);
+            let action = new SetStrokeColorAction(target, oldColor, newColor);
+            this.actionStack.push(action);
+            action.redo(this);
+            this.requestRender();
         }
     }
 
     addTempDrawable(){
-        let { renderer, record } = this;
+        let { renderer, actionStack } = this;
         let { temp, drawables, camera } = renderer;
         // If temp drawable lies inside viewable camera area
         if(temp && camera.target.intersects(temp.measureBoundaries())){
             // Add to drawable stack and record action
             let index = drawables.length;
-            let action = new Insertion(temp, index);
+            let action = new AddDrawableAction(temp, index);
             action.redo(this); // Does the actual insertion
-            record.push(action);
+            actionStack.push(action);
             this.zIndex++;
         }
         // Remove temp drawable
@@ -355,63 +375,52 @@ export class Surface extends Base<Renderer> {
         }
     }
 
-    recordTransformation(drawable?: Drawable, matrix?: Mat2d){
+    transformDrawable(drawable?: Drawable, matrix?: Mat2d){
         if(drawable && matrix && !matrix.isIdentity()){
-            let action = new Transformation(drawable, matrix);
-            this.record.push(action);
-            drawable.savePosition(this);
+            let action = new TransformDrawableAction(drawable, matrix);
+            this.actionStack.push(action);
+            drawable.savePosition(this.database);
         }
     }
     
-    setColorAndPushAction(drawable: Drawable, color: ColorLike){
-        let oldColor = ColorStruct.create(color);
-        let newColor = ColorStruct.create(color);
-        let action = new ColorChange(drawable, oldColor, newColor);
-        this.record.push(action);
-        drawable.setFillColorAndSave(this, newColor);
-    }
-
     removeDrawable(drawable: Drawable){
-        let { renderer, record } = this;
+        let { renderer, actionStack } = this;
         let index = lastIndexOf(renderer.drawables, drawable);
-        let action = new Removal(drawable, index);
+        let action = new RemoveDrawableAction(drawable, index);
         action.redo(this); // Does the actual removal
-        record.push(action);
+        actionStack.push(action);
     }
 
     undoLastAction(){
-        let { renderer, record } = this;
+        let { renderer, actionStack } = this;
         let { drawables } = renderer;
-        let { undoableActions, redoableActions } = record;
-        let action: Action;
+        let action = actionStack.pop();
 
-        if(undoableActions.length > 0){
-            action = undoableActions.pop();
-        } else if(drawables.length > 0){
+        if(!action && drawables.length > 0){
             let index = drawables.length - 1;
-            action = new Insertion(drawables[index], index)
-        } 
+            action = new AddDrawableAction(drawables[index], index)
+        }
 
         if(action){
             action.undo(this);
-            redoableActions.push(action);
+            actionStack.redos.push(action);
         }
         
         return action;
     }
 
     redoLastUndo(){
-        let { record } = this;
-        let { undoableActions, redoableActions } = record;
+        let { actionStack } = this;
+        let { undos, redos } = actionStack;
         let action: Action;
 
-        if(redoableActions.length > 0){
-            action = redoableActions.pop();
+        if(redos.length > 0){
+            action = redos.pop();
         }
 
         if(action){
             action.redo(this);
-            undoableActions.push(action);
+            undos.push(action);
         }
 
         return action;

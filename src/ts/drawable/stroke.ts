@@ -1,18 +1,18 @@
-import { convertFromColorF } from '../database/conversion';
-import { Renderer } from '../rendering/renderer';
-import { Surface } from '../rendering/surface';
-import { Drawable } from './drawable';
-import { Shape } from './shape';
-import { Mat2dStruct } from 'gl2d/struct/mat2d';
 import { Graphic } from 'gl2d/drawable/graphic';
-import { ColorStruct } from 'gl2d/struct/color';
+import { measureMiter } from 'gl2d/math/miter';
 import { ColorFStruct } from 'gl2d/struct/colorf';
+import { Mat2dStruct } from 'gl2d/struct/mat2d';
 import { Mat2d } from 'gl2d/struct/mat2d';
 import { Point, PointLike } from 'gl2d/struct/point';
 import { Rect } from 'gl2d/struct/rect';
 import { Vec2 } from 'gl2d/struct/vec2';
 import { VertexBuffer } from 'gl2d/struct/vertex';
-import { measureMiter } from 'gl2d/math/miter';
+
+import { convertFromColorF } from '../database/conversion';
+import { Database } from '../database/database';
+import { Renderer } from '../rendering/renderer';
+import { Drawable } from './drawable';
+import { Shape } from './shape';
 
 export interface StrokeOptions {
     vertices: VertexBuffer;
@@ -233,38 +233,35 @@ export class Stroke extends Graphic implements Drawable {
         ext.drawArraysInstancedANGLE(gl.TRIANGLE_STRIP, 0, count, 1);
     }
     
-   save(surface: Surface){
-        let { database, canvasId } = surface;
+   save(database: Database, canvasId: number){
         let { zIndex, fillColor, vertices, matrix } = this;
         database.strokes.add({
             zIndex: zIndex,
-            canvasId: canvasId.val,
+            canvasId: canvasId,
             fillColor: convertFromColorF(fillColor),
             vertices: vertices.data.buffer,
             matrix: matrix.data.buffer
         }).then(id => this.id = id);
     }
 
-    delete(surface: Surface): void {
-        surface.database.strokes.delete(this.id);
+    delete(database: Database): void {
+        database.strokes.delete(this.id);
     }
 
-    setFillColorAndSave(surface: Surface, color: ColorStruct): void {
-        this.fillColor.setFromColor(color);
-        surface.database.strokes.update(this.id, {
-            color: color.data.buffer
+    saveFillColor(database: Database): void {
+        database.strokes.update(this.id, {
+            fillColor: convertFromColorF(this.fillColor),
         })
     }
     
-    setZIndexAndSave(surface: Surface, zIndex: number): void {
-        this.zIndex = zIndex;
-        surface.database.strokes.update(this.id, {
-            zIndex: zIndex
+    saveZindex(database: Database): void {
+        database.strokes.update(this.id, {
+            zIndex: this.zIndex
         })
     }
 
-    savePosition(surface: Surface){
-        surface.database.strokes.update(this.id, {
+    savePosition(database: Database){
+        database.strokes.update(this.id, {
             matrix: this.matrix.data.buffer
         });
     }

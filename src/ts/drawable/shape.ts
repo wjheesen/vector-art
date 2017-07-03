@@ -1,13 +1,12 @@
 import { convertFromColorF } from '../database/conversion';
 import { Renderer } from '../rendering/renderer';
-import { Surface } from '../rendering/surface';
 import { Drawable } from './drawable';
 import { Rect } from 'gl2d/struct/rect';
 import { Mesh } from 'gl2d/drawable/mesh';
 import { Shape as Base } from 'gl2d/drawable/shape';
-import { ColorStruct } from 'gl2d/struct/color';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat2d, Mat2dStruct, ScaleToFit } from 'gl2d/struct/mat2d';
+import { Database } from "../database/database";
 
 export interface ShapeOptions {
     mesh: Mesh;
@@ -23,7 +22,7 @@ export class Shape extends Base implements Drawable {
 
     fillColor: ColorFStruct;
     strokeColor: ColorFStruct;
-    lineWidth = 0;
+    lineWidth: number;
     zIndex: number;
     id: number;
 
@@ -31,7 +30,7 @@ export class Shape extends Base implements Drawable {
         super(options.mesh, options.matrix);
         this.fillColor = options.fillColor;
         this.strokeColor = options.strokeColor;
-        this.lineWidth = options.lineWidth;
+        this.lineWidth = options.lineWidth || 0;
         this.zIndex = options.zIndex;
         this.id = options.id;
     }
@@ -80,14 +79,13 @@ export class Shape extends Base implements Drawable {
         }
     }
 
-    save(surface: Surface){
-        let { database, canvasId } = surface;
+    save(database: Database, canvasId: number){
         let { zIndex, fillColor, strokeColor, lineWidth, matrix, mesh } = this;
         database.getTypeId(mesh.id).then(typeId => {
             database.shapes.add({
                 typeId: typeId,
                 zIndex: zIndex,
-                canvasId: canvasId.val,
+                canvasId: canvasId,
                 lineWidth: lineWidth,
                 fillColor: convertFromColorF(fillColor),
                 strokeColor: convertFromColorF(strokeColor),
@@ -96,26 +94,30 @@ export class Shape extends Base implements Drawable {
         });
     }
 
-    delete(surface: Surface): void {
-        surface.database.shapes.delete(this.id);
+    delete(database: Database): void {
+        database.shapes.delete(this.id);
     }
 
-    setFillColorAndSave(surface: Surface, color: ColorStruct): void {
-        this.fillColor.setFromColor(color);
-        surface.database.shapes.update(this.id, {
-            color: color.data.buffer
+    saveFillColor(database: Database): void {
+        database.shapes.update(this.id, {
+            fillColor: convertFromColorF(this.fillColor),
+        });
+    }
+
+    saveStrokeColor(database: Database): void {
+        database.shapes.update(this.id, {
+            strokeColor: convertFromColorF(this.strokeColor),
         });
     }
     
-    setZIndexAndSave(surface: Surface, zIndex: number): void {
-        this.zIndex = zIndex;
-        surface.database.shapes.update(this.id, {
-            zIndex: zIndex
+    saveZindex(database: Database): void {
+        database.shapes.update(this.id, {
+            zIndex: this.zIndex
         })
     }
 
-    savePosition(surface: Surface){
-        surface.database.shapes.update(this.id, {
+    savePosition(database: Database){
+        database.shapes.update(this.id, {
             matrix: this.matrix.data.buffer
         });
     }

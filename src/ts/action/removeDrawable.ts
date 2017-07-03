@@ -1,7 +1,7 @@
-import { Insertion } from './insertion';
+import { AddDrawableAction } from './addDrawable';
 import { Surface } from '../rendering/surface';
 
-export class Removal extends Insertion {
+export class RemoveDrawableAction extends AddDrawableAction {
 
     redo(surface: Surface) {
         super.undo(surface);

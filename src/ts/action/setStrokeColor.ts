@@ -3,7 +3,7 @@ import { Drawable } from '../drawable/drawable';
 import { Surface } from '../rendering/surface';
 import { Action } from './action';
 
-export class ColorChange implements Action {
+export class SetStrokeColorAction implements Action {
 
     constructor(
         public drawable: Drawable,
@@ -13,11 +13,13 @@ export class ColorChange implements Action {
 
     redo(surface: Surface) {
         let { drawable, newColor } = this;
-        drawable.fillColor.setFromColor(newColor);
+        drawable.strokeColor.setFromColor(newColor);
+        drawable.saveStrokeColor(surface.database);
     }
 
     undo(surface: Surface) {
         let { drawable, oldColor } = this;
-        drawable.fillColor.setFromColor(oldColor);
+        drawable.strokeColor.setFromColor(oldColor);
+        drawable.saveStrokeColor(surface.database);
     }
 }

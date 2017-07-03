@@ -85,7 +85,9 @@ export class Ellipse extends Shape {
         ellipseProgram.setMatrices(gl, matrix);
         ellipseProgram.setFillColor(gl, fillColor);
         ellipseProgram.setLineWidth(gl, lineWidth);
-        ellipseProgram.setStrokeColor(gl, strokeColor);
+        if(lineWidth){
+            ellipseProgram.setStrokeColor(gl, strokeColor);
+        }
         ext.drawArraysInstancedANGLE(gl.TRIANGLE_FAN, 0, 4, 1);
     }
 }

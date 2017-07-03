@@ -39,27 +39,11 @@ function setTool(tool: _MouseOrTouchTool){
 }
 
 function setFillColor(color: ColorLike){
-    let { fillColor, renderer } = surface;
-    let { target } = renderer.selection;
-    // Set fill color
-    fillColor.setFromColor(color);
-    // Set color of selected drawable (if any)
-    if(target){
-        surface.setColorAndPushAction(target, color);
-        surface.requestRender();
-    }
+    surface.setFillColor(color);
 }
 
 function setStrokeColor(color: ColorLike){
-    let { strokeColor, renderer } = surface;
-    let { target } = renderer.selection;
-    // Set fill color
-    strokeColor.setFromColor(color);
-    // Set color of selected drawable (if any)
-    if(target){
-        surface.setColorAndPushAction(target, color);
-        surface.requestRender();
-    }
+    surface.setStrokeColor(color);
 }
 
 function undo(){

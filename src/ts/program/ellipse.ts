@@ -4,7 +4,6 @@ import { Program } from './program';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat4Struct } from 'gl2d/struct/mat4';
 import { Mesh } from "gl2d/drawable/mesh";
-import { TRANSPARENT } from "../color/transparent";
 import * as Util from 'gl2d/rendering/util';
 import * as Shader from '../../res/build/shader/ellipse';
 
@@ -107,8 +106,8 @@ export class EllipseProgram extends Program<Shader.Uniforms, Shader.Attributes> 
     /**
      * Sets the stroke color for the ellipse.
      */
-    setStrokeColor(gl: WebGLRenderingContext, color?: ColorFStruct) {
-        gl.uniform4fv(this.uniforms.strokeColor, (color? color: TRANSPARENT).data);
+    setStrokeColor(gl: WebGLRenderingContext, color: ColorFStruct) {
+        gl.uniform4fv(this.uniforms.strokeColor, color.data);
     }
 
     /**

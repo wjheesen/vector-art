@@ -1,5 +1,3 @@
-import { ColorStruct } from 'gl2d/struct/color';
-import { Surface } from '../rendering/surface';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Renderer } from '../rendering/renderer';
 import { Drawable as Base} from 'gl2d/drawable/drawable';
@@ -7,6 +5,7 @@ import { Rect } from "gl2d/struct/rect";
 import { Vec2Like } from "gl2d/struct/vec2";
 import { Mat2d } from "gl2d/struct/mat2d";
 import { PointLike } from "gl2d/struct/point";
+import { Database } from "../database/database";
 
 export interface Drawable extends Base<Renderer>{
     /**
@@ -21,6 +20,10 @@ export interface Drawable extends Base<Renderer>{
      * The fill color for this drawable. 
      */
     fillColor: ColorFStruct;
+    /**
+     * The stroke color for this drawable. 
+     */
+    strokeColor?: ColorFStruct;
     /**
      * Measures the boundaries of this drawable in world space.
      * @returns the boundaries of this drawable.
@@ -42,23 +45,27 @@ export interface Drawable extends Base<Renderer>{
      */
     transform(matrix: Mat2d): void;
     /**
-     * Saves this drawable to the surface database.
+     * Saves this drawable to the specified canvas of the specified database.
      */
-    save(surface: Surface): void;
+    save(database: Database, canvasId: number): void;
     /**
-     * Deletes this drawable from the surface database.
+     * Deletes this drawable from the specified database.
      */
-    delete(surface: Surface): void;
+    delete(database: Database): void;
     /**
-     * Sets the color of this drawable and saves the change in the surface database.
+     * Saves this drawable's fill color to the specified database.
      */
-    setFillColorAndSave(surface: Surface, color: ColorStruct): void;
+    saveFillColor(database: Database): void;
     /**
-     * Sets the zIndex of this drawable and saves the change in the surface database.
+     * Saves this drawable's stroke color to the specified database.
      */
-    setZIndexAndSave(surface: Surface, zIndex: number): void;
+    saveStrokeColor?(database: Database): void;
     /**
-     * Saves the position of this drawable in the surface database.
+     * Saves this drawable's zIndex to the specified database.
      */
-    savePosition(surface: Surface): void;
+    saveZindex(database: Database): void;
+    /**
+     * Saves the position of this drawable to the specified database.
+     */
+    savePosition(database: Database): void;
 }
