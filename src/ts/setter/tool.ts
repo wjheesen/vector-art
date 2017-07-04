@@ -15,6 +15,12 @@ export class ToolSetter {
 
         let setter = new ToolSetter(initialTool, onToolSet, onMenuOpen);
 
+        $("#tool-button").click(function(){
+            if(setter.onMenuOpen){
+                setter.onMenuOpen();
+            }
+        })
+
         $("#tool-settings > a").click(function(){
             let tool = $(this).attr("id");
             setter.setTool(tool)
