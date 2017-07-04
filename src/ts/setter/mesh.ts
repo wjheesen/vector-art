@@ -24,7 +24,7 @@ export class MeshSetter {
     }
 
     setMesh(mesh: string){
-        let icon = $("#mesh-button").children("i");
+        let icon = $("#mesh-button > i");
         // Remove previous mesh icon
         let previousMesh = this.mesh;
         if(previousMesh){

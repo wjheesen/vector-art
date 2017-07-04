@@ -1,6 +1,5 @@
 import { ShapeAspectTool } from './tool/shapeAspect';
 import { ToolGroup } from './tool/group';
-// import { ColorSampler } from './tool/colorSampler';
 import { Color } from 'gl2d/struct/color';
 import { Surface } from './rendering/surface';
 import { ColorSetter } from './setter/color';
@@ -57,9 +56,6 @@ let tools: ToolGroup = {
 
 let panTool = new PanTool();
 let editTool = new EditTool();
-// let colorSampler = new ColorSampler(color => 
-//     fillColorSelector.setColor(Color.fromColorF(color))
-// );
 
 function setTool(tool: _MouseOrTouchTool){
     if(currentTool !== tool){
@@ -100,20 +96,23 @@ MeshSetter.create(settings.mesh.val, mesh => {
     surface.setMesh(mesh);
 });
 
-let cursorSettings = CursorSetter.create(settings.cursor.val, cursor => {
+let toolSetter = ToolSetter.create(settings.tool.val, tool => {
+    settings.tool.val = tool;
+    setTool(tools[tool]);
+});
+
+let cursorSetter = CursorSetter.create(settings.cursor.val, cursor => {
     settings.cursor.val = cursor;
     switch(cursor){
         case "pan": return setTool(panTool);
         case "edit": return setTool(editTool);
-        // case "colorSampler": return setTool(colorSampler);
         default: return setTool(tools[settings.tool.val]);
     }
 })
 
-ToolSetter.create(settings.tool.val, tool => {
-    settings.tool.val = tool;
-    cursorSettings.disableCursor();
-});
+toolSetter.onMenuOpen = () => {
+    cursorSetter.disableCursor();
+}
 
 OtherSetter.create(
     settings.lineWidth.val,

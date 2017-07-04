@@ -19,8 +19,8 @@ export class AddDrawableAction implements Action {
 
     undo(surface: Surface) {
         let { drawable, index } = this;
-        let { database, canvasId, renderer } = surface;
+        let { database, renderer } = surface;
         renderer.drawables.splice(index, 1); // "stack.remove(index)"
-        drawable.save(database, canvasId.val);
+        drawable.delete(database);
     }
 }
