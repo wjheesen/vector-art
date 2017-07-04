@@ -1,0 +1,40 @@
+import * as $ from 'jquery';
+
+export type OnToolSet = (id: string) => void;
+
+export class ToolSetter {
+    
+    private constructor(
+        public tool: string,
+        public onToolSet: OnToolSet
+    ){}
+
+    static create(initialTool: string, onToolSet: OnToolSet){
+
+        let setter = new ToolSetter(initialTool, onToolSet);
+
+        $("#tool-settings > a").click(function(){
+            let tool = $(this).attr("id");
+            setter.setTool(tool)
+        })
+
+        // Set initial tool
+        setter.setTool(initialTool);
+ 
+        return setter;
+    }
+
+    setTool(tool: string){
+        let icon = $("#tool-button").children("i");
+        // Remove previous tool icon
+        let previous = this.tool;
+        if(previous){
+            icon.remove("icon-" + previous);
+        }
+        // Add new tool icon
+        icon.addClass("icon-" + tool);
+        this.tool = tool;
+        // Invoke callback
+        this.onToolSet(tool);
+    }
+}

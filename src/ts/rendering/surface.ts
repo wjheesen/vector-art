@@ -282,6 +282,10 @@ export class Surface extends Base<Renderer> {
         return this.renderer.meshes.find(mesh => mesh.id === id);
     }
 
+    setMesh(id: string){
+        this.mesh = this.getMesh(id);
+    }
+
     copyFillColor(){
         return ColorFStruct.create(this.fillColor);
     }

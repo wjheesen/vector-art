@@ -19,3 +19,4 @@ x 2017-06-29 X 2017-06-21 (B) Improve accuracy of stroke contains method
 x 2017-06-22 2017-06-21 (A) Implement close method on stroke class
 x 2017-06-22 2017-06-22 (A) Add matrix transformation to stroke class.
 x 2017-07-03 2017-06-29 (A) Add support for circle/ellipse outines
+x 2017-07-04 2017-06-29 (B) Move select and pan buttons out from tool menu next to undo/redo buttons

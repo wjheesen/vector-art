@@ -4,5 +4,4 @@
 2017-06-22 (B) Set projection matrix when program is bound
 2017-06-22 (B) Add mesh property indicating draw mode @idea
 2017-06-29 (B) Add option to save canvas as a png of specified resolution
-2017-06-29 (B) Move select and pan buttons out from tool menu next to undo/redo buttons
 2017-07-03 (C) Change type of projection matrix from mat4 to mat3

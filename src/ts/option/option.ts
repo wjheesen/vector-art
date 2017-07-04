@@ -53,7 +53,7 @@ export class Option<V> {
     set val(value: V) {
         this.value = value;
         if (localStorage) {
-            localStorage.setItem(this.key, value.toString());
+            localStorage.setItem(this.key, value? value.toString() : null);
         }
     }
 }

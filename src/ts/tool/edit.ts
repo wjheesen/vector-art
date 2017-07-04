@@ -15,7 +15,7 @@ const enum Transformation{
     Scale
 }
 
-export class SelectTool extends MouseOrTouchTool<Surface> {
+export class EditTool extends MouseOrTouchTool<Surface> {
 
     control?: Ellipse;
     previous?: Point;
