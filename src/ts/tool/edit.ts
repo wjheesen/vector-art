@@ -155,9 +155,9 @@ export class EditTool extends MouseOrTouchTool<Surface> {
     }
 
     getTransformType(pointer: Point, selected?: Selection){
-        let {pivot, control, frame} = selected;
+        let {pivot, control, bounds} = selected;
         // Choose transformation based on position of pointer
-         if(selected.target && selected.contains(pointer)) {
+         if(selected.target) {
             if(pivot.contains(pointer)){
                 // Pointer on pivot
                 this.control = pivot;
@@ -168,13 +168,13 @@ export class EditTool extends MouseOrTouchTool<Surface> {
                 this.control = control;
                 this.pivot = pivot.measureCenter();
                 return Transformation.Rotate;
-            } else if (frame.innerRect.contains(pointer)){
+            } else if (bounds.contains(pointer)){
                 // Pointer in frame
                 this.pivot = null;
                 return Transformation.Translate;
-            } else {
+            } else if(selected.contains(pointer)) {
                 // Pointer on frame
-                this.pivot = frame.getVertexOpposite(pointer);
+                this.pivot = selected.measureVertexOpposite(pointer);
                 return Transformation.Scale;
             }
         }

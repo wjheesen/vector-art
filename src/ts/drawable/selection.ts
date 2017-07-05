@@ -1,104 +1,137 @@
 import { Drawable } from './drawable';
 import { Shape } from './shape';
 import { Ellipse } from './ellipse';
-import { Frame } from './frame';
 import { Renderer } from "../rendering/renderer";
 import { Vec2Like } from "gl2d/struct/vec2";
 import { Mat2d } from 'gl2d/struct/mat2d';
-import { Mat2dStruct } from 'gl2d/struct/mat2d';
-import { Mesh } from "gl2d/drawable/mesh";
-import { ColorFStruct } from "gl2d/struct/colorf";
-import { PointLike } from "gl2d/struct/point";
+import { Point, PointLike } from "gl2d/struct/point";
+import { Rect } from "gl2d/struct/rect";
 
 export class Selection {
 
-    frame: Frame;
-    pivot: Ellipse;
-    control: Ellipse;
     target: Drawable;
+    bounds = new Rect();
 
-    constructor(frame: Frame, pivot: Ellipse, control: Ellipse){
-        this.frame = frame;
-        this.pivot = pivot;
-        this.control = control;
-    }
-
-    static create(frameColor: ColorFStruct, frameThickness: number, pointMesh: Mesh, pointColor: ColorFStruct, pointRadius: number){
-        let frame = new Frame(frameColor, frameThickness);
-        let pivot = new Ellipse({ mesh: pointMesh, fillColor: pointColor, matrix: Mat2dStruct.stretch(pointRadius)});
-        let control = new Ellipse({ mesh: pointMesh, fillColor: pointColor, matrix: Mat2dStruct.stretch(pointRadius)});
-        return new Selection(frame, pivot, control);
-    }
+    constructor(
+        public frame: Shape,
+        public pivot?: Ellipse, 
+        public control?: Ellipse
+    ){}
 
     setTarget(target?: Drawable){
+        let { bounds, frame, pivot, control } = this;
         this.target = target;
         if(target){
-            let bounds = target.measureBoundaries();
-            this.frame.innerRect.set(bounds);
-            this.pivot.offsetTo(this.getPivot());
-            this.control.offsetTo(this.getControl());
+            bounds.set(target.measureBoundaries());
+            frame.mapToRect(bounds);
+            if(pivot && control){
+                pivot.offsetTo(this.measurePivot());
+                control.offsetTo(this.measureControl());
+            }
         } else {
-            this.frame.innerRect.setScalar(0);
+            bounds.setScalar(0);
         }
     }
 
+    measureVertexOpposite(point: PointLike){
+        let frame = this.bounds;
+        let x: number, y: number;
+        // If the point is to the left of the frame center
+        if(point.x < frame.centerX()){
+            // Then the opposite point is to the right of the frame center
+            x = frame.right;
+        } else {
+            // Otherwise the opposite point is to the left of the frame center
+            x = frame.left;
+        }
+        // Similarly, if the point is below the frame center
+        if(point.y < frame.centerY()){
+            // Then the opposite point is above the frame center
+            y = frame.top;
+        } else {
+            // Then the opposite point is below the frame center
+            y = frame.bottom;
+        }
+        return new Point(x,y);
+    }
+
+    private measurePivot(){
+        let {target, bounds } = this;
+        if(target instanceof Shape){
+            return target.measurePivot();
+        } else {
+            return bounds.centerTop();
+        }
+    }
+
+    private measureControl(){
+        let {target, bounds } = this;
+        if(target instanceof Shape){
+            return target.measureControl();
+        } else {
+            return bounds.centerBottom();
+        }
+    }
+    
     contains(point: PointLike){
-        return this.target && 
-            (this.frame.contains(point)   ||
-             this.pivot.contains(point)   || 
-             this.control.contains(point));
+        let { bounds, frame } = this;
+        let { lineWidth } = frame;
+        let result: boolean;
+        bounds.inset$(-lineWidth, -lineWidth);
+        result = bounds.contains(point);
+        bounds.inset$(lineWidth, lineWidth);
+        return result;
     }
 
     offset(vec: Vec2Like){
-        this.target.offset(vec);
-        this.frame.innerRect.offset(vec);
-        this.pivot.offset(vec);
-        this.control.offset(vec);
+        let { target, bounds, frame, pivot, control } = this;
+        target.offset(vec);
+        bounds.offset(vec);
+        frame.offset(vec);
+        if(pivot && control){
+            pivot.offset(vec);
+            control.offset(vec);
+        }
     }
 
     scale(scale: Mat2d){
-        let target = this.target;
-        let frameRect = this.frame.innerRect;
+        let { target, bounds, frame, pivot, control } = this;
+        scale.mapRect(bounds, bounds);
         target.transform(scale);
-        scale.mapRect(frameRect, frameRect);
-        this.pivot.offsetTo(this.getPivot());
-        this.control.offsetTo(this.getControl());
+        frame.transform(scale);
+        if(pivot && control){
+            pivot.offsetTo(this.measurePivot());
+            control.offsetTo(this.measureControl());
+        }
     }
 
     transform(matrix: Mat2d){
+        let { target, bounds, frame, pivot, control } = this;
         // Transform target and frame
-        let target = this.target;
-        this.target.transform(matrix);
-        this.frame.innerRect.set(target.measureBoundaries());
-        // Transform pivot point
-        let pc = this.pivot.measureCenter();
-        matrix.map(pc,pc);
-        this.pivot.offsetTo(pc);
-        // Transform control point        
-        let cc = this.control.measureCenter();
-        matrix.map(cc,cc);
-        this.control.offsetTo(cc);
-    }
-
-    private getPivot(){
-        if(this.target instanceof Shape){
-            return this.target.measurePivot();
-        } else {
-            return this.frame.innerRect.centerTop();
+        target.transform(matrix);
+        bounds.set(target.measureBoundaries());
+        frame.mapToRect(bounds);
+        // Transform pivot and control point
+        if(pivot && control){
+            for(let circle of [pivot,control]){
+                let center = circle.measureCenter();
+                matrix.map(center, center);
+                circle.offsetTo(center);
+            }
         }
     }
 
-    private getControl(){
-        if(this.target instanceof Shape){
-            return this.target.measureControl();
-        } else {
-            return this.frame.innerRect.centerBottom();
-        }
-    }
 
     draw(renderer: Renderer){
-        this.frame.draw(renderer);
-        this.pivot.draw(renderer);
-        this.control.draw(renderer);
+        let {bounds, frame, pivot, control, target } = this;
+        if(!bounds.isEmpty()){
+            frame.draw(renderer);
+            if(pivot && control){
+                pivot.draw(renderer);
+                control.draw(renderer);
+            } else {
+                 target.draw(renderer); // Draw twice so target is shown on top and highlighted if transparent
+            }
+        }
     }
 }

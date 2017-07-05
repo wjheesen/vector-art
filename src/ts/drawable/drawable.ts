@@ -11,15 +11,15 @@ export interface Drawable extends Base<Renderer>{
     /**
      * The unique identifier for this drawable (if any).
      */
-    id: number;
+    id?: number;
     /**
      * The z position of this drawable (if any).
      */
-    zIndex: number;
+    zIndex?: number;
     /**
      * The fill color for this drawable. 
      */
-    fillColor: ColorFStruct;
+    fillColor?: ColorFStruct;
     /**
      * The stroke color for this drawable (if any). 
      */

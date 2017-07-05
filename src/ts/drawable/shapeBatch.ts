@@ -6,7 +6,7 @@ import { Point } from 'gl2d/struct/point';
 import { Rect } from 'gl2d/struct/rect';
 import { Vec2, Vec2Like } from 'gl2d/struct/vec2';
 
-import { convertFromColorF } from '../database/conversion';
+import { compressColorF } from '../database/compression';
 import { Database } from '../database/database';
 import { Renderer } from '../rendering/renderer';
 import { Drawable } from './drawable';
@@ -154,7 +154,7 @@ export class ShapeBatch implements Drawable {
                 typeId: typeId,
                 zIndex: zIndex,
                 canvasId: canvasId,
-                fillColor: convertFromColorF(fillColor),
+                fillColor: compressColorF(fillColor),
                 matrices: matrices.data.buffer
             }).then(id => this.id = id);
         });
@@ -166,7 +166,7 @@ export class ShapeBatch implements Drawable {
 
     saveFillColor(database: Database): void {
         database.shapeBatches.update(this.id, {
-            fillColor: convertFromColorF(this.fillColor),
+            fillColor: compressColorF(this.fillColor),
         })
     }
     

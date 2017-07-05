@@ -1,4 +1,4 @@
-import { convertFromColorF } from '../database/conversion';
+import { compressColorF } from '../database/compression';
 import { Renderer } from '../rendering/renderer';
 import { Drawable } from './drawable';
 import { Rect } from 'gl2d/struct/rect';
@@ -10,7 +10,7 @@ import { Database } from "../database/database";
 
 export interface ShapeOptions {
     mesh: Mesh;
-    fillColor: ColorFStruct;
+    fillColor?: ColorFStruct;
     strokeColor?: ColorFStruct;
     lineWidth?: number;
     matrix?: Mat2dStruct;
@@ -20,11 +20,11 @@ export interface ShapeOptions {
 
 export class Shape extends Base implements Drawable {
 
-    fillColor: ColorFStruct;
-    strokeColor: ColorFStruct;
-    lineWidth: number;
-    zIndex: number;
-    id: number;
+    fillColor?: ColorFStruct;
+    strokeColor?: ColorFStruct;
+    lineWidth?: number;
+    zIndex?: number;
+    id?: number;
 
     constructor(options: ShapeOptions){
         super(options.mesh, options.matrix);
@@ -49,7 +49,7 @@ export class Shape extends Base implements Drawable {
         let { fillColor, mesh, matrix, strokeColor, lineWidth } = this;
         let { gl, ext, shapeProgram, shapeOutlineProgram } = renderer;
         // Fill shape
-        if(!fillColor.isTransparent()){
+        if(fillColor && !fillColor.isTransparent()){
             renderer.attachProgram(shapeProgram);
             shapeProgram.setProjection(gl, renderer.camera.matrix);
             shapeProgram.setColor(gl, fillColor);
@@ -87,8 +87,8 @@ export class Shape extends Base implements Drawable {
                 zIndex: zIndex,
                 canvasId: canvasId,
                 lineWidth: lineWidth,
-                fillColor: convertFromColorF(fillColor),
-                strokeColor: convertFromColorF(strokeColor),
+                fillColor: compressColorF(fillColor),
+                strokeColor: compressColorF(strokeColor),
                 matrix: matrix.data.buffer,
             }).then(id => this.id = id);
         });
@@ -100,13 +100,13 @@ export class Shape extends Base implements Drawable {
 
     saveFillColor(database: Database): void {
         database.shapes.update(this.id, {
-            fillColor: convertFromColorF(this.fillColor),
+            fillColor: compressColorF(this.fillColor),
         });
     }
 
     saveStrokeColor(database: Database): void {
         database.shapes.update(this.id, {
-            strokeColor: convertFromColorF(this.strokeColor),
+            strokeColor: compressColorF(this.strokeColor),
         });
     }
 

@@ -8,7 +8,7 @@ import { Rect } from 'gl2d/struct/rect';
 import { Vec2 } from 'gl2d/struct/vec2';
 import { VertexBuffer } from 'gl2d/struct/vertex';
 
-import { convertFromColorF } from '../database/conversion';
+import { compressColorF } from '../database/compression';
 import { Database } from '../database/database';
 import { Renderer } from '../rendering/renderer';
 import { Drawable } from './drawable';
@@ -238,7 +238,7 @@ export class Stroke extends Graphic implements Drawable {
         database.strokes.add({
             zIndex: zIndex,
             canvasId: canvasId,
-            fillColor: convertFromColorF(fillColor),
+            fillColor: compressColorF(fillColor),
             vertices: vertices.data.buffer,
             matrix: matrix.data.buffer
         }).then(id => this.id = id);
@@ -250,7 +250,7 @@ export class Stroke extends Graphic implements Drawable {
 
     saveFillColor(database: Database): void {
         database.strokes.update(this.id, {
-            fillColor: convertFromColorF(this.fillColor),
+            fillColor: compressColorF(this.fillColor),
         })
     }
     

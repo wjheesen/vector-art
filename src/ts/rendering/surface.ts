@@ -24,7 +24,7 @@ import { RectStruct } from 'gl2d/struct/rect';
 import { VertexBuffer } from 'gl2d/struct/vertex';
 import lastIndexOf = require('lodash.lastindexof');
 import { Option } from "../option/option";
-import { convertToColorF, convertToMat2d, convertToMat2dBuffer, convertToVertexBuffer } from "../database/conversion";
+import { expandColorF, expandMat2d, expandMat2dBuffer, expandVertexBuffer } from "../database/compression";
 import { SetStrokeColorAction } from "../action/setStrokeColor";
 import { SetLineWidthAction } from "../action/setLineWidth";
 
@@ -81,10 +81,10 @@ export class Surface extends Base<Renderer> {
 
                     let options: ShapeOptions = {
                         mesh: this.getMesh(type.name),
-                        fillColor: convertToColorF(data.fillColor),
-                        strokeColor: convertToColorF(data.strokeColor),
+                        fillColor: expandColorF(data.fillColor),
+                        strokeColor: expandColorF(data.strokeColor),
                         lineWidth: data.lineWidth,
-                        matrix:  convertToMat2d(data.matrix),
+                        matrix:  expandMat2d(data.matrix),
                         zIndex: data.zIndex,
                         id: data.id,
                     }
@@ -100,8 +100,8 @@ export class Surface extends Base<Renderer> {
 
                     let options: ShapeBatchOptions = {
                         mesh: this.getMesh(type.name),
-                        fillColor: convertToColorF(data.fillColor),
-                        matrices:  convertToMat2dBuffer(data.matrices),
+                        fillColor: expandColorF(data.fillColor),
+                        matrices:  expandMat2dBuffer(data.matrices),
                         zIndex: data.zIndex,
                         id: data.id,
                     }
@@ -115,9 +115,9 @@ export class Surface extends Base<Renderer> {
                 db.strokes.where("canvasId").equals(canvasId).each(data => {
 
                     let stroke = new Stroke({
-                        fillColor: convertToColorF(data.fillColor),
-                        matrix: convertToMat2d(data.matrix),
-                        vertices: convertToVertexBuffer(data.vertices),
+                        fillColor: expandColorF(data.fillColor),
+                        matrix: expandMat2d(data.matrix),
+                        vertices: expandVertexBuffer(data.vertices),
                         zIndex: data.zIndex,
                         id: data.id,
                     })
@@ -461,8 +461,8 @@ export class Surface extends Base<Renderer> {
     }
 
     private scaleFramesAndControlPoints(scale: number){
-        this.renderer.selectionHover.frame.thickness *= scale;
-        this.renderer.selection.frame.thickness *= scale;
+        this.renderer.selectionHover.frame.lineWidth *= scale;
+        this.renderer.selection.frame.lineWidth *= scale;
         this.renderer.selection.pivot.stretch(scale);
         this.renderer.selection.control.stretch(scale);
     }

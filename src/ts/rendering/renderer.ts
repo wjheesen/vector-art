@@ -6,15 +6,13 @@ import { Rect } from 'gl2d/struct/rect';
 
 import { MeshSpecifications } from '../../res/build/mesh/specifications';
 import { Drawable } from '../drawable/drawable';
-import { Frame } from '../drawable/frame';
-import { FramedDrawable } from '../drawable/framed';
 import { Selection } from '../drawable/selection';
 import { Shape } from '../drawable/shape';
 import { EllipseProgram } from '../program/ellipse';
-import { FrameProgram } from '../program/frame';
 import { OutlineProgram } from '../program/outline';
 import { ShapeProgram } from '../program/shape';
 import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
+import { Ellipse } from "../drawable/ellipse";
 
 export class Renderer extends Base {
 
@@ -23,14 +21,13 @@ export class Renderer extends Base {
     shapeProgram: ShapeProgram; // TODO: rename to FillProgram
     shapeOutlineProgram: OutlineProgram; // TODO: rename to StrokeProgram?
     ellipseProgram: EllipseProgram;
-    frameProgram: FrameProgram;
 
-    foreground: Frame;
+    foreground: Shape;
     drawables: Drawable[] = [];
     temp: Drawable;
 
     selection: Selection;
-    selectionHover: FramedDrawable;
+    selectionHover: Selection;
 
     navigateRight: Shape;
     navigateLeft: Shape;
@@ -52,10 +49,12 @@ export class Renderer extends Base {
         this.shapeOutlineProgram = OutlineProgram.create(gl, this.meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.meshes.push(this.ellipseProgram.mesh);
-        this.frameProgram = FrameProgram.create(gl);
 
-        // Init background
-        this.foreground = new Frame(ColorFStruct.create$(.6,.6,.6,1), 10, this.camera.target);
+        // Init foreground
+        let grey = ColorFStruct.create$(.6,.6,.6,1);
+        let squareMesh = this.meshes.find(mesh=> mesh.id === "square");
+        this.foreground = new Shape({mesh: squareMesh, strokeColor: grey, lineWidth: 10});
+        this.foreground.mapToRect(this.camera.target);
         
         // Init selection boxes
         let frameThickness = 0.08;
@@ -63,9 +62,15 @@ export class Renderer extends Base {
         let blue = ColorFStruct.create$(0, 0.2, 0.9, 0.9);
         let blueHover = ColorFStruct.create$(0, 0.3, 1, 0.6);
         let red = ColorFStruct.create$(1,0,0,0.9);
-        let pointMesh = this.ellipseProgram.mesh;
-        this.selection = Selection.create(blue, frameThickness, pointMesh, red, pointRadius);
-        this.selectionHover = new FramedDrawable(new Frame(blueHover, frameThickness));
+        let circleMesh = this.ellipseProgram.mesh;
+        this.selectionHover = new Selection(
+            new Shape({ mesh: squareMesh, strokeColor: blueHover, lineWidth: frameThickness, }),
+        );
+        this.selection = new Selection(
+            new Shape({ mesh: squareMesh, strokeColor: blue, lineWidth: frameThickness, }),
+            new Ellipse({ mesh: circleMesh, fillColor: red, matrix: Mat2dStruct.stretch(pointRadius)}),
+            new Ellipse({ mesh: circleMesh, fillColor: red, matrix: Mat2dStruct.stretch(pointRadius)}),
+        )
 
         // Init navigation buttons
         let black = ColorFStruct.create$(0,0,0,1);
