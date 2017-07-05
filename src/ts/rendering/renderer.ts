@@ -3,27 +3,26 @@ import { Renderer as Base } from 'gl2d/rendering/renderer';
 import { ColorFStruct } from 'gl2d/struct/colorf';
 import { Mat2dStruct, ScaleToFit } from 'gl2d/struct/mat2d';
 import { Rect } from 'gl2d/struct/rect';
-
 import { MeshSpecifications } from '../../res/build/mesh/specifications';
 import { Drawable } from '../drawable/drawable';
+import { Ellipse } from '../drawable/ellipse';
 import { Selection } from '../drawable/selection';
 import { Shape } from '../drawable/shape';
 import { EllipseProgram } from '../program/ellipse';
-import { OutlineProgram } from '../program/outline';
-import { ShapeProgram } from '../program/shape';
+import { StrokeProgram } from '../program/outline';
+import { FillProgram } from '../program/fill';
 import { ANGLEInstancedArrays } from './ANGLE_instanced_arrays';
-import { Ellipse } from "../drawable/ellipse";
 
 export class Renderer extends Base {
 
     ext: ANGLEInstancedArrays;
     
-    shapeProgram: ShapeProgram; // TODO: rename to FillProgram
-    shapeOutlineProgram: OutlineProgram; // TODO: rename to StrokeProgram?
+    fillProgram: FillProgram; 
+    strokeProgram: StrokeProgram;
     ellipseProgram: EllipseProgram;
 
-    foreground: Shape;
     drawables: Drawable[] = [];
+    foreground: Shape;
     temp: Drawable;
 
     selection: Selection;
@@ -45,8 +44,8 @@ export class Renderer extends Base {
         this.meshes = MeshSpecifications.map(spec => Mesh.fromSpecification(spec));
         
         // Init programs
-        this.shapeProgram = ShapeProgram.create(gl, this.meshes);
-        this.shapeOutlineProgram = OutlineProgram.create(gl, this.meshes);
+        this.fillProgram = FillProgram.create(gl, this.meshes);
+        this.strokeProgram = StrokeProgram.create(gl, this.meshes);
         this.ellipseProgram = EllipseProgram.create(gl);
         this.meshes.push(this.ellipseProgram.mesh);
 

@@ -47,14 +47,14 @@ export class Shape extends Base implements Drawable {
 
     draw(renderer: Renderer){
         let { fillColor, mesh, matrix, strokeColor, lineWidth } = this;
-        let { gl, ext, shapeProgram, shapeOutlineProgram } = renderer;
+        let { gl, ext, fillProgram, strokeProgram } = renderer;
         // Fill shape
         if(fillColor && !fillColor.isTransparent()){
-            renderer.attachProgram(shapeProgram);
-            shapeProgram.setProjection(gl, renderer.camera.matrix);
-            shapeProgram.setColor(gl, fillColor);
-            shapeProgram.setVertices(gl, mesh);
-            shapeProgram.setMatrices(gl, matrix);
+            renderer.attachProgram(fillProgram);
+            fillProgram.setProjection(gl, renderer.camera.matrix);
+            fillProgram.setColor(gl, fillColor);
+            fillProgram.setVertices(gl, mesh);
+            fillProgram.setMatrices(gl, matrix);
             if(mesh.triangleIndices){
                 let count = mesh.triangleIndices.data.length;
                 let offset = mesh.elementBufferOffset;
@@ -66,13 +66,13 @@ export class Shape extends Base implements Drawable {
         }
         // Stroke shape
         if(lineWidth){
-            renderer.attachProgram(shapeOutlineProgram);
-            shapeOutlineProgram.setProjection(gl, renderer.camera.matrix);
-            shapeOutlineProgram.setMatrices(gl, matrix);
-            shapeOutlineProgram.setColor(gl, strokeColor);
-            shapeOutlineProgram.setVertices(gl, mesh);
-            shapeOutlineProgram.setMiters(gl, mesh);
-            shapeOutlineProgram.setLineWidth(gl, lineWidth);
+            renderer.attachProgram(strokeProgram);
+            strokeProgram.setProjection(gl, renderer.camera.matrix);
+            strokeProgram.setMatrices(gl, matrix);
+            strokeProgram.setColor(gl, strokeColor);
+            strokeProgram.setVertices(gl, mesh);
+            strokeProgram.setMiters(gl, mesh);
+            strokeProgram.setLineWidth(gl, lineWidth);
             let count = mesh.strokeElementCount;
             let offset = mesh.strokeElementBufferOffset;
             ext.drawElementsInstancedANGLE(gl.TRIANGLE_STRIP, count, gl.UNSIGNED_SHORT, offset, 1)

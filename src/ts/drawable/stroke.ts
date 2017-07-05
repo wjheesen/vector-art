@@ -223,7 +223,7 @@ export class Stroke extends Graphic implements Drawable {
 
     draw(renderer: Renderer): void {
         let { fillColor, vertices, matrix } = this;
-        let { gl, ext, shapeProgram: program } = renderer;
+        let { gl, ext, fillProgram: program } = renderer;
         let count = vertices.capacity();
         renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);

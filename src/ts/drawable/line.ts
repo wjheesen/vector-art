@@ -23,11 +23,11 @@ export class Line extends Shape {
         this.matrix.postTranslate(p1);
     }
 
-    measureControl(){
-        return this.convertPointToWorldSpace(this.mesh.bounds.centerLeft())
-    }
+    // measureControl(){
+    //     return this.convertPointToWorldSpace(this.mesh.bounds.centerLeft())
+    // }
 
-    measurePivot(){
-        return this.convertPointToWorldSpace(this.mesh.bounds.centerRight())
-    }
+    // measurePivot(){
+    //     return this.convertPointToWorldSpace(this.mesh.bounds.centerRight())
+    // }
 }

@@ -6,12 +6,12 @@ import { Mat4Struct } from 'gl2d/struct/mat4';
 import { Mesh } from "gl2d/drawable/mesh";
 import { VertexBuffer } from "gl2d/struct/vertex";
 import * as Util from 'gl2d/rendering/util';
-import * as Shader from '../../res/build/shader/shape';
+import * as Shader from '../../res/build/shader/fill';
 
 /**
  * Program for rendering shapes.
  */
-export class ShapeProgram extends Program<Shader.Uniforms, Shader.Attributes> {
+export class FillProgram extends Program<Shader.Uniforms, Shader.Attributes> {
 
     elementBuffer: WebGLBuffer;
     positionBuffer: WebGLBuffer;
@@ -19,7 +19,7 @@ export class ShapeProgram extends Program<Shader.Uniforms, Shader.Attributes> {
     dynamicBuffer: WebGLBuffer;
     
     static create(gl: WebGLRenderingContext, meshes: Mesh[]) {
-        let program = new ShapeProgram();
+        let program = new FillProgram();
         program.location = Util.createProgramFromSources(gl, Shader.vertex, Shader.fragment);
         program.uniforms = Util.getUniformLocations(gl, program.location, Shader.UniformRenaming) as Shader.Uniforms;
         program.attribs = Util.getAttributeLocations(gl, program.location, Shader.AttributeRenaming) as Shader.Attributes;

@@ -1,17 +1,17 @@
 import { VertexBuffer } from 'gl2d/struct/vertex';
 import { Mesh, MultiPolygonMesh } from 'gl2d/drawable/mesh';
 import * as Util from 'gl2d/rendering/util';
-import * as Shader from '../../res/build/shader/outline';
+import * as Shader from '../../res/build/shader/stroke';
 import { Renderer } from '../rendering/renderer';
-import { ShapeProgram } from './shape';
+import { FillProgram } from './fill';
 
-export class OutlineProgram extends ShapeProgram {
+export class StrokeProgram extends FillProgram {
 
     miterBuffer: WebGLBuffer;
 
     static create(gl: WebGLRenderingContext, meshes: Mesh[]) {
         meshes = meshes.filter(mesh => mesh.miters);
-        let program = new OutlineProgram();
+        let program = new StrokeProgram();
         program.location = Util.createProgramFromSources(gl, Shader.vertex, Shader.fragment);
         program.uniforms = Util.getUniformLocations(gl, program.location, Shader.UniformRenaming) as Shader.Uniforms;
         program.attribs = Util.getAttributeLocations(gl, program.location, Shader.AttributeRenaming) as Shader.Attributes;

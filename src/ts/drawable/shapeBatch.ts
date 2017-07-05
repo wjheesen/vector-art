@@ -130,7 +130,7 @@ export class ShapeBatch implements Drawable {
 
     draw(renderer: Renderer){
         let { fillColor, matrices, mesh } = this;
-        let { gl, ext, shapeProgram: program } = renderer;
+        let { gl, ext, fillProgram: program } = renderer;
         let primcount = matrices.capacity();
         renderer.attachProgram(program);
         program.setProjection(gl, renderer.camera.matrix);
