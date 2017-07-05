@@ -4,6 +4,8 @@ import { AddDrawableAction } from '../action/addDrawable';
 import { ActionStack } from '../action/stack';
 import { RemoveDrawableAction } from '../action/removeDrawable';
 import { TransformDrawableAction } from '../action/transformDrawable';
+import { MoveForwardAction } from '../action/moveForward';
+import { MoveBackwardAction } from '../action/moveBackward';
 import { Database } from '../database/database';
 import { Drawable } from '../drawable/drawable';
 import { Ellipse } from '../drawable/ellipse';
@@ -27,6 +29,8 @@ import { Option } from "../option/option";
 import { expandColorF, expandMat2d, expandMat2dBuffer, expandVertexBuffer } from "../database/compression";
 import { SetStrokeColorAction } from "../action/setStrokeColor";
 import { SetLineWidthAction } from "../action/setLineWidth";
+import { MoveToBackAction } from "../action/moveToBack";
+import { MoveToFrontAction } from "../action/moveToFront";
 
 
 export class Surface extends Base<Renderer> {
@@ -190,7 +194,7 @@ export class Surface extends Base<Renderer> {
         this.actionStack.clear();
     }
 
-    private addDrawableToSortedStack(drawable: Drawable){
+     addDrawableToSortedStack(drawable: Drawable){
         let stack = this.renderer.drawables;
         let position = stack.length;
         // TODO: implement binary search?
@@ -407,6 +411,54 @@ export class Surface extends Base<Renderer> {
         actionStack.push(action);
     }
 
+    moveForward(drawable: Drawable){
+        let { renderer, actionStack } = this;
+        let { drawables } = renderer;
+        // Invoke new action if drawable above exists
+        let index = lastIndexOf(drawables, drawable);
+        if(index !== drawables.length - 1){
+            let action = new MoveForwardAction(index);
+            action.redo(this);
+            actionStack.push(action);
+            this.requestRender();
+        }
+    }
+
+    moveBackward(drawable: Drawable){
+        let { renderer, actionStack } = this;
+        let { drawables } = renderer;
+        // Invoke new action if drawable below exists
+        let index = lastIndexOf(drawables, drawable);
+        if(index !== 0){
+            let action = new MoveBackwardAction(index);
+            action.redo(this);
+            actionStack.push(action);
+            this.requestRender();
+        }
+    }
+
+    moveToFront(drawable: Drawable){
+        let { renderer, actionStack } = this;
+        let { drawables } = renderer;
+        // Invoke new action if drawable not already at the front
+        if(drawable !== drawables[drawables.length-1]){
+            let action = new MoveToFrontAction(drawable.zIndex);
+            action.redo(this);
+            actionStack.push(action);
+        }
+    }
+
+    moveToBack(drawable: Drawable){
+        let { renderer, actionStack } = this;
+        let { drawables } = renderer;
+        // Invoke new action if drawable not already at the back
+        if(drawable !== drawables[0]){
+            let action = new MoveToBackAction(drawable.zIndex);
+            action.redo(this);
+            actionStack.push(action);
+        }
+    }
+
     undoLastAction(){
         let { renderer, actionStack } = this;
         let { drawables } = renderer;
@@ -440,6 +492,24 @@ export class Surface extends Base<Renderer> {
         }
 
         return action;
+    }
+
+    /**
+     * Swaps the drawable at index i with the drawable at position j.
+     */
+    swap(i: number, j: number){
+        let { renderer, database } = this;
+        let { drawables } = renderer;
+        let drawable = drawables[i];
+        let zIndex = drawable.zIndex;
+        // Swap order in stack
+        drawables[i] = drawables[j];
+        drawables[j] = drawable;
+        // Save order in database
+        drawable.zIndex = drawables[j].zIndex;
+        drawable.saveZindex(database);
+        drawables[j].zIndex = zIndex;
+        drawables[j].saveZindex(database);
     }
 
     zoomIn(desiredScaleFactor: number){

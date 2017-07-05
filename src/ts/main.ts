@@ -195,6 +195,10 @@ $(document)
                 switch(key){
                     case "R": fillColorSetter.setRandomColor(); break;
                     case "T": strokeColorSetter.setRandomColor(); break;
+                    case "A": surface.moveForward(surface.renderer.selection.target); break;
+                    case "S": surface.moveBackward(surface.renderer.selection.target); break;
+                    case "D": surface.moveToFront(surface.renderer.selection.target); break;
+                    case "F": surface.moveToBack(surface.renderer.selection.target); break;
                 }
             }
             key = null;
