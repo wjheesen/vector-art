@@ -23,6 +23,10 @@ $cursors = [
 
 $actions = ["undo", "redo"];
 
+$editActions = [
+    "remove", "moveForward", "moveToFront", "moveBackward", "moveToBack", 
+];
+
 $btn = "btn btn-sm";
 $btn_toggle = "$btn dropdown-toggle";
 $md = "md";
@@ -93,6 +97,13 @@ $md_inactive = "$md md-inactive";
         </div>
         <div class="btn-group">
             <?php foreach($actions as $key=>$value): ?>
+                <button id="<?=$value?>" class="<?=$btn?>" type='button'>
+                    <i class="<?="icon-$value $md"?>"></i>
+                </button>
+            <?php endforeach; ?>
+        </div>
+        <div id="edit-actions" class="btn-group">
+            <?php foreach($editActions as $key=>$value): ?>
                 <button id="<?=$value?>" class="<?=$btn?>" type='button'>
                     <i class="<?="icon-$value $md"?>"></i>
                 </button>

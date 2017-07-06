@@ -403,7 +403,7 @@ export class Surface extends Base<Renderer> {
         }
     }
     
-    removeDrawable(drawable: Drawable){
+    remove(drawable: Drawable){
         let { renderer, actionStack } = this;
         let index = lastIndexOf(renderer.drawables, drawable);
         let action = new RemoveDrawableAction(drawable, index);
@@ -420,7 +420,6 @@ export class Surface extends Base<Renderer> {
             let action = new MoveForwardAction(index);
             action.redo(this);
             actionStack.push(action);
-            this.requestRender();
         }
     }
 
@@ -433,7 +432,6 @@ export class Surface extends Base<Renderer> {
             let action = new MoveBackwardAction(index);
             action.redo(this);
             actionStack.push(action);
-            this.requestRender();
         }
     }
 

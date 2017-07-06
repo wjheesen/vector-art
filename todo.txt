@@ -1,7 +1,8 @@
 ﻿2017-05-19 Allow user to select multiple shapes, expanding the frame to encompass each of the shapes @select-tool @idea
 2017-05-23 Implement an onInterrupt method for each tool @idea
-2017-06-21 (B) When a shape is selected, add a popup with options to delete, move forward, move backward, move to front, and move to back @select-tool
 2017-06-22 (B) Set projection matrix when program is bound
 2017-06-22 (B) Add mesh property indicating draw mode @idea
 2017-06-29 (B) Add option to save canvas as a png of specified resolution
 2017-07-03 (C) Change type of projection matrix from mat4 to mat3
+2017-07-05 (B) Add paste edit action @ select-tool @idea
+2017-07-06 (B) Add tooltips to buttons

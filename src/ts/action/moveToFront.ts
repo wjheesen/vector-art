@@ -12,7 +12,6 @@ export class MoveToFrontAction implements Action {
         let { zIndex } = this;
         let { renderer, database } = surface;
         let { drawables } = renderer;
-        let frontDrawable = drawables[drawables.length-1];
         // Search for drawable with specified zIndex
         let index = drawables.findIndex(drawable => drawable.zIndex === zIndex);
         let drawable = drawables[index];
@@ -20,7 +19,7 @@ export class MoveToFrontAction implements Action {
         drawables.splice(index, 1);
         drawables.push(drawable);
         // Save order in database
-        drawable.zIndex = frontDrawable.zIndex + 1;
+        drawable.zIndex = surface.zIndex++;
         drawable.saveZindex(database);
     }
 

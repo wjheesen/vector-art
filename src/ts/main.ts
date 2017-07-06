@@ -88,6 +88,8 @@ function redo(){
     }
 }
 
+
+
 let fillColorSetter = ColorSetter.create("fill-color", settings.fillColor.val, setFillColor);
 let strokeColorSetter = ColorSetter.create("stroke-color", settings.strokeColor.val, setStrokeColor);
 
@@ -104,9 +106,15 @@ let toolSetter = ToolSetter.create(settings.tool.val, tool => {
 let cursorSetter = CursorSetter.create(settings.cursor.val, cursor => {
     settings.cursor.val = cursor;
     switch(cursor){
-        case "pan": return setTool(panTool);
-        case "edit": return setTool(editTool);
-        default: return setTool(tools[settings.tool.val]);
+        case "pan": 
+            setTool(panTool);
+            break;
+        case "edit": 
+            setTool(editTool);
+            break;
+        default: 
+            setTool(tools[settings.tool.val]);
+            break;
     }
 })
 
@@ -130,6 +138,33 @@ OtherSetter.create(
 $("#undo").click(undo)
 
 $("#redo").click(redo)
+
+$("#edit-actions > button").click(function(){
+    // Get selected drawable
+    let drawable = surface.renderer.selection.target;
+    if(!drawable) { return ;}
+    // Invoke action corresponding to button id
+    switch($(this).attr("id")){
+        case "remove":
+            surface.remove(drawable);
+            editTool.onDetach(surface);
+            break;
+        case "moveToBack":
+            surface.moveToBack(drawable);
+            break;
+        case "moveBackward":
+            surface.moveBackward(drawable);
+            break;
+        case "moveForward": 
+            surface.moveForward(drawable);
+            break;
+        case "moveToFront":
+            surface.moveToFront(drawable);
+            break;
+    }
+    // Render to show changes
+    surface.requestRender();
+})
 
 surface.onWheelEvent(event => {
     wheelZoomTool.onSurfaceEvent(event);
@@ -195,21 +230,21 @@ $(document)
                 switch(key){
                     case "R": fillColorSetter.setRandomColor(); break;
                     case "T": strokeColorSetter.setRandomColor(); break;
-                    case "A": surface.moveForward(surface.renderer.selection.target); break;
-                    case "S": surface.moveBackward(surface.renderer.selection.target); break;
-                    case "D": surface.moveToFront(surface.renderer.selection.target); break;
-                    case "F": surface.moveToBack(surface.renderer.selection.target); break;
                 }
             }
             key = null;
         }
 
         if(e.which === 46 /* Delete */){
-            let target = surface.renderer.selection.target;
-            if(target){
-                surface.removeDrawable(target);
-                editTool.onDetach(surface);
-                surface.requestRender();
-            }
+            removeSelection();
         }
     })
+
+function removeSelection(){
+    let selection = surface.renderer.selection.target;
+    if(selection){
+        surface.remove(selection);
+        editTool.onDetach(surface);
+        surface.requestRender();
+    }
+}

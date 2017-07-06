@@ -36,7 +36,7 @@ export class ToolSetter {
         // Remove previous tool icon
         let previous = this.tool;
         if(previous){
-            icon.remove("icon-" + previous);
+            icon.removeClass("icon-" + previous);
         }
         // Add new tool icon
         icon.addClass("icon-" + tool);
