@@ -3,6 +3,7 @@ import { SetFillColorAction } from '../action/setFillColor';
 import { AddDrawableAction } from '../action/addDrawable';
 import { ActionStack } from '../action/stack';
 import { RemoveDrawableAction } from '../action/removeDrawable';
+import { ClearCanvasAction } from '../action/clearCanvas';
 import { TransformDrawableAction } from '../action/transformDrawable';
 import { MoveForwardAction } from '../action/moveForward';
 import { MoveBackwardAction } from '../action/moveBackward';
@@ -191,6 +192,17 @@ export class Surface extends Base<Renderer> {
         })
     }
 
+    clearCanvas(){
+        let { renderer, actionStack } = this;
+        let { drawables } = renderer;
+        if(drawables.length > 0){
+            let action = new ClearCanvasAction(renderer.drawables);
+            action.redo(this); // Does the actual clear
+            actionStack.push(action);
+        }
+    }
+
+    // TODO: rename so not confused with clearCanvas
     clear(){
         this.renderer.drawables.length = 0;
         this.actionStack.clear();

@@ -119,6 +119,7 @@ export class Renderer extends Base {
         let gl = this.gl;
         gl.clear(gl.COLOR_BUFFER_BIT);
         for(let drawable of this.drawables){
+            console.log("id", drawable.id, "zIndex", drawable.zIndex);
             drawable.draw(this);
         }
         if(this.temp){

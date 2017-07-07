@@ -134,12 +134,25 @@ OtherSetter.create(
     }
 );
 
-$("#undo").click(undo)
-
-$("#redo").click(redo)
-
-$("#paste").click(function(){
-    surface.paste();
+$("#actions > button").click(function(){
+    // Invoke action corresponding to button id
+    switch($(this).attr("id")){
+        case "undo":
+            undo();
+            break;
+        case "redo":
+            redo();
+            break;
+        case "paste":
+            surface.paste();
+            break;
+        case "remove":
+            if(!removeSelection()){
+                surface.clearCanvas();
+            } 
+            break;
+    }
+    // Render to show changes
     surface.requestRender();
 })
 
@@ -254,4 +267,5 @@ function removeSelection(){
         editTool.onDetach(surface);
         surface.requestRender();
     }
+    return selection;
 }

@@ -21,10 +21,10 @@ $cursors = [
     /*"colorSampler",*/ "pan", "edit", 
 ];
 
-$actions = ["undo", "redo", "paste"];
+$actions = ["undo", "redo", "paste", "remove"];
 
 $editActions = [
-     "copy", "moveForward", "moveToFront", "moveBackward", "moveToBack", "remove"
+     "copy", "moveForward", "moveToFront", "moveBackward", "moveToBack",
 ];
 
 $btn = "btn btn-sm";
@@ -95,7 +95,7 @@ $md_inactive = "$md md-inactive";
                 </button>
             <?php endforeach; ?>
         </div>
-        <div class="btn-group">
+        <div id="actions" class="btn-group">
             <?php foreach($actions as $key=>$value): ?>
                 <button id="<?=$value?>" class="<?=$btn?>" type='button'>
                     <i class="<?="icon-$value $md"?>"></i>
