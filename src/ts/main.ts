@@ -1,25 +1,26 @@
-import { ShapeAspectTool } from './tool/shapeAspect';
-import { ToolGroup } from './tool/group';
+
 import { Color } from 'gl2d/struct/color';
+import { _MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
+import { PanTool } from 'gl2d/tool/pan';
+import { PinchZoomTool } from 'gl2d/tool/pinchZoom';
+import { WheelZoomTool } from 'gl2d/tool/wheelZoom';
+import { Option } from './option/option';
 import { Surface } from './rendering/surface';
 import { ColorSetter } from './setter/color';
-import { OtherSetter } from './setter/other';
 import { CursorSetter } from './setter/cursor';
 import { MeshSetter } from './setter/mesh';
+import { OtherSetter } from './setter/other';
 import { ToolSetter } from './setter/tool';
-import { LineTool } from './tool/line';
-import { WheelZoomTool } from 'gl2d/tool/wheelZoom';
 import { EditTool } from './tool/edit';
+import { ToolGroup } from './tool/group';
+import { LineTool } from './tool/line';
+import { NavigationTool } from './tool/navigation';
 import { ShapeTool } from './tool/shape';
+import { ShapeAspectTool } from './tool/shapeAspect';
 import { ShapeLineTool } from './tool/shapeLine';
 import { ShapeSprayTool } from './tool/shapeSpray';
 import { ShapeStrokeTool } from './tool/shapeStroke';
 import { StrokeTool } from './tool/stroke';
-import { _MouseOrTouchTool } from 'gl2d/tool/mouseOrTouch';
-import { NavigationTool } from './tool/navigation';
-import { PanTool } from 'gl2d/tool/pan';
-import { PinchZoomTool } from 'gl2d/tool/pinchZoom';
-import { Option } from './option/option';
 import * as $ from 'jquery';
 import * as tether from 'tether';
 (<any> window).jQuery = $;
@@ -88,8 +89,6 @@ function redo(){
     }
 }
 
-
-
 let fillColorSetter = ColorSetter.create("fill-color", settings.fillColor.val, setFillColor);
 let strokeColorSetter = ColorSetter.create("stroke-color", settings.strokeColor.val, setStrokeColor);
 
@@ -139,16 +138,20 @@ $("#undo").click(undo)
 
 $("#redo").click(redo)
 
+$("#paste").click(function(){
+    surface.paste();
+    surface.requestRender();
+})
+
 $("#edit-actions > button").click(function(){
     // Get selected drawable
     let drawable = surface.renderer.selection.target;
     if(!drawable) { return ;}
     // Invoke action corresponding to button id
     switch($(this).attr("id")){
-        case "remove":
-            surface.remove(drawable);
-            editTool.onDetach(surface);
-            break;
+        case "copy":
+            surface.copy(drawable);
+            return; // No need to re-render
         case "moveToBack":
             surface.moveToBack(drawable);
             break;
@@ -160,6 +163,10 @@ $("#edit-actions > button").click(function(){
             break;
         case "moveToFront":
             surface.moveToFront(drawable);
+            break;
+        case "remove":
+            surface.remove(drawable);
+            editTool.onDetach(surface);
             break;
     }
     // Render to show changes

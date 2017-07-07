@@ -232,6 +232,19 @@ export class Stroke extends Graphic implements Drawable {
         program.setMatrices(gl, matrix);
         ext.drawArraysInstancedANGLE(gl.TRIANGLE_STRIP, 0, count, 1);
     }
+
+    copy(){
+        let { zIndex, fillColor, vertices, matrix } = this;
+        let verticesCopy = VertexBuffer.create(vertices.capacity());
+        vertices.moveToFirst();
+        verticesCopy.rsetFromBuffer(vertices);
+        return new Stroke({
+            fillColor: ColorFStruct.create(fillColor),
+            vertices: verticesCopy,
+            matrix: Mat2dStruct.create(matrix),
+            zIndex: zIndex,
+        })
+    }
     
    save(database: Database, canvasId: number){
         let { zIndex, fillColor, vertices, matrix } = this;

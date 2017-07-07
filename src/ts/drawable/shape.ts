@@ -79,6 +79,18 @@ export class Shape extends Base implements Drawable {
         }
     }
 
+    copy(){
+        let { zIndex, fillColor, strokeColor, lineWidth, matrix, mesh } = this;
+        return new Shape({
+            mesh: mesh,
+            fillColor: fillColor ? ColorFStruct.create(fillColor) : undefined,
+            strokeColor: strokeColor ? ColorFStruct.create(strokeColor) : undefined,
+            lineWidth: lineWidth,
+            matrix: Mat2dStruct.create(matrix),
+            zIndex: zIndex,
+        })
+    }
+
     save(database: Database, canvasId: number){
         let { zIndex, fillColor, strokeColor, lineWidth, matrix, mesh } = this;
         database.getTypeId(mesh.id).then(typeId => {

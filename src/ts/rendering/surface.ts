@@ -41,6 +41,8 @@ export class Surface extends Base<Renderer> {
     lineWidth: number;
     zIndex = 1;
 
+    clipboard: Drawable;
+
     actionStack = new ActionStack();
 
     database = new Database();
@@ -94,7 +96,7 @@ export class Surface extends Base<Renderer> {
                     }
 
                     let shape = type.name === "circle" ? new Ellipse(options) : new Shape(options);
-                    this.addDrawableToSortedStack(shape)
+                    this.addDrawable(shape)
                     this.requestRender();
                 });
                 
@@ -111,7 +113,7 @@ export class Surface extends Base<Renderer> {
                     }
 
                     let batch = type.name === "circle" ? new EllipseBatch(options) : new ShapeBatch(options);
-                    this.addDrawableToSortedStack(batch)
+                    this.addDrawable(batch)
                     this.requestRender();
                 });
 
@@ -126,7 +128,7 @@ export class Surface extends Base<Renderer> {
                         id: data.id,
                     })
 
-                    this.addDrawableToSortedStack(stroke);
+                    this.addDrawable(stroke);
                     this.requestRender();
                 });
 
@@ -194,7 +196,7 @@ export class Surface extends Base<Renderer> {
         this.actionStack.clear();
     }
 
-     addDrawableToSortedStack(drawable: Drawable){
+     addDrawable(drawable: Drawable){
         let stack = this.renderer.drawables;
         let position = stack.length;
         // TODO: implement binary search?
@@ -205,6 +207,8 @@ export class Surface extends Base<Renderer> {
         }
         stack.splice(position+1, 0, drawable);
     }
+
+
 
 
     getDrawableContaining(point: PointLike){
@@ -508,6 +512,22 @@ export class Surface extends Base<Renderer> {
         drawable.saveZindex(database);
         drawables[j].zIndex = zIndex;
         drawables[j].saveZindex(database);
+    }
+
+    copy(drawable: Drawable){
+        this.clipboard = drawable;
+    }
+
+    paste(){
+        let { clipboard, database, renderer, canvasId } = this;
+        // Selection takes precedence over clipboard
+        let drawable = renderer.selection.target || clipboard;
+        if(drawable){
+            let copy = drawable.copy();
+            copy.zIndex = this.zIndex++;
+            copy.save(database, canvasId.val);
+            this.addDrawable(copy)
+        }
     }
 
     zoomIn(desiredScaleFactor: number){

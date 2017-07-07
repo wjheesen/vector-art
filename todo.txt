@@ -4,5 +4,4 @@
 2017-06-22 (B) Add mesh property indicating draw mode @idea
 2017-06-29 (B) Add option to save canvas as a png of specified resolution
 2017-07-03 (C) Change type of projection matrix from mat4 to mat3
-2017-07-05 (B) Add paste edit action @ select-tool @idea
 2017-07-06 (B) Add tooltips to buttons

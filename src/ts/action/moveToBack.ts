@@ -32,7 +32,7 @@ export class MoveToBackAction implements Action {
         let drawable = drawables.shift();
         // Restore to previous position in stack
         drawable.zIndex = zIndex;
-        surface.addDrawableToSortedStack(drawable);
+        surface.addDrawable(drawable);
         // Save order in database
         drawable.saveZindex(database);
     }

@@ -49,6 +49,10 @@ export interface Drawable extends Base<Renderer>{
      */
     transform(matrix: Mat2d): void;
     /**
+     * Returns a deep copy of this drawable.
+     */
+    copy(): Drawable;
+    /**
      * Saves this drawable to the specified canvas of the specified database.
      */
     save(database: Database, canvasId: number): void;

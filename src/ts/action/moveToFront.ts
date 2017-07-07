@@ -31,7 +31,7 @@ export class MoveToFrontAction implements Action {
         let drawable = drawables.pop();
         // Restore to previous position in stack
         drawable.zIndex = zIndex;
-        surface.addDrawableToSortedStack(drawable);
+        surface.addDrawable(drawable);
         // Save order in database
         drawable.saveZindex(database);
     }

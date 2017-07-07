@@ -147,6 +147,19 @@ export class ShapeBatch implements Drawable {
         }
     }
 
+    copy(){
+        let { zIndex, fillColor, matrices, mesh } = this;
+        let matricesCopy = Mat2dBuffer.create(matrices.capacity());
+        matrices.moveToFirst();
+        matricesCopy.rsetFromBuffer(matrices);
+        return new ShapeBatch({
+            mesh: mesh,
+            fillColor: ColorFStruct.create(fillColor),
+            matrices: matricesCopy,
+            zIndex: zIndex,
+        })
+    }
+
    save(database: Database, canvasId: number){
         let { zIndex, fillColor, matrices, mesh } = this;
         database.getTypeId(mesh.id).then(typeId => {

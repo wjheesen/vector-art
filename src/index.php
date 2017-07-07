@@ -21,10 +21,10 @@ $cursors = [
     /*"colorSampler",*/ "pan", "edit", 
 ];
 
-$actions = ["undo", "redo"];
+$actions = ["undo", "redo", "paste"];
 
 $editActions = [
-    "remove", "moveForward", "moveToFront", "moveBackward", "moveToBack", 
+     "copy", "moveForward", "moveToFront", "moveBackward", "moveToBack", "remove"
 ];
 
 $btn = "btn btn-sm";
